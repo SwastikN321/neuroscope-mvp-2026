@@ -1,0 +1,281 @@
+{
+  "source": "/Users/swastiknanda/Documents/Codex/2026-10-12/this-is-the-complete-long-term/outputs/neuroscope",
+  "destination": "/Users/swastiknanda/Documents/NeuroScope",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 222,
+      "sha256": "99995beea9593f76a8200c3d1d70cc39be4f3f05b6f16af652575a4e3ccdcbb9"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 321,
+      "sha256": "36259fce58a2ce77004faf5b4ca654fe2461b24b7b36432f56230faf309c957c"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 89,
+      "sha256": "5439bf3ce804bb1a7de132ef361edd4b4a999564ac87ab63c5cb041626b62a83"
+    },
+    {
+      "path": ".nvmrc",
+      "bytes": 3,
+      "sha256": "68ca3fba3b7e864770cb61aeb306d4bd4354b68ab4dd38450860c5d823e42a53"
+    },
+    {
+      "path": ".prettierignore",
+      "bytes": 59,
+      "sha256": "d579c61296bb2636b4844d481764a03a97e68717ad446cc087182b5aad4553fd"
+    },
+    {
+      "path": ".prettierrc.json",
+      "bytes": 68,
+      "sha256": "2523c84022f711ac9793535e709a65e34d6fb25e2315614bc817248debe03bb1"
+    },
+    {
+      "path": "README.md",
+      "bytes": 10992,
+      "sha256": "32f17817c20c3412ec52557d608cbd75f2f21a77c72cb246f79c49a5c6be7be5"
+    },
+    {
+      "path": "eslint.config.js",
+      "bytes": 788,
+      "sha256": "a476e22eb67e9065b642557b3debee8362ce424442d1dd02ccd7554ccf41169b"
+    },
+    {
+      "path": "index.html",
+      "bytes": 646,
+      "sha256": "2f095fcd471428689a0e24f45ac5426a4aed261ee00ad21708aa997807170901"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 163548,
+      "sha256": "65861c4da665029a7e4662d50ecb68866cebfa345df26900a177ec8dbad00b19"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1466,
+      "sha256": "71188ef8e257d43531b7fe2e6f88c5bca360a31be31b2cc335a3cb7c8c8907ff"
+    },
+    {
+      "path": "public/favicon.svg",
+      "bytes": 251,
+      "sha256": "04d37325ba635af73cb721cf316c917dea424056a20676ebec42b6ec2dd0637f"
+    },
+    {
+      "path": "public/neural-still.svg",
+      "bytes": 167321,
+      "sha256": "a227a2171a5fd8e129068dabc0f4b4357100a34b235ab71f785743f044384f62"
+    },
+    {
+      "path": "scripts/prepare-anatomy.py",
+      "bytes": 8150,
+      "sha256": "abddd3376c58c6d1ad8f7f53371e14b3d278f923527535964c8c20f37b6da51f"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "bytes": 1130,
+      "sha256": "6ff50a717b84d06b1ff5a214cdf40b217274702e5b2487c28dbc42e8af75f9a1"
+    },
+    {
+      "path": "src/app/ErrorBoundary.tsx",
+      "bytes": 898,
+      "sha256": "a94c8350bc694d5b4df00ef5452fd22765e26377ebfae88223f63b2047395b23"
+    },
+    {
+      "path": "src/app/Footer.tsx",
+      "bytes": 776,
+      "sha256": "ed42411137f5c011b293b95e62378ffe1df65eed3476897cc501400750227235"
+    },
+    {
+      "path": "src/app/Header.tsx",
+      "bytes": 2493,
+      "sha256": "a3ac70818d85c2842505cf1721e50e258b17120944f036ad8e5547f0d2c69546"
+    },
+    {
+      "path": "src/app/RouteEffects.tsx",
+      "bytes": 1102,
+      "sha256": "303f4c6607fd797b5e9b9f559a1a4dcd58a4eafc8974b400c3a0578cb71b1f96"
+    },
+    {
+      "path": "src/components/brand/Logo.tsx",
+      "bytes": 606,
+      "sha256": "cbe482a816e010b89d985f598697d1bfd9f61fd033428a5c91b30392b588061f"
+    },
+    {
+      "path": "src/components/brand/SignalMark.tsx",
+      "bytes": 1612,
+      "sha256": "75e8452bc01606807e85bdb063e8cc0400a1395225c61dd910c0f2535459ee8d"
+    },
+    {
+      "path": "src/components/ui/Badge.tsx",
+      "bytes": 237,
+      "sha256": "c55a4303171fb8c1bf05a6ba76d6b2ed8165c72428c4e1766a5c9f8504c51c9f"
+    },
+    {
+      "path": "src/components/ui/Button.tsx",
+      "bytes": 776,
+      "sha256": "e980f9a1a6859ab13e1cdbbe020bb76b29493f180bb795f103e33c043004dc33"
+    },
+    {
+      "path": "src/components/ui/Icon.tsx",
+      "bytes": 760,
+      "sha256": "abee95bdafadd55a4bcd6ade8c317f06002728b010b3934b1489e79ef3548ebb"
+    },
+    {
+      "path": "src/components/ui/SectionLabel.tsx",
+      "bytes": 313,
+      "sha256": "4fb1527da370a7f47f335e9afc844714124d52349cb09273856d734208520a35"
+    },
+    {
+      "path": "src/features/hero/Hero.test.tsx",
+      "bytes": 4453,
+      "sha256": "84ff309ee1e5f033365893d462de4b5eb6375ee7ce7ba444c2e38081ac9d12ae"
+    },
+    {
+      "path": "src/features/hero/Hero.tsx",
+      "bytes": 9998,
+      "sha256": "e2490e32115071a6a6ab095dfce12d50a33b8481924b59a9b5c36188fc762af4"
+    },
+    {
+      "path": "src/features/hero/NeuralCanvas.tsx",
+      "bytes": 8724,
+      "sha256": "40288d42c1f50938b24b05bb8f9ba0473ee636b9dbb7719f668ccbed9f281b4c"
+    },
+    {
+      "path": "src/features/hero/geometry.test.ts",
+      "bytes": 2988,
+      "sha256": "ceb88f0dc97a651951271854e2bee5d16d6fd6dbbfa9263e2428a9080f75a944"
+    },
+    {
+      "path": "src/features/hero/geometry.ts",
+      "bytes": 6455,
+      "sha256": "896b3847c706a1c5c2cfb0307b45158e7822adb0601bf17c124e24729d0c0e64"
+    },
+    {
+      "path": "src/features/hero/hero.css",
+      "bytes": 7535,
+      "sha256": "05a5bce4d8f059fde2eff051dc09fe9ce7552b37d4bf2896f52b4a8b7a599863"
+    },
+    {
+      "path": "src/features/hero/rotation.test.ts",
+      "bytes": 1718,
+      "sha256": "2de25c685d13335a981d08a044fde747e51b8ba2b02f4b3eea3f45e947a34ecb"
+    },
+    {
+      "path": "src/features/hero/rotation.ts",
+      "bytes": 2083,
+      "sha256": "fd4aa4bd40b43e8d5be628a1cdbc423e7fc5fae5e0d6d09733cd9b7027db5e45"
+    },
+    {
+      "path": "src/features/hero/sceneState.ts",
+      "bytes": 1010,
+      "sha256": "5ff6be975960695d7d4fd656f33d9e5e13f675ed5066f51dfb13037b32540625"
+    },
+    {
+      "path": "src/features/hero/shaders.ts",
+      "bytes": 3418,
+      "sha256": "de2497eed067ba2a49a512340f5d5d15ca59385aefd8521d87bbf8b834bba856"
+    },
+    {
+      "path": "src/lib/env.ts",
+      "bytes": 512,
+      "sha256": "b25bd605a23950c37e75cb2fa69ec65ccb660019d13c09ef979124e8a03f6c7e"
+    },
+    {
+      "path": "src/main.tsx",
+      "bytes": 465,
+      "sha256": "b5fa1d2231c4d8561d5bdc931337b81ae8c5f96d43e0678a912ff5ced1c98de8"
+    },
+    {
+      "path": "src/pages/HomePage.tsx",
+      "bytes": 4704,
+      "sha256": "d107872813dcbf33f98e1e03ed30fd8eb0c4b225cb4173b982c42936e2a55e15"
+    },
+    {
+      "path": "src/pages/NotFoundPage.tsx",
+      "bytes": 610,
+      "sha256": "ec90f8191c44b38b10e98a864bef96249817b539dc3a1544f953abaa30c82cd6"
+    },
+    {
+      "path": "src/pages/WorkspacePage.tsx",
+      "bytes": 2411,
+      "sha256": "dfc2f9a168fb1eab53587d3c3fffd0ce5bfcd9b6b7adfbd02f7d6810b8e26e2d"
+    },
+    {
+      "path": "src/styles/global.css",
+      "bytes": 17857,
+      "sha256": "471682389a455330bac2489bd4a3106e8081ef0c524a3ede86c398485ed80066"
+    },
+    {
+      "path": "src/test/App.test.tsx",
+      "bytes": 3955,
+      "sha256": "b0d8070037a8996d102f8b0cbdc624619d698a9994f5fb8958b7763b8d92a490"
+    },
+    {
+      "path": "src/test/setup.ts",
+      "bytes": 225,
+      "sha256": "3abb69ba26b4475433bffd199cfffd937660f4a9274e6c7147e985cb78785ecb"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "bytes": 253,
+      "sha256": "2878336333929b976414a346bd8286bcc3a5c8bf4b85f3c9f28018a8a86fe1dc"
+    },
+    {
+      "path": "tsconfig.app.json",
+      "bytes": 623,
+      "sha256": "8ddb6324845361c9ab08c92afd4f093c2c2b33f3433ae45f1af508a40855c539"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 119,
+      "sha256": "770b4140bbb581e2dfd9ea9946ffc9c75a1d86ba7d2db5f77c83e37cbdf9d808"
+    },
+    {
+      "path": "tsconfig.node.json",
+      "bytes": 412,
+      "sha256": "eb85bc946e5eb299807e97dbb93ff8a369b2ddf0459f7204f13fad68d4c42cc5"
+    },
+    {
+      "path": "vite.config.ts",
+      "bytes": 196,
+      "sha256": "d9b98d7664e4205ab8d304e8388573bde6e4e49bc6a0f562a37afcbf8febd4c2"
+    },
+    {
+      "path": "vitest.config.ts",
+      "bytes": 328,
+      "sha256": "9dfc116a7d728a9ffe9d6046b556726d092af1292278b1933904652a668166a5"
+    },
+    {
+      "path": "work/inspect_geometry.py",
+      "bytes": 1477,
+      "sha256": "bebc029092066060e066edb97a8b0b92bf29fe16e53f85cdbc1c4a21d33997cc"
+    },
+    {
+      "path": "work/sculpture-geometry.json",
+      "bytes": 2455419,
+      "sha256": "86876bc555331102bc81df09c0df586852c6916a93c9981686a7f5d915e399ab"
+    },
+    {
+      "path": "work/sculpture-geometry-inspection.png",
+      "bytes": 99225,
+      "sha256": "08c610d0cb1b234cac6f256c415aecfc09a29cf9fd65d75733eb4a5f9c9aa4a3"
+    },
+    {
+      "path": "work/pial_Full_obj.tar.bz2",
+      "bytes": 6873668,
+      "sha256": "b405015b9039bc0b0effb8947423b6c4ea9513406459fefd85e8f8b7c330ada2"
+    },
+    {
+      "path": "work/anatomy/pial_Full_obj/lh.pial.obj",
+      "bytes": 10822439,
+      "sha256": "e48056ddf5087eb9a7fe9a75d6c6775ffb853e0a2f4115e31aff5c39467e6ecf"
+    },
+    {
+      "path": "work/anatomy/pial_Full_obj/rh.pial.obj",
+      "bytes": 10725544,
+      "sha256": "f6de3057c426f613fa012729e3c193465ca5b332cd45aadbe22288d51dff69d5"
+    }
+  ]
+}
