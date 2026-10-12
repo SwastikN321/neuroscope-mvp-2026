@@ -1,5 +1,9 @@
 # NeuroScope · Phase 2A
 
+Phase 2A.2 prepares anatomical assets independently of the existing hero. See
+[ANATOMY.md](ANATOMY.md) for the pipeline, validation, provenance, and reproduction
+commands. The application behavior described below remains unchanged.
+
 A React / TypeScript foundation with an original, real-time 3D neural sculpture. Phase 2A replaces the flat opening hero with a cinematic WebGL scene while preserving the Phase 1 shell, design-system showcase, and workspace placeholder.
 
 The scope remains the **hero only**. Full-page 3D scrolling belongs to Phase 2B, as confirmed by the user. EEG visualization, uploads, a live EEG demo, authentication, FastAPI, Supabase, and persistence have not been implemented. The sculpture depicts conceptual, synthetic activity; it is not an anatomical reconstruction, patient recording, or source-localization display.

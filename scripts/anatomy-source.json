@@ -1,0 +1,16 @@
+{
+  "source_url": "https://brainder.org/research/brain-for-blender/",
+  "download_url": "https://s3.us-east-2.amazonaws.com/brainder/software/brain4blender/smallfiles/pial_Full_obj.tar.bz2",
+  "verified_on": "2026-10-12",
+  "archive_sha256": "b405015b9039bc0b0effb8947423b6c4ea9513406459fefd85e8f8b7c330ada2",
+  "files": {
+    "lh.pial.obj": {
+      "sha256": "e48056ddf5087eb9a7fe9a75d6c6775ffb853e0a2f4115e31aff5c39467e6ecf",
+      "bytes": 10822439
+    },
+    "rh.pial.obj": {
+      "sha256": "f6de3057c426f613fa012729e3c193465ca5b332cd45aadbe22288d51dff69d5",
+      "bytes": 10725544
+    }
+  }
+}

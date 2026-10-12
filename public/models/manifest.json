@@ -1,0 +1,409 @@
+{
+  "credit": "Brain for Blender by Anderson Winkler; adapted for NeuroScope; CC BY-SA 3.0",
+  "license": "https://creativecommons.org/licenses/by-sa/3.0/",
+  "provenance": {
+    "source_url": "https://brainder.org/research/brain-for-blender/",
+    "download_url": "https://s3.us-east-2.amazonaws.com/brainder/software/brain4blender/smallfiles/pial_Full_obj.tar.bz2",
+    "verified_on": "2026-10-12",
+    "archive_sha256": "b405015b9039bc0b0effb8947423b6c4ea9513406459fefd85e8f8b7c330ada2",
+    "files": {
+      "lh.pial.obj": {
+        "sha256": "e48056ddf5087eb9a7fe9a75d6c6775ffb853e0a2f4115e31aff5c39467e6ecf",
+        "bytes": 10822439
+      },
+      "rh.pial.obj": {
+        "sha256": "f6de3057c426f613fa012729e3c193465ca5b332cd45aadbe22288d51dff69d5",
+        "bytes": 10725544
+      }
+    }
+  },
+  "source_geometry": {
+    "cortex_left": {
+      "vertices": 144490,
+      "triangles": 288976,
+      "bounds": [
+        [
+          -69.701225,
+          -99.889786,
+          -56.470917
+        ],
+        [
+          2.782177,
+          69.479324,
+          60.284389
+        ]
+      ],
+      "extents": [
+        72.483402,
+        169.36911,
+        116.75530599999999
+      ],
+      "centroid": [
+        -29.883694641819154,
+        -16.587481002342482,
+        1.5262082171595215
+      ],
+      "area": 112510.74016841331,
+      "volume": 561828.2408522198,
+      "watertight": true,
+      "consistent_outward_winding": true,
+      "connected_components": 1,
+      "euler_number": 2,
+      "finite_unit_normals": true,
+      "nondegenerate_unique_faces": true
+    },
+    "cortex_right": {
+      "vertices": 145071,
+      "triangles": 290138,
+      "bounds": [
+        [
+          -3.113171,
+          -96.69445,
+          -58.919209
+        ],
+        [
+          68.920235,
+          70.159729,
+          59.497002
+        ]
+      ],
+      "extents": [
+        72.033406,
+        166.854179,
+        118.416211
+      ],
+      "centroid": [
+        29.75154849341996,
+        -12.758500699756892,
+        0.35660476541325525
+      ],
+      "area": 113274.08566604296,
+      "volume": 565177.2285866033,
+      "watertight": true,
+      "consistent_outward_winding": true,
+      "connected_components": 1,
+      "euler_number": 2,
+      "finite_unit_normals": true,
+      "nondegenerate_unique_faces": true
+    }
+  },
+  "transform": {
+    "matrix": [
+      [
+        0.019112080384351582,
+        0.0,
+        0.0,
+        0.007463171829687261
+      ],
+      [
+        0.0,
+        0.0,
+        0.019112080384351582,
+        -0.013045714949554501
+      ],
+      [
+        0.0,
+        -0.019112080384351582,
+        0.0,
+        -0.2841016196076772
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "uniform_scale": 0.019112080384351582,
+    "axes": "+X right, +Y superior, -Z anterior",
+    "ap_length": 3.25
+  },
+  "toolchain": {
+    "numpy": "2.0.2",
+    "scipy": "1.13.1",
+    "trimesh": "4.6.8",
+    "pymeshlab": "2025.7",
+    "rtree": "1.3.0"
+  },
+  "python": "3.12.14",
+  "validation": {
+    "samples_per_direction_per_hemisphere": 6000,
+    "seed": 1906,
+    "distance_method": "bidirectional sampled point-to-triangle",
+    "limitations": "Not an exhaustive Hausdorff or self-intersection test; no browser performance claim"
+  },
+  "profiles": {
+    "full": {
+      "file": "cortex-full.glb",
+      "triangles": 200000,
+      "vertices": 100004,
+      "bytes": 4802720,
+      "gzip_bytes": 3045888,
+      "sha256": "8983831da86b645bc6bcdd2154efb8a0b434a914899c129005b4a47d948ea168",
+      "hemispheres": {
+        "cortex_left": {
+          "vertices": 50002,
+          "triangles": 100000,
+          "bounds": [
+            [
+              -1.3255901506647767,
+              -1.0894991831436152,
+              -1.6116287870532509
+            ],
+            [
+              0.05979863322150088,
+              1.1395107463753504,
+              1.6258479962526888
+            ]
+          ],
+          "extents": [
+            1.3853887838862775,
+            2.2290099295189654,
+            3.2374767833059397
+          ],
+          "centroid": [
+            -0.5639123812900647,
+            0.016550264050212794,
+            0.03261309545909337
+          ],
+          "area": 40.61057693969416,
+          "volume": 3.921828549405515,
+          "watertight": true,
+          "consistent_outward_winding": true,
+          "connected_components": 1,
+          "euler_number": 2,
+          "finite_unit_normals": true,
+          "nondegenerate_unique_faces": true,
+          "deviation": {
+            "source_to_output": {
+              "p99_mm": 0.10498059281911046,
+              "max_mm": 0.2953748731265805,
+              "rms_mm": 0.03170379502366407
+            },
+            "output_to_source": {
+              "p99_mm": 0.0881081002329158,
+              "max_mm": 0.25820040232616404,
+              "rms_mm": 0.029178436078986337
+            },
+            "area_relative_error": 0.011835492756734345,
+            "volume_relative_error": 8.945616210342955e-05,
+            "bounds_max_displacement_mm": 0.1477200195483195
+          }
+        },
+        "cortex_right": {
+          "vertices": 50002,
+          "triangles": 100000,
+          "bounds": [
+            [
+              -0.05203600257254493,
+              -1.1391143735399656,
+              -1.6247014496268253
+            ],
+            [
+              1.324209755778793,
+              1.1242904923961325,
+              1.5640973410798171
+            ]
+          ],
+          "extents": [
+            1.376245758351338,
+            2.2634048659360984,
+            3.1887987907066426
+          ],
+          "centroid": [
+            0.5761573741738113,
+            -0.005605078747187957,
+            -0.04033690656858871
+          ],
+          "area": 40.87467090636202,
+          "volume": 3.9451217447915954,
+          "watertight": true,
+          "consistent_outward_winding": true,
+          "connected_components": 1,
+          "euler_number": 2,
+          "finite_unit_normals": true,
+          "nondegenerate_unique_faces": true,
+          "deviation": {
+            "source_to_output": {
+              "p99_mm": 0.100907398594874,
+              "max_mm": 0.35181283952085285,
+              "rms_mm": 0.03216562984522877
+            },
+            "output_to_source": {
+              "p99_mm": 0.0948564355386299,
+              "max_mm": 0.1770996491964905,
+              "rms_mm": 0.03051433876677453
+            },
+            "area_relative_error": 0.012111847605251969,
+            "volume_relative_error": 0.00011083034648395884,
+            "bounds_max_displacement_mm": 0.024198698937790808
+          }
+        }
+      },
+      "combined": {
+        "bounds": [
+          [
+            -1.3255901506647767,
+            -1.1391143735399656,
+            -1.6247014496268253
+          ],
+          [
+            1.324209755778793,
+            1.1395107463753504,
+            1.6258479962526888
+          ]
+        ],
+        "extents": [
+          2.6497999064435698,
+          2.278625119915316,
+          3.250549445879514
+        ]
+      },
+      "acceptance_limits": {
+        "faces_per_hemisphere": 100000,
+        "p99_mm": 0.35,
+        "max_mm": 1.0,
+        "area_relative": 0.03,
+        "volume_relative": 0.01,
+        "max_bytes": 5000000
+      },
+      "glb_roundtrip_passed": true
+    },
+    "compact": {
+      "file": "cortex-compact.glb",
+      "triangles": 60000,
+      "vertices": 30004,
+      "bytes": 1442712,
+      "gzip_bytes": 928175,
+      "sha256": "41995605a037c2427f06d91ef555cfb9dfb67f814a3790faf8c1cd3b9b6b9ad2",
+      "hemispheres": {
+        "cortex_left": {
+          "vertices": 15002,
+          "triangles": 30000,
+          "bounds": [
+            [
+              -1.3255901506647767,
+              -1.0877326651854549,
+              -1.6090776411140906
+            ],
+            [
+              0.06325888490024185,
+              1.142456286214688,
+              1.6255962375065998
+            ]
+          ],
+          "extents": [
+            1.3888490355650185,
+            2.2301889514001427,
+            3.2346738786206903
+          ],
+          "centroid": [
+            -0.5646387285037107,
+            0.01873960867179369,
+            0.03164659215872294
+          ],
+          "area": 39.79453537761998,
+          "volume": 3.915625350588083,
+          "watertight": true,
+          "consistent_outward_winding": true,
+          "connected_components": 1,
+          "euler_number": 2,
+          "finite_unit_normals": true,
+          "nondegenerate_unique_faces": true,
+          "deviation": {
+            "source_to_output": {
+              "p99_mm": 0.3209835450848025,
+              "max_mm": 1.0169683765352235,
+              "rms_mm": 0.10242935336617522
+            },
+            "output_to_source": {
+              "p99_mm": 0.2668898857160257,
+              "max_mm": 0.5392493541741422,
+              "rms_mm": 0.09294626937752637
+            },
+            "area_relative_error": 0.03169197766396736,
+            "volume_relative_error": 0.0016710255308136635,
+            "bounds_max_displacement_mm": 0.24014941094030373
+          }
+        },
+        "cortex_right": {
+          "vertices": 15002,
+          "triangles": 30000,
+          "bounds": [
+            [
+              -0.05406059743104117,
+              -1.1385604524367614,
+              -1.6252902532403704
+            ],
+            [
+              1.324766947405552,
+              1.1251829774023334,
+              1.5656644566043172
+            ]
+          ],
+          "extents": [
+            1.378827544836593,
+            2.263743429839095,
+            3.1909547098446875
+          ],
+          "centroid": [
+            0.5766310662775813,
+            -0.0035024780978299155,
+            -0.04064755391860849
+          ],
+          "area": 40.009971233899925,
+          "volume": 3.939540845307088,
+          "watertight": true,
+          "consistent_outward_winding": true,
+          "connected_components": 1,
+          "euler_number": 2,
+          "finite_unit_normals": true,
+          "nondegenerate_unique_faces": true,
+          "deviation": {
+            "source_to_output": {
+              "p99_mm": 0.3249806493784473,
+              "max_mm": 1.2286557096097441,
+              "rms_mm": 0.1045796563342433
+            },
+            "output_to_source": {
+              "p99_mm": 0.2644237632705168,
+              "max_mm": 0.6153267511050564,
+              "rms_mm": 0.09062562925975658
+            },
+            "area_relative_error": 0.03301052502241897,
+            "volume_relative_error": 0.0015253065813051192,
+            "bounds_max_displacement_mm": 0.10593273038731653
+          }
+        }
+      },
+      "combined": {
+        "bounds": [
+          [
+            -1.3255901506647767,
+            -1.1385604524367614,
+            -1.6252902532403704
+          ],
+          [
+            1.324766947405552,
+            1.142456286214688,
+            1.6255962375065998
+          ]
+        ],
+        "extents": [
+          2.6503570980703284,
+          2.2810167386514495,
+          3.25088649074697
+        ]
+      },
+      "acceptance_limits": {
+        "faces_per_hemisphere": 30000,
+        "p99_mm": 0.8,
+        "max_mm": 2.0,
+        "area_relative": 0.08,
+        "volume_relative": 0.03,
+        "max_bytes": 1600000
+      },
+      "glb_roundtrip_passed": true
+    }
+  }
+}
