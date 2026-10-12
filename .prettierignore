@@ -6,3 +6,5 @@ package-lock.json
 
 # Python-generated validation manifest; preserve reproducible byte output
 public/models/manifest.json
+
+public/models/neural-*.json

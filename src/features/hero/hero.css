@@ -373,3 +373,59 @@
     transition: none;
   }
 }
+
+@layer components {
+  .cinematic-actions {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .signal-button {
+    border-radius: 30px;
+    border-color: #5a8b9a70;
+    color: #b7cdd6;
+    font-size: 11px;
+    min-height: 48px;
+    gap: 10px;
+    padding-inline: 19px;
+  }
+  .signal-button[aria-pressed='true'] {
+    border-color: #75d6e5;
+    color: #caf7ff;
+    background: #17364280;
+  }
+  .signal-indicator {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #668d9c;
+  }
+  .signal-button[aria-pressed='true'] .signal-indicator {
+    background: #9eecff;
+    box-shadow: 0 0 12px #75d6e5;
+  }
+  .cinematic-content .signal-status {
+    margin-top: 14px;
+    font:
+      8px/1.8 ui-monospace,
+      monospace;
+    letter-spacing: 0.07em;
+    color: #748d9e;
+  }
+}
+@media (max-width: 780px) {
+  .cinematic-actions {
+    gap: 8px;
+  }
+  .cinematic-actions .button--primary {
+    padding-inline: 17px;
+    gap: 14px;
+  }
+  .signal-button {
+    padding-inline: 13px;
+    font-size: 10px;
+  }
+  .cinematic-content .signal-status {
+    font-size: 6.5px;
+    margin-top: 10px;
+  }
+}

@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, type RefObject } from 'react';
 import { MemoryRouter } from 'react-router';
@@ -57,7 +63,7 @@ describe('Sculpture interaction', () => {
     fireEvent.keyDown(sculpture, { key: 'Home' });
     expect(capture.input!.current.rotation).toEqual([0, 0, 0, 1]);
   });
-  it('pauses and resumes on direct interaction without activity effects', async () => {
+  it('pauses and resumes on direct interaction while preserving signal controls', async () => {
     vi.mocked(webGLAvailable).mockReturnValue(true);
     const user = userEvent.setup();
     render(
@@ -66,8 +72,8 @@ describe('Sculpture interaction', () => {
       </MemoryRouter>,
     );
     expect(
-      screen.queryByRole('button', { name: 'Activate signal' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Activate signal' }),
+    ).toHaveAttribute('aria-pressed', 'false');
     await user.click(
       screen.getByRole('button', { name: 'Pause sculpture motion' }),
     );
@@ -81,6 +87,33 @@ describe('Sculpture interaction', () => {
     expect(
       screen.getByRole('button', { name: 'Pause sculpture motion' }),
     ).toHaveAttribute('aria-pressed', 'false');
+  });
+  it('activates, quiets, and automatically settles the signal', async () => {
+    vi.mocked(webGLAvailable).mockReturnValue(true);
+    render(
+      <MemoryRouter>
+        <Hero />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(capture.input).not.toBeNull());
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(screen.getByRole('button', { name: 'Activate signal' }));
+      expect(capture.input!.current.signal).toBe(true);
+      expect(
+        screen.getByRole('button', { name: 'Quiet signal' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      fireEvent.click(screen.getByRole('button', { name: 'Quiet signal' }));
+      expect(capture.input!.current.signal).toBe(false);
+      fireEvent.click(screen.getByRole('button', { name: 'Activate signal' }));
+      await act(async () => {
+        vi.advanceTimersByTime(12000);
+      });
+      expect(capture.input!.current.signal).toBe(false);
+      expect(screen.getByRole('status')).toHaveTextContent('AT REST');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

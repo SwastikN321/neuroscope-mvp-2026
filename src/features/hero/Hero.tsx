@@ -14,6 +14,7 @@ import { Button, ButtonLink } from '../../components/ui/Button';
 import { Icon } from '../../components/ui/Icon';
 import { useMediaQuery, webGLAvailable, type SceneInput } from './sceneState';
 import './hero.css';
+import { SIGNAL_DURATION_MS } from './neuralActivity';
 import {
   dragRotation,
   keyboardRotation,
@@ -61,6 +62,7 @@ export function Hero() {
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(true);
   const [paused, setPaused] = useState(false);
+  const [signal, setSignal] = useState(false);
   const handleLoading = useCallback(() => setReady(false), []);
   const handleReady = useCallback(() => setReady(true), []);
   const handleFailure = useCallback(() => setFailed(true), []);
@@ -73,6 +75,7 @@ export function Hero() {
     rotation: [0, 0, 0, 1],
     dragging: false,
     paused: false,
+    signal: false,
   });
   const still = reducedMotion || !webGL || failed;
   const lowPower =
@@ -81,6 +84,13 @@ export function Hero() {
   useEffect(() => {
     input.current.paused = paused;
   }, [paused]);
+
+  useEffect(() => {
+    input.current.signal = signal && !still;
+    if (!signal) return;
+    const timer = window.setTimeout(() => setSignal(false), SIGNAL_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [signal, still]);
 
   useEffect(() => {
     const target = section.current;
@@ -248,14 +258,35 @@ export function Hero() {
             <ButtonLink to="/app">
               Explore NeuroScope <Icon name="arrow" />
             </ButtonLink>
+            {!still && (
+              <Button
+                variant="secondary"
+                className="signal-button"
+                aria-pressed={signal}
+                onClick={() => {
+                  setSignal(!signal);
+                  setPaused(false);
+                }}
+              >
+                <span className="signal-indicator" aria-hidden="true" />
+                {signal ? 'Quiet signal' : 'Activate signal'}
+              </Button>
+            )}
           </div>
+          {!still && (
+            <p className="signal-status" role="status">
+              {signal
+                ? 'SIGNAL ACTIVE · TRAVELING THROUGH THE CORTEX'
+                : 'AT REST · AN ARTISTIC STUDY OF NEURAL ACTIVITY'}
+            </p>
+          )}
         </div>
       </div>
       <div className="sculpture-label" id="sculpture-caption">
         <span className="sculpture-label__line" />
         <div>
           <strong>THE CEREBRAL CORTEX</strong>
-          <span>Two hemispheres. A world within.</span>
+          <span>Real anatomy. Imagined electrical pathways.</span>
         </div>
       </div>
       <p className="anatomy-credit">

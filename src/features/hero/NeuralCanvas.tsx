@@ -21,6 +21,7 @@ import {
   type Quality,
 } from './anatomy';
 import type { SceneInput } from './sceneState';
+import { createNeuralEffects, type NeuralAsset } from './neuralEffects';
 
 type Props = {
   input: RefObject<SceneInput>;
@@ -30,7 +31,12 @@ type Props = {
   onReady: () => void;
   onFailure: () => void;
 };
-type Model = { scene: Group; radius: number; triangles: number };
+type Model = {
+  scene: Group;
+  radius: number;
+  triangles: number;
+  effects: ReturnType<typeof createNeuralEffects>;
+};
 
 function StudioEnvironment() {
   const { gl, scene } = useThree();
@@ -82,6 +88,8 @@ function Sculpture({
   const { camera, gl, size, invalidate } = useThree();
   const frame = useRef({
     time: 0,
+    signalTime: 0,
+    signal: false,
     count: 0,
     total: 0,
     ready: false,
@@ -129,15 +137,19 @@ function Sculpture({
         ).forEach((m) => materials.add(m));
       });
       const material = new MeshPhysicalMaterial({
-        color: '#243949',
-        metalness: 0.42,
+        color: '#071724',
+        metalness: 0.65,
         roughness: 0.48,
-        clearcoat: 0.12,
+        clearcoat: 0.08,
         clearcoatRoughness: 0.38,
-        envMapIntensity: 0.18,
+        envMapIntensity: 0.07,
         // Opaque pearl finish: no expensive transmission render pass.
       });
+      // Assigned after the asynchronous neural asset request; cleanup can run earlier.
+      // eslint-disable-next-line prefer-const
+      let effects: ReturnType<typeof createNeuralEffects> | undefined;
       release = () => {
+        effects?.dispose();
         geometries.forEach((geometry) => geometry.dispose());
         materials.forEach((m) => m.dispose());
         material.dispose();
@@ -169,7 +181,45 @@ function Sculpture({
             ),
           );
       });
-      setModel({ scene: gltf.scene, radius, triangles: anatomy.triangles });
+      const neuralResponse = await fetch(`/models/neural-${quality}.json`, {
+        signal: controller.signal,
+      });
+      if (!neuralResponse.ok) throw new Error('Neural asset request failed');
+      const neuralAsset = (await neuralResponse.json()) as NeuralAsset;
+      if (disposed) return;
+      effects = createNeuralEffects(neuralAsset, anatomy.meshes, quality);
+      const neural = effects;
+      material.onBeforeCompile = (shader) => {
+        shader.uniforms.uHotspots = neural.uniforms.uHotspots;
+        shader.vertexShader =
+          'varying vec3 vCortexPosition;\n' +
+          shader.vertexShader.replace(
+            '#include <begin_vertex>',
+            '#include <begin_vertex>\nvCortexPosition = position;',
+          );
+        shader.fragmentShader =
+          'varying vec3 vCortexPosition; uniform vec4 uHotspots[6];\n' +
+          shader.fragmentShader.replace(
+            '#include <emissivemap_fragment>',
+            `
+          #include <emissivemap_fragment>
+          float edgeLight = pow(1.0 - max(dot(normal, normalize(vViewPosition)), 0.0), 3.4);
+          totalEmissiveRadiance += vec3(0.008, 0.09, 0.16) * edgeLight;
+          for (int i = 0; i < 6; i++) {
+            vec3 delta = vCortexPosition - uHotspots[i].xyz;
+            totalEmissiveRadiance += vec3(0.02, 0.62, 0.95) * exp(-dot(delta,delta)*110.0) * uHotspots[i].w;
+          }
+        `,
+          );
+      };
+      material.customProgramCacheKey = () => 'cortex-pearl-rim-v2';
+      gltf.scene.add(effects.group);
+      setModel({
+        scene: gltf.scene,
+        radius,
+        triangles: anatomy.triangles,
+        effects,
+      });
       invalidate();
     }
     void load().catch((error: unknown) => {
@@ -195,11 +245,15 @@ function Sculpture({
     gl.domElement.dataset.model = anatomyProfiles[quality].url;
     gl.domElement.dataset.triangles = String(model.triangles);
     gl.domElement.dataset.hemispheres = '2';
+    gl.domElement.dataset.fibers = String(model.effects.fibers);
+    gl.domElement.dataset.particles = String(model.effects.particles);
     invalidate();
     return () => {
       delete gl.domElement.dataset.model;
       delete gl.domElement.dataset.triangles;
       delete gl.domElement.dataset.hemispheres;
+      delete gl.domElement.dataset.fibers;
+      delete gl.domElement.dataset.particles;
     };
   }, [model, camera, size.width, size.height, gl, quality, invalidate]);
 
@@ -208,6 +262,18 @@ function Sculpture({
     const state = frame.current;
     const step = Math.min(dt, 0.05);
     if (!input.current.paused) state.time += step;
+    const uniforms = model.effects.uniforms;
+    if (input.current.signal && !state.signal) state.signalTime = 0;
+    state.signal = input.current.signal;
+    if (!input.current.paused) state.signalTime += step;
+    const activity = MathUtils.damp(
+      uniforms.uActivity.value,
+      input.current.signal ? 1 : 0,
+      3.5,
+      step,
+    );
+    model.effects.update(state.signalTime, activity, gl.getPixelRatio());
+    gl.domElement.dataset.activity = uniforms.uActivity.value.toFixed(3);
     if (!input.current.dragging) state.idle = Math.sin(state.time * 0.12) * 0.1;
     state.pointerX = MathUtils.damp(
       state.pointerX,
@@ -246,6 +312,7 @@ function Sculpture({
         .toArray()
         .map((n) => n.toFixed(4))
         .join(',');
+      gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
       gl.domElement.dataset.frameMs = (dt * 1000).toFixed(1);
     }
     if (state.time > 3 && !state.measured && quality === 'full' && dt < 0.15) {
@@ -295,7 +362,7 @@ export default function NeuralCanvas({
       <directionalLight
         position={[-3, 5, 4]}
         color="#d7eaff"
-        intensity={2.8}
+        intensity={1.65}
         castShadow
         shadow-mapSize={[
           anatomyProfiles[selected].shadow,

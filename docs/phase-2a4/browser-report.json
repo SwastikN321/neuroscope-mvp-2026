@@ -1,0 +1,180 @@
+{
+  "browser": "154.0.8037.98",
+  "captures": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "screenshot": "1440x900-inactive.png",
+      "activatedScreenshot": "1440x900-active.png",
+      "initial": {
+        "engine": "three.js r186",
+        "activity": "0.000",
+        "rotation": "-0.0330,0.9304,0.0337,0.3634",
+        "drawCalls": "6",
+        "frameMs": "16.5",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2",
+        "fibers": "210",
+        "particles": "28000"
+      },
+      "final": {
+        "engine": "three.js r186",
+        "activity": "0.000",
+        "rotation": "-0.0298,0.9250,0.0420,0.3763",
+        "drawCalls": "6",
+        "frameMs": "17.0",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2",
+        "fibers": "210",
+        "particles": "28000"
+      },
+      "assets": [
+        {
+          "url": "http://127.0.0.1:5173/models/cortex-full.glb",
+          "status": 200
+        }
+      ],
+      "timing": {
+        "medianFrameMs": 16.69999999999891,
+        "p95FrameMs": 16.700000000000728
+      },
+      "checks": [
+        "two hemispheres",
+        "signal activation and fade",
+        "bounded full and compact particles",
+        "correct initial profile",
+        "no overflow",
+        "visible CTA",
+        "pause",
+        "keyboard",
+        "drag",
+        "reset",
+        "resize",
+        "no console errors"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "screenshot": "1920x1080-inactive.png",
+      "activatedScreenshot": "1920x1080-active.png",
+      "initial": {
+        "engine": "three.js r186",
+        "activity": "0.000",
+        "rotation": "-0.0330,0.9304,0.0337,0.3635",
+        "drawCalls": "6",
+        "frameMs": "16.4",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2",
+        "fibers": "210",
+        "particles": "28000"
+      },
+      "final": {
+        "engine": "three.js r186",
+        "activity": "0.000",
+        "rotation": "-0.0311,0.9471,0.0357,0.3175",
+        "drawCalls": "6",
+        "frameMs": "16.8",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2",
+        "fibers": "210",
+        "particles": "28000"
+      },
+      "assets": [
+        {
+          "url": "http://127.0.0.1:5173/models/cortex-full.glb",
+          "status": 200
+        }
+      ],
+      "timing": {
+        "medianFrameMs": 16.69999999999891,
+        "p95FrameMs": 16.700000000000728
+      },
+      "checks": [
+        "two hemispheres",
+        "signal activation and fade",
+        "bounded full and compact particles",
+        "correct initial profile",
+        "no overflow",
+        "visible CTA",
+        "pause",
+        "keyboard",
+        "drag",
+        "reset",
+        "resize",
+        "no console errors"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "390x844-inactive.png",
+      "activatedScreenshot": "390x844-active.png",
+      "initial": {
+        "engine": "three.js r186",
+        "activity": "0.000",
+        "rotation": "-0.0329,0.9306,0.0337,0.3630",
+        "drawCalls": "6",
+        "frameMs": "16.4",
+        "model": "/models/cortex-compact.glb",
+        "triangles": "60000",
+        "hemispheres": "2",
+        "fibers": "73",
+        "particles": "9000"
+      },
+      "final": {
+        "engine": "three.js r186",
+        "activity": "0.000",
+        "rotation": "-0.0313,0.9437,0.0358,0.3275",
+        "drawCalls": "6",
+        "frameMs": "16.7",
+        "model": "/models/cortex-compact.glb",
+        "triangles": "60000",
+        "hemispheres": "2",
+        "fibers": "73",
+        "particles": "9000"
+      },
+      "assets": [
+        {
+          "url": "http://127.0.0.1:5173/models/cortex-compact.glb",
+          "status": 200
+        }
+      ],
+      "timing": {
+        "medianFrameMs": 16.69999999999891,
+        "p95FrameMs": 16.700000000000728
+      },
+      "checks": [
+        "two hemispheres",
+        "signal activation and fade",
+        "bounded full and compact particles",
+        "correct initial profile",
+        "no overflow",
+        "visible CTA",
+        "pause",
+        "keyboard",
+        "drag",
+        "reset",
+        "resize",
+        "no console errors"
+      ]
+    }
+  ],
+  "checks": {
+    "autoQuiet": "Signal returns to rest after 12 seconds",
+    "reducedMotion": "Anatomical still, no WebGL canvas or GLB request",
+    "modelFailure": "503 response replaced by anatomical still with working CTA",
+    "effectFailure": "Anatomical still survives unavailable neural data",
+    "contextLoss": "Anatomical still and CTA retained"
+  }
+}

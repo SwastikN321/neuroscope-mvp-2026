@@ -7,6 +7,7 @@ export type SceneInput = {
   rotation: Rotation;
   dragging: boolean;
   paused: boolean;
+  signal: boolean;
 };
 export function useMediaQuery(query: string) {
   return useSyncExternalStore(
