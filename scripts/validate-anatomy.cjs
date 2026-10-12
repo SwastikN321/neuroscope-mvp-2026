@@ -15,16 +15,21 @@ async function main() {
       format: 'glb',
       writeTimestamp: false,
       maxIssues: 0,
-      externalResourceFunction: () => Promise.reject(new Error('Assets must be self-contained')),
+      externalResourceFunction: () =>
+        Promise.reject(new Error('Assets must be self-contained')),
     });
     reports[profile] = {
       sha256: crypto.createHash('sha256').update(data).digest('hex'),
       ...result,
     };
     console.log(filename, JSON.stringify(result.issues));
-    if (result.issues.numErrors || result.issues.numWarnings) process.exitCode = 1;
+    if (result.issues.numErrors || result.issues.numWarnings)
+      process.exitCode = 1;
   }
-  fs.writeFileSync(path.join(directory, 'gltf-validation.json'), JSON.stringify(reports, null, 2) + '\n');
+  fs.writeFileSync(
+    path.join(directory, 'gltf-validation.json'),
+    JSON.stringify(reports, null, 2) + '\n',
+  );
 }
 main().catch((error) => {
   console.error(error);

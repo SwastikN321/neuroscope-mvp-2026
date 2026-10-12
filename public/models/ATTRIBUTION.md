@@ -16,9 +16,9 @@ Checked on **2026-10-12**. Both local OBJ files matched the corresponding member
 
 ## Adaptations for NeuroScope
 
-`cortex-full.glb`, `cortex-compact.glb`, and their derived comparison preview are adaptations for NeuroScope and are distributed under **CC BY-SA 3.0 Unported**.
+`cortex-full.glb`, `cortex-compact.glb`, `cortex-still.png`, and their derived comparison preview are adaptations for NeuroScope and are distributed under **CC BY-SA 3.0 Unported**.
 
-Changes: shared centering, uniform normalization, rotation into Y-up coordinates, topology-preserving triangle reduction, recalculated vertex normals, a neutral material, and GLB conversion. The source OBJ files are unchanged. No geometry smoothing, mirroring, invented anatomy, anatomical segmentation, fibers, or activity data was added.
+Changes: shared centering, uniform normalization, rotation into Y-up coordinates, topology-preserving triangle reduction, recalculated vertex normals, a neutral material, and GLB conversion. The source OBJ files are unchanged. No geometry smoothing, mirroring, invented anatomy, anatomical segmentation, fibers, or activity data was added. The Phase 2A.3 still is rendered from the full GLB with NeuroScope’s material and lighting.
 
 ## Notices to retain when sharing
 

@@ -57,7 +57,7 @@ describe('Sculpture interaction', () => {
     fireEvent.keyDown(sculpture, { key: 'Home' });
     expect(capture.input!.current.rotation).toEqual([0, 0, 0, 1]);
   });
-  it('activates synthetic activity, pauses, and resumes on direct interaction', async () => {
+  it('pauses and resumes on direct interaction without activity effects', async () => {
     vi.mocked(webGLAvailable).mockReturnValue(true);
     const user = userEvent.setup();
     render(
@@ -65,10 +65,9 @@ describe('Sculpture interaction', () => {
         <Hero />
       </MemoryRouter>,
     );
-    await user.click(screen.getByRole('button', { name: 'Activate signal' }));
     expect(
-      screen.getByRole('button', { name: 'Signal activated' }),
-    ).toHaveAttribute('aria-pressed', 'true');
+      screen.queryByRole('button', { name: 'Activate signal' }),
+    ).not.toBeInTheDocument();
     await user.click(
       screen.getByRole('button', { name: 'Pause sculpture motion' }),
     );
@@ -94,7 +93,7 @@ describe('Hero alternatives', () => {
     );
     expect(
       screen.getByRole('img', {
-        name: 'Still artwork of the folded neural sculpture',
+        name: 'Still view of the anatomical cerebral cortex',
       }),
     ).toBeInTheDocument();
     expect(

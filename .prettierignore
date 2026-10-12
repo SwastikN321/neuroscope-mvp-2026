@@ -3,3 +3,6 @@ dist
 coverage
 package-lock.json
 *.tsbuildinfo
+
+# Python-generated validation manifest; preserve reproducible byte output
+public/models/manifest.json

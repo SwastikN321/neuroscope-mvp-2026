@@ -3,6 +3,7 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useCallback,
   useRef,
   useState,
   type ReactNode,
@@ -26,12 +27,12 @@ function StillSculpture() {
   return (
     <div className="neural-still">
       <img
-        src="/neural-still.svg"
-        alt="Still artwork of the folded neural sculpture"
-        width="800"
-        height="640"
+        src="/models/cortex-still.png"
+        alt="Still view of the anatomical cerebral cortex"
+        width="900"
+        height="900"
       />
-      <span>STILL VIEW / NEURAL SCULPTURE</span>
+      <span>ANATOMICAL STUDY / STILL VIEW</span>
     </div>
   );
 }
@@ -60,17 +61,17 @@ export function Hero() {
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(true);
   const [paused, setPaused] = useState(false);
-  const [activity, setActivity] = useState(false);
+  const handleLoading = useCallback(() => setReady(false), []);
+  const handleReady = useCallback(() => setReady(true), []);
+  const handleFailure = useCallback(() => setFailed(true), []);
   const stage = useRef<HTMLDivElement>(null);
   const section = useRef<HTMLElement>(null);
   const drag = useRef<TrackPoint | null>(null);
   const input = useRef<SceneInput>({
     pointerX: 0,
     pointerY: 0,
-    scroll: 0,
     rotation: [0, 0, 0, 1],
     dragging: false,
-    activity: false,
     paused: false,
   });
   const still = reducedMotion || !webGL || failed;
@@ -78,9 +79,8 @@ export function Hero() {
     typeof navigator !== 'undefined' && navigator.hardwareConcurrency <= 4;
 
   useEffect(() => {
-    input.current.activity = activity;
     input.current.paused = paused;
-  }, [activity, paused]);
+  }, [paused]);
 
   useEffect(() => {
     const target = section.current;
@@ -100,16 +100,10 @@ export function Hero() {
             { threshold: 0.05 },
           );
     observer?.observe(target);
-    function updateScroll() {
-      const rect = target!.getBoundingClientRect();
-      input.current.scroll = Math.max(0, Math.min(1, -rect.top / rect.height));
-    }
     document.addEventListener('visibilitychange', updateVisibility);
-    window.addEventListener('scroll', updateScroll, { passive: true });
     return () => {
       observer?.disconnect();
       document.removeEventListener('visibilitychange', updateVisibility);
-      window.removeEventListener('scroll', updateScroll);
     };
   }, []);
 
@@ -185,9 +179,9 @@ export function Hero() {
       <div className="hero-overline page-container">
         <span>
           <i />
-          NEURAL STUDY — 001
+          NEUROSCOPE / ANATOMICAL STUDY 001
         </span>
-        <span>FORM. DEPTH. POSSIBILITY.</span>
+        <span>A NEW PERSPECTIVE ON THE MIND</span>
       </div>
       <div
         ref={stage}
@@ -196,8 +190,8 @@ export function Hero() {
         tabIndex={still ? -1 : 0}
         aria-label={
           still
-            ? 'Still neural sculpture'
-            : 'Neural sculpture. Drag freely or use arrow keys for 360-degree rotation. Home resets the view.'
+            ? 'Still anatomical brain'
+            : 'Anatomical brain. Drag freely or use arrow keys for 360-degree rotation. Home resets the view.'
         }
         aria-describedby="sculpture-caption"
         onPointerMove={move}
@@ -224,14 +218,16 @@ export function Hero() {
         {still ? (
           <StillSculpture />
         ) : (
-          <SceneBoundary onFailure={() => setFailed(true)}>
-            <Suspense fallback={<StillSculpture />}>
+          <SceneBoundary onFailure={handleFailure}>
+            {!ready && <StillSculpture />}
+            <Suspense fallback={null}>
               <NeuralCanvas
                 input={input}
                 quality={mobile || lowPower ? 'compact' : 'full'}
                 running={active && !paused}
-                onReady={() => setReady(true)}
-                onFailure={() => setFailed(true)}
+                onLoading={handleLoading}
+                onReady={handleReady}
+                onFailure={handleFailure}
               />
             </Suspense>
           </SceneBoundary>
@@ -252,31 +248,27 @@ export function Hero() {
             <ButtonLink to="/app">
               Explore NeuroScope <Icon name="arrow" />
             </ButtonLink>
-            {!still && (
-              <Button
-                variant="text"
-                aria-pressed={activity}
-                onClick={() => {
-                  setActivity(!activity);
-                  setPaused(false);
-                }}
-              >
-                <span className="activity-glyph" aria-hidden="true">
-                  ↗
-                </span>
-                {activity ? 'Signal activated' : 'Activate signal'}
-              </Button>
-            )}
           </div>
         </div>
       </div>
       <div className="sculpture-label" id="sculpture-caption">
         <span className="sculpture-label__line" />
         <div>
-          <strong>CORTICAL ASSEMBLY</strong>
-          <span>Conceptual neural artwork · synthetic activity</span>
+          <strong>THE CEREBRAL CORTEX</strong>
+          <span>Two hemispheres. A world within.</span>
         </div>
       </div>
+      <p className="anatomy-credit">
+        <a href="https://brainder.org/research/brain-for-blender/">
+          Brain for Blender · Anderson Winkler
+        </a>
+        {' / '}
+        <a href="/models/ATTRIBUTION.md">Adapted</a>
+        {' / '}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/">
+          CC BY-SA 3.0
+        </a>
+      </p>
       <div className="hero-edge page-container">
         <a href="#design-system">
           <span className="scroll-line" aria-hidden="true" />
@@ -285,7 +277,7 @@ export function Hero() {
         <div className="scene-controls">
           {!still && (
             <>
-              <span>ROTATE 360° / ARROW KEYS / HOME TO RESET</span>
+              <span>DRAG TO EXPLORE / ↑ ↓ ← → / HOME TO RESET</span>
               <Button
                 variant="secondary"
                 className="motion-button"

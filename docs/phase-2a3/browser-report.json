@@ -1,0 +1,145 @@
+{
+  "browser": "154.0.8037.98",
+  "captures": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "screenshot": "1440x900.png",
+      "initial": {
+        "engine": "three.js r186",
+        "rotation": "-0.0329,0.9306,0.0337,0.3631",
+        "frameMs": "16.4",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2"
+      },
+      "final": {
+        "engine": "three.js r186",
+        "rotation": "-0.0316,0.9422,0.0354,0.3317",
+        "frameMs": "16.7",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2"
+      },
+      "assets": [
+        {
+          "url": "http://127.0.0.1:5173/models/cortex-full.glb",
+          "status": 200
+        }
+      ],
+      "timing": {
+        "medianFrameMs": 16.699999999999818,
+        "p95FrameMs": 16.800000000000182
+      },
+      "checks": [
+        "two hemispheres",
+        "correct initial profile",
+        "no overflow",
+        "visible CTA",
+        "pause",
+        "keyboard",
+        "drag",
+        "reset",
+        "resize",
+        "no console errors"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "screenshot": "1920x1080.png",
+      "initial": {
+        "engine": "three.js r186",
+        "rotation": "-0.0329,0.9307,0.0337,0.3629",
+        "frameMs": "16.5",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2"
+      },
+      "final": {
+        "engine": "three.js r186",
+        "rotation": "-0.0317,0.9420,0.0352,0.3321",
+        "frameMs": "16.7",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2"
+      },
+      "assets": [
+        {
+          "url": "http://127.0.0.1:5173/models/cortex-full.glb",
+          "status": 200
+        }
+      ],
+      "timing": {
+        "medianFrameMs": 16.699999999999818,
+        "p95FrameMs": 16.800000000000182
+      },
+      "checks": [
+        "two hemispheres",
+        "correct initial profile",
+        "no overflow",
+        "visible CTA",
+        "pause",
+        "keyboard",
+        "drag",
+        "reset",
+        "resize",
+        "no console errors"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "390x844.png",
+      "initial": {
+        "engine": "three.js r186",
+        "model": "/models/cortex-compact.glb",
+        "triangles": "60000",
+        "hemispheres": "2",
+        "rotation": "-0.0329,0.9307,0.0337,0.3627",
+        "frameMs": "16.5"
+      },
+      "final": {
+        "engine": "three.js r186",
+        "rotation": "-0.0318,0.9387,0.0353,0.3414",
+        "frameMs": "16.5",
+        "model": "/models/cortex-compact.glb",
+        "triangles": "60000",
+        "hemispheres": "2"
+      },
+      "assets": [
+        {
+          "url": "http://127.0.0.1:5173/models/cortex-compact.glb",
+          "status": 200
+        }
+      ],
+      "timing": {
+        "medianFrameMs": 16.699999999999818,
+        "p95FrameMs": 16.700000000000728
+      },
+      "checks": [
+        "two hemispheres",
+        "correct initial profile",
+        "no overflow",
+        "visible CTA",
+        "pause",
+        "keyboard",
+        "drag",
+        "reset",
+        "resize",
+        "no console errors"
+      ]
+    }
+  ],
+  "checks": {
+    "reducedMotion": "Anatomical still, no WebGL canvas or GLB request",
+    "modelFailure": "503 response replaced by anatomical still with working CTA",
+    "contextLoss": "Anatomical still and CTA retained"
+  }
+}

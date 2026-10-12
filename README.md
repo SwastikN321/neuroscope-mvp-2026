@@ -1,125 +1,74 @@
-# NeuroScope · Phase 2A
+# NeuroScope · Phase 2A.3
 
-Phase 2A.2 prepares anatomical assets independently of the existing hero. See
-[ANATOMY.md](ANATOMY.md) for the pipeline, validation, provenance, and reproduction
-commands. The application behavior described below remains unchanged.
+A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero now loads the validated Brain for Blender GLBs, with a dark pearl finish, controlled reflections, self-shadowing, cyan fill, and violet rim lighting. The original procedural sculpture, fibers, and particles are not instantiated.
 
-A React / TypeScript foundation with an original, real-time 3D neural sculpture. Phase 2A replaces the flat opening hero with a cinematic WebGL scene while preserving the Phase 1 shell, design-system showcase, and workspace placeholder.
-
-The scope remains the **hero only**. Full-page 3D scrolling belongs to Phase 2B, as confirmed by the user. EEG visualization, uploads, a live EEG demo, authentication, FastAPI, Supabase, and persistence have not been implemented. The sculpture depicts conceptual, synthetic activity; it is not an anatomical reconstruction, patient recording, or source-localization display.
+The current scope is the hero and existing design-system showcase. `/app` remains a workspace placeholder. EEG tools, uploads, neural activity, full-page scroll animation, authentication, Supabase, and backend services are not implemented.
 
 ## Run locally
 
-Use Node.js 24 LTS (see `.nvmrc`) and npm. Tooling also supports Node 22.13+ in the 22.x series. Run commands from this directory, alongside `package.json`:
+Use Node **24.15+ in the 24.x LTS series** (`.nvmrc` selects 24). The locked tooling also supports Node 22.22.2+, but older Node 22 versions do not meet several dependency requirements.
 
-```bash
-nvm use             # optional, if you use nvm
+```sh
 npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite (normally `http://localhost:5173`). No account, backend, credentials, or environment file is required. Copy `.env.example` to `.env.local` only when configuring a later service phase. Temporary verification servers are stopped after development; use `npm run dev` to start your own session.
+Open the URL printed by Vite. No credentials or backend are required. Optional `.env.example` values are future public service boundaries; never put secrets in `VITE_*` variables.
 
-## Hero controls
+## Anatomical hero
 
-- Drag the sculpture to rotate continuously through 360° on both axes. There are no angle clamps. Vertical touch scrolling remains available; on touch screens, horizontal dragging is the most reliable rotation gesture.
-- Focus the sculpture and use the arrow keys to rotate. **Home** resets orientation using the shortest angular return, even after multiple revolutions.
-- **Activate signal** increases the synthetic pulse activity along the existing pathways. It does not launch an EEG viewer or imply that the EEG demo is available.
-- The motion control pauses rendering. Dragging, keyboard rotation, or activating the signal resumes it.
-- **Explore NeuroScope** opens the existing workspace placeholder. **Scroll to discover** reaches the existing design-system section.
+- Two named GLB hemispheres preserve their proportions, relative placement, and cortical folds. A shared material is applied without copying geometry. Camera distance and clipping planes derive from the loaded model's rotation-safe bounds.
+- Desktop uses `/models/cortex-full.glb` (200,000 triangles; 4.80 MB). Mobile viewports and devices reporting four or fewer hardware threads use `/models/cortex-compact.glb` (60,000 triangles; 1.44 MB). Sustained slow rendering can downgrade the full profile. Maximum DPR is 1.5 full / 1 compact.
+- One shadow-casting directional key, restrained fill/rim lights, and a generated studio environment reveal the folds. The opaque pearl material avoids transmission passes, bloom, or a postprocessing stack.
+- Drag freely through 360°, or focus the brain and use arrow keys. **Home** returns to the initial orientation. The motion control pauses rendering; interaction resumes it. Idle motion and pointer response use delta-based damping. Touch permits vertical page scrolling and horizontal rotation.
+- Reduced-motion users see an anatomical still without loading the WebGL module or GLB. Loading, failed assets, unavailable WebGL, shader failures, and lost contexts retain the still and working CTA. Asset requests abort on unmount, and loaded geometry/materials/environment resources are disposed.
+- The hero has a separate mobile composition, visible source credit, and a clear workspace CTA. Existing sections below the hero are retained.
 
-## Implementation
+The GLBs depict the cerebral cortex only; they contain no cerebellum, brainstem, EEG measurements, or tractography. This is an anatomical visual presentation, not a clinical or source-localization tool.
 
-`src/features/hero/` owns the scene, input, geometry, materials, and styles. Only `three` and `@react-three/fiber` were added as runtime dependencies; `@types/three` is a development dependency. No animation library, external model, HDR download, or postprocessing stack is required.
-
-- **Geometry:** two procedurally folded hemispheres with a medial fissure. Curved surface tracts and dense, deterministic detail points follow the same organic volume.
-- **Materials and lighting:** reflective physical materials, clearcoat, a procedural studio environment, a cool key, a blue rim, and a restrained violet backlight. The scene relies on actual surface normals and lighting rather than excessive bloom.
-- **GPU activity:** custom GLSL materials animate selected fibers. Moving point sprites interpolate trajectories stored in a float data texture, so particles stay on coordinated pathways rather than wandering randomly.
-- **Motion:** delta-based damping, slow drift, subtle breathing, pointer response, unrestricted quaternion trackball rotation with responsive, frame-based slerp, and an entrance fade. A normalized scroll channel makes a small camera adjustment and provides a boundary for Phase 2B's continuous camera sequence. There is no scroll hijacking or waveform transition in this release.
-- **Loading:** the WebGL feature is lazily imported. The workspace route does not instantiate the scene. The separately loaded 3D bundle is approximately 245 KB gzipped; it exceeds Vite's default uncompressed chunk warning threshold because it contains the Three.js renderer and R3F. This is an expected bundle cost, not a measured Core Web Vitals result.
-- **Accessibility:** normal document navigation and CTAs remain usable without a GPU. Reduced-motion users receive the static neural artwork and do not load the WebGL module. The sculpture supports keyboard rotation and pause, with descriptive labels and visible focus.
-- **Failure behavior:** unavailable WebGL, a lost context, a renderer error, or shader initialization failure switches to the still artwork. GPU geometry, the trajectory texture, generated environment targets, listeners, and visibility observers are cleaned up on unmount.
-
-### Rendering budgets
-
-| Profile | Cortex triangles, both hemispheres | Curved paths | Detail points | Maximum DPR |
-| ------- | ---------------------------------: | -----------: | ------------: | ----------: |
-| Full    |                            163,840 |           96 |        14,000 |        1.25 |
-| Compact |                             61,440 |           48 |         4,800 |           1 |
-
-Mobile viewports and devices reporting four or fewer hardware threads use the compact profile. A frame-time monitor can downgrade the full profile after sustained slow frames. Expensive rendering stops when the hero is outside the viewport, the document is hidden, or motion is paused. No device-specific FPS guarantee has been verified.
-
-### Artwork provenance
-
-The cortical geometry, pathways, shader artwork, and `public/neural-still.svg` are original procedural assets created for NeuroScope. No third-party anatomical mesh or reference-site asset is used. The still SVG projects the same pathway generator into a static illustration and is explicitly labeled as a still view. Three.js's bundled `RoomEnvironment` generates the reflection environment in code and remains under the package's own license. Manrope Variable is self-hosted through Fontsource and retains its distributed OFL license.
-
-## Commands
-
-| Command                | Purpose                                                  |
-| ---------------------- | -------------------------------------------------------- |
-| `npm run dev`          | Vite development server with hot reload                  |
-| `npm run build`        | Strict TypeScript checks and production build to `dist/` |
-| `npm run preview`      | Local preview of `dist/`, not a production server        |
-| `npm run typecheck`    | TypeScript checks only                                   |
-| `npm run lint`         | ESLint, TypeScript, and React Hooks checks               |
-| `npm run format`       | Format source and configuration with Prettier            |
-| `npm run format:check` | Check formatting without changing files                  |
-| `npm test`             | Vitest / React Testing Library tests                     |
-| `npm run test:watch`   | Interactive test runner                                  |
-| `npm run check`        | Lint, formatting, tests, and production build            |
-
-A GitHub Actions workflow runs `npm ci` and `npm run check` when this directory is the repository root. If adopted in a monorepo, adjust that workflow's working directory and dependency-cache path.
-
-## Routes and structure
-
-| Route             | Current behavior                                              |
-| ----------------- | ------------------------------------------------------------- |
-| `/`               | Cinematic neural hero and the retained design-system showcase |
-| `/#design-system` | Existing palette, typography, and control examples            |
-| `/app`            | Code-split workspace placeholder                              |
-| Unknown path      | 404 recovery page                                             |
+## Architecture
 
 ```text
-src/
-  app/                 # Router, shell, navigation, route focus, error boundary
-  components/
-    brand/             # Original mark and wordmark
-    ui/                # Reusable buttons, badges, icons, labels
-  features/hero/       # Procedural geometry, shaders, input, R3F scene, fallbacks
-  pages/               # Homepage, workspace placeholder, 404
-  lib/                 # Typed public environment configuration boundary
-  styles/              # Tailwind theme tokens and shared layout styles
-  test/                # Application behavior tests and DOM setup
-public/                # Original favicon and still neural artwork
+src/app/                 Router, shell, navigation, error boundary
+src/components/          Shared brand and controls
+src/features/hero/
+  Hero.tsx               Input, responsive profile choice, loading/fallback UI
+  NeuralCanvas.tsx       GLB lifecycle, materials, lighting, scene motion
+  anatomy.ts             Asset contracts, geometry validation, camera fitting
+  rotation.ts            Quaternion trackball and keyboard rotation
+  sceneState.ts          Input types, media-query and WebGL support
+  hero.css               Desktop/mobile hero composition
+src/pages/               Homepage, workspace placeholder, 404
+src/styles/              Shared theme and styles
+public/models/           Full/compact GLBs, anatomical still, attribution/reports
+scripts/                 Offline preparation, preview, validation, browser QA
 ```
 
-Design tokens remain in `src/styles/global.css`. Hero-specific composition is isolated in `features/hero/hero.css`; shared controls and the workspace styling are preserved. A narrowly scoped ESLint annotation allows imperative Three.js scene/camera mutations inside the R3F frame loop and lifecycle effects. It does not disable Hook rules elsewhere.
+`geometry.ts`, `shaders.ts`, and `public/neural-still.svg` are preserved historical procedural artwork. They are not imported by the active hero. The WebGL module and workspace route are lazy loaded independently.
 
-## Environment and future service boundaries
+## Checks
 
-All `.env.example` variables are optional placeholders and establish no connection in this release:
+| Command                | Purpose                                                          |
+| ---------------------- | ---------------------------------------------------------------- |
+| `npm run dev`          | Local development server                                         |
+| `npm run typecheck`    | Strict TypeScript checks                                         |
+| `npm run lint`         | ESLint and React Hooks rules                                     |
+| `npm run format:check` | Formatting verification                                          |
+| `npm test`             | Application, interaction, actual GLB parsing, and geometry tests |
+| `npm run build`        | TypeScript and production build                                  |
+| `npm run check`        | All checks above                                                 |
+| `npm run preview`      | Local preview of the production build                            |
 
-| Variable                        | Future use                  |
-| ------------------------------- | --------------------------- |
-| `VITE_API_BASE_URL`             | Public FastAPI base URL     |
-| `VITE_SUPABASE_URL`             | Public Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public browser key          |
+See [PHASE-2A3.md](PHASE-2A3.md) for browser evidence and repeatable QA. Actual browser inspection is separate from the DOM tests, which mock the canvas. A short local Chrome timing sample is not a device-wide performance guarantee. The WebGL chunk exceeds Vite's default uncompressed warning threshold because it contains Three.js/R3F and GLTFLoader.
 
-Every `VITE_*` value is public browser configuration. Never put service-role keys, database credentials, private identifiers, or patient information in it. Server secrets belong in the future backend's environment. Later phases should isolate API clients and persistence adapters from presentation, agree on EEG units and time/window contracts, and enforce recording ownership server-side.
+## Assets and licensing
 
-Phase 2B should elevate this hero's scene into a persistent page-level canvas and choreograph the camera across scroll chapters. It should not add separate independent canvases for every section or replace the eventual precise 2D EEG viewer with a 3D scene. None of that full-page implementation has been started here.
+[ANATOMY.md](ANATOMY.md) documents the isolated Python 3.12 pipeline, immutable source hashes, validated quality profiles, and reproducible GLBs. [Asset attribution](public/models/ATTRIBUTION.md) credits **Brain for Blender by Anderson Winkler, CC BY-SA 3.0**, with source/license links and modification notices. Both GLBs and the derived anatomical still are included in Git and copied into `dist/models` by Vite. The hero displays linked credit.
 
-## Verification and limitations
+The procedural studio environment uses Three.js's bundled `RoomEnvironment`; Manrope Variable is self-hosted through Fontsource under its distributed OFL license. No reference screenshot assets are incorporated into the site.
 
-The automated suite covers routing, mobile navigation, fallback and reduced-motion behavior, complete keyboard rotations beyond 360°, reset, activation/pause controls, finite indexed geometry, profile budgets, mirrored hemispheres, and trajectory bounds. The 3D renderer is mocked for DOM interaction tests; those tests do not verify WebGL pixels or shader compilation on a GPU.
+## Hosting and saved checkpoints
 
-**Current verification limit:** the browser inspection tool rejected the local HTTP preview URL under its security policy. Desktop/mobile screenshots, final PBR appearance, GPU shader execution, drag behavior in a real browser, and frame rate therefore remain unverified by the agent. An offline geometry-only silhouette check was used for shape inspection; it is not a browser screenshot or proof of the finished hero's lighting. Do not treat the visual definition of done as fully verified until a real-browser review is completed.
+The project has not been deployed. A future production host must serve `dist/`, use HTTPS, and rewrite application routes such as `/app` to `/index.html`. Serve compressed GLBs where supported and retain their attribution. Vite dev/preview servers are local tools.
 
-## Production hosting
-
-```bash
-npm ci
-npm run check
-```
-
-Publish `dist/` only with explicit authorization. This project has not been deployed. The host must rewrite application paths such as `/app` to `/index.html` with a successful response for direct entry and refresh. For Nginx, use `try_files $uri $uri/ /index.html` or the equivalent SPA fallback in your chosen host. Use HTTPS, appropriate security headers, immutable caching for hashed assets, and revalidation for `index.html`. Vite's dev and preview servers are local tools.
+Baseline `eba86b8` preserves the original application. Commit `f762760` preserves Phase 2A.2. `SAVE-STATUS.md` and `SAVE-MANIFEST.json` remain the historical preservation record.

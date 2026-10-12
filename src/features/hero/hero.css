@@ -1,102 +1,92 @@
 @layer components {
   .site-header--immersive {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    inset: 0 0 auto;
     z-index: 10;
-    border-bottom: 0;
+    border: 0;
   }
   .site-header--immersive .site-header__inner {
-    min-height: 100px;
+    min-height: 106px;
+  }
+  .site-header--immersive .desktop-nav {
+    margin-left: auto;
+    margin-right: 46px;
+    gap: 34px;
   }
   .site-header--immersive .header-cta {
-    border-color: #6b839250;
-    background: #06080d30;
+    border-color: #667d8b70;
+    border-radius: 30px;
   }
   .site-header--immersive:has(.mobile-nav) {
-    background: #06080df5;
-    border-bottom: 1px solid var(--line);
+    background: #080d15f5;
   }
   .cinematic-hero {
     position: relative;
     isolation: isolate;
-    min-height: 800px;
     height: 100svh;
-    max-height: 1200px;
+    min-height: 760px;
+    max-height: 1320px;
     overflow: hidden;
-    background: #06080d;
+    background: #080d14;
   }
   .hero-atmosphere {
     position: absolute;
     z-index: -1;
     inset: 0;
-    background:
-      radial-gradient(
-        ellipse at 69% 43%,
-        #10222f90 0%,
-        #09111940 38%,
-        transparent 64%
-      ),
-      radial-gradient(ellipse at 78% 82%, #0f193440, transparent 48%);
-  }
-  .hero-atmosphere::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg, #06080d70 0%, transparent 50%),
-      linear-gradient(0deg, #06080d 0%, transparent 22%);
+    background: radial-gradient(
+      ellipse at 68% 48%,
+      #182735 0%,
+      #0d1722 35%,
+      #080d14 70%
+    );
   }
   .hero-overline {
     position: absolute;
-    top: 140px;
+    top: 147px;
     left: 0;
     right: 0;
     display: flex;
     justify-content: space-between;
     font:
       9px/1.8 ui-monospace,
-      SFMono-Regular,
-      Consolas,
       monospace;
-    letter-spacing: 0.12em;
-    color: #8d9ba8;
+    letter-spacing: 0.15em;
+    color: #8498a9;
   }
   .hero-overline > span:first-child {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
   .hero-overline i {
     width: 4px;
     height: 4px;
-    background: #49dceb;
     border-radius: 50%;
+    background: #6eb5bc;
   }
   .neural-stage {
     position: absolute;
-    left: 26%;
-    right: -4%;
-    top: 8%;
-    bottom: 9%;
-    outline-offset: -30px;
+    left: 32%;
+    right: -1%;
+    top: 11%;
+    bottom: 8%;
+    outline-offset: -12px;
     cursor: grab;
     touch-action: pan-y;
-    opacity: 0;
-    transition: opacity 1.8s ease;
   }
   .neural-stage:active {
     cursor: grabbing;
-  }
-  .cinematic-hero--ready .neural-stage {
-    opacity: 1;
   }
   .neural-stage--still {
     cursor: default;
   }
   .neural-stage canvas {
     display: block;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .cinematic-hero--ready .neural-stage canvas {
+    opacity: 1;
   }
   .neural-still {
     position: absolute;
@@ -106,15 +96,16 @@
     justify-items: center;
   }
   .neural-still img {
-    width: min(100%, 950px);
-    height: auto;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
     object-fit: contain;
   }
   .neural-still > span {
     font:
       8px/1.7 ui-monospace,
       monospace;
-    color: #8d9ba8;
+    color: #8a9dab;
     letter-spacing: 0.12em;
   }
   .cinematic-title {
@@ -125,26 +116,25 @@
     pointer-events: none;
   }
   .cinematic-title h1 {
-    max-width: 760px;
-    font-size: clamp(80px, 7.6vw, 128px);
+    max-width: 810px;
+    font-size: clamp(88px, 7.9vw, 152px);
     font-weight: 400;
-    letter-spacing: -0.07em;
+    letter-spacing: -0.075em;
     line-height: 1.04;
-    color: #edf2f4;
-    text-shadow: 0 3px 35px #06080d30;
+    color: #e8eceb;
     animation: enter 1s ease both;
   }
   .cinematic-title h1 > span {
-    color: #b4c2ce;
+    color: #a9bac8;
   }
   .hero-stop {
-    color: #49dceb;
+    color: #77bac4;
   }
   .cinematic-content {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 21%;
+    bottom: 23%;
     pointer-events: none;
   }
   .cinematic-content > div {
@@ -154,77 +144,75 @@
   .cinematic-content p {
     font-size: 13px;
     line-height: 1.8;
-    color: #a2b2bf;
+    color: #9aabba;
   }
   .cinematic-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: 28px;
     align-items: center;
     margin-top: 25px;
   }
   .cinematic-actions .button--primary {
-    background: #f0f5f7;
-    gap: 40px;
+    background: #dfebe9;
+    gap: 42px;
+    border-radius: 30px;
+    padding-inline: 25px;
   }
   .cinematic-actions .button--primary:hover {
-    background: var(--color-cyan);
-  }
-  .cinematic-actions .button--text {
-    gap: 10px;
-    font-size: 11px;
-  }
-  .activity-glyph {
-    font-size: 20px;
-    color: #49dceb;
+    background: #a7dae0;
   }
   .sculpture-label {
     position: absolute;
     right: var(--page-gutter);
-    bottom: 17%;
+    bottom: 16%;
     display: flex;
     align-items: start;
-    gap: 17px;
+    gap: 18px;
     pointer-events: none;
   }
   .sculpture-label__line {
-    display: block;
-    width: 75px;
+    width: 55px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #586f8180);
+    background: #58738470;
     margin-top: 7px;
   }
   .sculpture-label strong {
     display: block;
     font:
       9px/1.8 ui-monospace,
-      SFMono-Regular,
-      Consolas,
       monospace;
-    letter-spacing: 0.12em;
-    font-weight: 400;
-    color: #b1c3d1;
+    letter-spacing: 0.16em;
+    color: #b5c5d1;
   }
   .sculpture-label div > span {
     display: block;
-    font-size: 9px;
-    color: #8494a3;
+    font-size: 11px;
+    color: #8295a6;
     line-height: 1.9;
-    margin-top: 5px;
+    margin-top: 4px;
+  }
+  .anatomy-credit {
+    position: absolute;
+    right: var(--page-gutter);
+    bottom: 95px;
+    font-size: 9px;
+    line-height: 1.8;
+    color: #7f919f;
+  }
+  .anatomy-credit a:hover {
+    color: #d5e7ed;
+    text-decoration: underline;
   }
   .hero-edge {
     position: absolute;
-    bottom: 25px;
+    bottom: 27px;
     left: 0;
     right: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #94a5b4;
+    color: #8b9ead;
     font:
       8px/1.8 ui-monospace,
-      SFMono-Regular,
-      Consolas,
       monospace;
     letter-spacing: 0.1em;
   }
@@ -238,9 +226,9 @@
     color: var(--color-cyan);
   }
   .scroll-line {
-    height: 32px;
+    height: 30px;
     width: 1px;
-    background: linear-gradient(0deg, #49dceb, transparent);
+    background: #6da5b8;
   }
   .scene-controls {
     display: flex;
@@ -248,45 +236,49 @@
     gap: 18px;
   }
   .motion-button {
-    width: 42px;
-    min-height: 42px;
+    width: 44px;
+    min-height: 44px;
     padding: 0;
-    border-color: #42576980;
+    border-color: #53697780;
     border-radius: 50%;
     font-size: 11px;
     color: #b8c9d6;
   }
-  .scene-controls > span {
-    font-size: 8px;
-  }
 }
 @media (min-width: 1600px) {
+  .cinematic-hero .page-container,
+  .site-header--immersive .page-container {
+    width: calc(100% - var(--page-gutter) * 2);
+  }
   .neural-stage {
-    left: 24%;
+    left: 31%;
     right: 0;
-    top: 6%;
-    bottom: 5%;
+    top: 10%;
+    bottom: 8%;
   }
   .cinematic-title {
-    top: 32%;
-  }
-  .cinematic-title h1 {
-    font-size: 135px;
-  }
-}
-@media (max-width: 1100px) and (min-width: 781px) {
-  .cinematic-title h1 {
-    font-size: 90px;
-  }
-  .neural-stage {
-    left: 18%;
-    right: -10%;
+    top: 29%;
   }
   .cinematic-content {
-    bottom: 22%;
+    bottom: 25%;
   }
-  .sculpture-label {
-    bottom: 12%;
+}
+@media (min-width: 781px) and (max-width: 1100px) {
+  .cinematic-title h1 {
+    font-size: 80px;
+  }
+  .neural-stage {
+    left: 29%;
+    right: -5%;
+    top: 20%;
+    bottom: 16%;
+  }
+  .site-header--immersive .desktop-nav {
+    margin-right: 0;
+    gap: 20px;
+  }
+  .site-header--immersive .header-cta {
+    display: none;
   }
 }
 @media (max-width: 780px) {
@@ -295,105 +287,89 @@
   }
   .cinematic-hero {
     height: 100svh;
-    min-height: 940px;
+    min-height: 800px;
     max-height: none;
   }
   .hero-overline {
-    top: 106px;
+    top: 102px;
     font-size: 8px;
   }
   .hero-overline > span:last-child {
     display: none;
   }
-  .neural-stage {
-    left: -11%;
-    right: -11%;
-    top: 20%;
-    bottom: 25%;
-  }
   .cinematic-title {
-    top: 17%;
+    top: 146px;
   }
   .cinematic-title h1 {
-    font-size: clamp(56px, 9vw, 84px);
-    max-width: 520px;
+    font-size: clamp(54px, 9vw, 78px);
+    letter-spacing: -0.065em;
+    line-height: 1.04;
+  }
+  .neural-stage {
+    left: 4%;
+    right: 4%;
+    top: 29%;
+    bottom: 25%;
   }
   .cinematic-content {
-    bottom: 14%;
+    bottom: 120px;
   }
   .cinematic-content p {
     font-size: 12px;
   }
   .cinematic-actions {
-    margin-top: 18px;
-    gap: 22px;
+    margin-top: 16px;
+  }
+  .cinematic-actions .button--primary {
+    font-size: 12px;
+    min-height: 48px;
   }
   .sculpture-label {
-    bottom: 8%;
-    left: var(--page-gutter);
-    right: auto;
+    right: 6%;
+    bottom: 29%;
   }
   .sculpture-label__line {
-    display: none;
+    width: 22px;
   }
   .sculpture-label strong {
-    font-size: 8px;
+    font-size: 7px;
   }
   .sculpture-label div > span {
+    display: none;
+  }
+  .anatomy-credit {
+    left: var(--page-gutter);
+    right: var(--page-gutter);
+    bottom: 76px;
     font-size: 8px;
   }
   .hero-edge {
-    bottom: 13px;
+    bottom: 16px;
     font-size: 7px;
   }
-  .scene-controls > span {
+  .scene-controls:has(.motion-button) > span {
     display: none;
-  }
-  .neural-still img {
-    width: 100%;
   }
 }
 @media (max-width: 480px) {
-  .cinematic-hero {
-    min-height: 850px;
-  }
   .cinematic-title {
-    top: 17%;
+    top: 140px;
   }
   .cinematic-title h1 {
-    font-size: clamp(50px, 14vw, 68px);
-    line-height: 1.02;
-    letter-spacing: -0.065em;
+    font-size: clamp(49px, 13.4vw, 63px);
   }
   .neural-stage {
-    top: 28%;
-    bottom: 26%;
-    left: -17%;
-    right: -17%;
-  }
-  .cinematic-content {
-    bottom: 15%;
-  }
-  .cinematic-content p {
-    max-width: 270px;
-  }
-  .cinematic-actions {
-    gap: 10px;
-  }
-  .cinematic-actions .button--primary {
-    gap: 22px;
-    font-size: 11px;
-  }
-  .cinematic-actions .button--text {
-    font-size: 10px;
+    left: 2%;
+    right: 2%;
+    top: 31%;
+    bottom: 27%;
   }
   .sculpture-label {
-    bottom: 8%;
+    bottom: 28%;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .neural-stage {
-    opacity: 1;
+  .neural-stage canvas {
     transition: none;
   }
 }

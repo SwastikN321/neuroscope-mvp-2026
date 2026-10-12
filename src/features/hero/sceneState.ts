@@ -4,10 +4,8 @@ import type { Rotation } from './rotation';
 export type SceneInput = {
   pointerX: number;
   pointerY: number;
-  scroll: number;
   rotation: Rotation;
   dragging: boolean;
-  activity: boolean;
   paused: boolean;
 };
 export function useMediaQuery(query: string) {
