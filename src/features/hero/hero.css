@@ -429,3 +429,277 @@
     margin-top: 10px;
   }
 }
+
+/* One native-scroll stage; the canvas persists across all three chapters. */
+.neural-journey {
+  position: relative;
+  height: 340svh;
+  --journey-progress: 0;
+  --hero-opacity: 1;
+  --hero-shift: 0px;
+  --network-opacity: 0;
+  --signal-opacity: 0;
+  --signal-shift: 26px;
+}
+.neural-journey > .cinematic-hero {
+  position: sticky;
+  top: 0;
+  max-height: none;
+}
+.neural-journey:not(.neural-journey--static) .neural-stage {
+  inset: 0;
+}
+.neural-journey [data-hero-copy] {
+  opacity: var(--hero-opacity);
+  transform: translateY(var(--hero-shift));
+}
+.neural-journey [data-hero-copy][inert] {
+  pointer-events: none;
+}
+.signal-anchor {
+  position: absolute;
+  top: calc(100% - 100svh);
+  left: 0;
+  width: 1px;
+  height: 1px;
+}
+.neural-journey--static {
+  height: auto;
+}
+.neural-journey--static > .cinematic-hero {
+  position: relative;
+}
+.network-caption {
+  position: absolute;
+  left: var(--page-gutter);
+  top: 15%;
+  color: #9ac6da;
+  opacity: var(--network-opacity);
+  pointer-events: none;
+}
+.network-caption > span,
+.network-caption small,
+.signal-eyebrow,
+.signal-disclosure,
+.signal-axis-label,
+.signal-axis-end,
+.signal-channel,
+.journey-meter {
+  font:
+    9px/1.8 ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+}
+.network-caption p {
+  font-size: clamp(30px, 3.5vw, 56px);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  margin: 14px 0;
+  color: #d4ebf2;
+}
+.network-caption small {
+  font-size: 8px;
+  color: #60869d;
+}
+.signal-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding-bottom: 4%;
+  opacity: var(--signal-opacity);
+  transform: translateY(var(--signal-shift));
+  pointer-events: none;
+}
+.signal-content h2,
+.signal-still h2 {
+  font-size: clamp(54px, 5.9vw, 114px);
+  line-height: 1.06;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  color: #e1edef;
+  margin: 25px 0;
+}
+.signal-content h2 span,
+.signal-still h2 span {
+  color: #9cbacc;
+}
+.signal-eyebrow {
+  color: #77b6c9;
+}
+.signal-description {
+  font-size: 13px;
+  color: #99aebb;
+  line-height: 1.8;
+}
+.signal-disclosure {
+  color: #7c9baa;
+  margin-top: 34px;
+  font-size: 8px;
+}
+.signal-disclosure span {
+  font: 11px/2 var(--font-sans);
+  letter-spacing: 0;
+  color: #738b9b;
+}
+.signal-annotations {
+  position: absolute;
+  inset: 0;
+  opacity: var(--signal-opacity);
+  pointer-events: none;
+}
+.signal-channel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #7baccc;
+  margin-top: -7px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+.signal-axis-label {
+  position: absolute;
+  left: 49%;
+  top: 23%;
+  font-size: 8px;
+  color: #678697;
+}
+.signal-axis-end {
+  position: absolute;
+  right: var(--page-gutter);
+  bottom: 16%;
+  font-size: 8px;
+  color: #567385;
+}
+.journey-meter {
+  position: absolute;
+  bottom: 42px;
+  left: var(--page-gutter);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 7px;
+  color: #6996aa;
+  opacity: calc(1 - var(--hero-opacity));
+  pointer-events: none;
+}
+.journey-meter i {
+  width: 120px;
+  height: 1px;
+  background: #274557;
+  position: relative;
+}
+.journey-meter i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #90d4ed;
+  transform-origin: left;
+  transform: scaleX(var(--journey-progress));
+}
+.signal-still {
+  min-height: 80svh;
+  padding-block: 90px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 50px;
+}
+.signal-still h2 {
+  font-size: clamp(44px, 5vw, 80px);
+}
+.signal-still svg {
+  width: 100%;
+  overflow: visible;
+}
+.signal-still text {
+  font:
+    12px ui-monospace,
+    monospace;
+  fill: #729eb8;
+}
+.signal-trace {
+  fill: none;
+  stroke: #4bcce1;
+  stroke-width: 1.2;
+}
+.signal-trace--3,
+.signal-trace--4 {
+  stroke: #9c8ae9;
+}
+@media (max-width: 780px) {
+  .neural-journey {
+    height: 280svh;
+  }
+  .neural-journey--static {
+    height: auto;
+  }
+  .neural-journey > .cinematic-hero {
+    min-height: 700px;
+  }
+  .signal-content {
+    justify-content: flex-start;
+    padding-top: 15svh;
+  }
+  .signal-content h2 {
+    font-size: clamp(42px, 11.7vw, 70px);
+    margin: 17px 0;
+  }
+  .signal-description {
+    font-size: 11px;
+    max-width: 310px;
+  }
+  .signal-disclosure {
+    margin-top: 18px;
+    font-size: 7px;
+  }
+  .signal-disclosure span {
+    font-size: 9px;
+  }
+  .signal-axis-label {
+    left: 17%;
+    top: 42%;
+    font-size: 6px;
+    letter-spacing: 0.04em;
+  }
+  .signal-axis-end {
+    bottom: 15%;
+    font-size: 6px;
+  }
+  .signal-channel {
+    font-size: 8px;
+  }
+  .network-caption {
+    top: 16%;
+  }
+  .journey-meter {
+    bottom: 36px;
+    gap: 10px;
+    font-size: 6px;
+  }
+  .journey-meter i {
+    width: 58px;
+  }
+  .signal-still {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-block: 60px;
+  }
+}
+
+.neural-journey:not(.neural-journey--static) .neural-still {
+  left: 32%;
+  right: -1%;
+  top: 11%;
+  bottom: 8%;
+}
+@media (max-width: 780px) {
+  .neural-journey:not(.neural-journey--static) .neural-still {
+    left: 2%;
+    right: 2%;
+    top: 31%;
+    bottom: 27%;
+  }
+}

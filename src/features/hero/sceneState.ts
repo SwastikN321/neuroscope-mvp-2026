@@ -8,6 +8,8 @@ export type SceneInput = {
   dragging: boolean;
   paused: boolean;
   signal: boolean;
+  scroll: number;
+  invalidate?: () => void;
 };
 export function useMediaQuery(query: string) {
   return useSyncExternalStore(

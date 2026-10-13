@@ -111,7 +111,7 @@ describe('Application shell', () => {
       '-1',
     );
     expect(
-      screen.getByRole('link', { name: /scroll to discover/i }),
-    ).toHaveAttribute('href', '#design-system');
+      screen.getByRole('link', { name: /scroll into the signal/i }),
+    ).toHaveAttribute('href', '#signal');
   });
 });

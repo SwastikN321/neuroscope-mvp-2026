@@ -157,5 +157,14 @@ describe('Hero alternatives', () => {
       screen.queryByRole('button', { name: 'Pause sculpture motion' }),
     ).not.toBeInTheDocument();
     expect(document.querySelector('canvas')).toBeNull();
+    expect(
+      screen.getByRole('heading', { name: /Every signal/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: /Six static synthetic EEG channels/ }),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelectorAll('.signal-still .signal-trace'),
+    ).toHaveLength(6);
   });
 });

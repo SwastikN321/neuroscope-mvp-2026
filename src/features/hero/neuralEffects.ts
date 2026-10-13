@@ -1,5 +1,6 @@
 import {
   AdditiveBlending,
+  NormalBlending,
   DoubleSide,
   BufferGeometry,
   Float32BufferAttribute,
@@ -13,6 +14,12 @@ import {
 } from 'three';
 import type { Quality } from './anatomy';
 import { activityGLSL } from './neuralActivity';
+import { journeyState } from './journey';
+import {
+  createSignalGeometry,
+  setMorphTargets,
+  morphGLSL,
+} from './signalGeometry';
 
 export type NeuralPath = {
   region: number;
@@ -79,19 +86,24 @@ export function createNeuralEffects(
   const random = randomSource(2404);
   const uniforms = {
     uTime: { value: 0 },
+    uNetwork: { value: 0 },
+    uSignal: { value: 0 },
+    uFiberFade: { value: 1 },
+    uWaveReveal: { value: 0 },
     uHotspots: { value: Array.from({ length: 6 }, () => new Vector4()) },
     uActivity: { value: 0 },
     uPixelRatio: { value: 1 },
   };
   const positions: number[] = [],
     coordinates: number[] = [],
-    indices: number[] = [];
+    indices: number[] = [],
+    strands: number[] = [];
   const p = new Vector3(),
     n = new Vector3(),
     tangent = new Vector3(),
     side = new Vector3();
   const anchors: { p: Vector3; progress: number; region: number }[] = [];
-  for (const path of asset.paths) {
+  for (const [pathID, path] of asset.paths.entries()) {
     const count = path.positions.length / 3;
     const base = positions.length / 3;
     for (let i = 0; i < count; i++) {
@@ -110,6 +122,7 @@ export function createNeuralEffects(
           p.y + side.y * sign,
           p.z + side.z * sign,
         );
+        strands.push(pathID);
         coordinates.push(
           i / (count - 1),
           path.region,
@@ -133,6 +146,7 @@ export function createNeuralEffects(
   fibers.setAttribute('position', new Float32BufferAttribute(positions, 3));
   fibers.setAttribute('aRoute', new Float32BufferAttribute(coordinates, 4));
   fibers.setIndex(indices);
+  fibers.setAttribute('aStrand', new Float32BufferAttribute(strands, 1));
   const fiberMaterial = new ShaderMaterial({
     uniforms,
     side: DoubleSide,
@@ -140,16 +154,16 @@ export function createNeuralEffects(
     transparent: true,
     depthWrite: false,
     blending: AdditiveBlending,
-    vertexShader: `attribute vec4 aRoute; varying vec4 vRoute;
-      void main(){ vRoute=aRoute; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+    vertexShader: `${morphGLSL} attribute vec4 aRoute; varying vec4 vRoute;
+      void main(){ vRoute=aRoute; gl_Position=projectionMatrix*viewMatrix*vec4(morphPosition(position),1.); }`,
     fragmentShader: `${activityGLSL}
-      varying vec4 vRoute;
+      varying vec4 vRoute; uniform float uFiberFade;
       void main(){
         float wave=impulse(vRoute.x,vRoute.y);
         vec3 quiet=mix(vec3(.01,.18,.32),vec3(.18,.07,.34),mod(vRoute.y,3.)/3.);
         vec3 color=quiet*.9 + vec3(.015,.65,1.)*wave*5.0;
         float edge=1.-pow(abs(vRoute.z),2.);
-        gl_FragColor=vec4(color,edge*vRoute.w*(.3+uActivity*.65));
+        gl_FragColor=vec4(color,edge*vRoute.w*(.3+uActivity*.65)*uFiberFade);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
@@ -235,37 +249,78 @@ export function createNeuralEffects(
     transparent: true,
     depthWrite: false,
     blending: AdditiveBlending,
-    vertexShader: `${activityGLSL}
-      uniform float uPixelRatio; attribute vec4 aRoute; varying float vWave; varying vec2 vStyle;
+    vertexShader: `${activityGLSL} ${morphGLSL}
+      uniform float uPixelRatio; attribute vec4 aRoute; varying float vWave; varying vec2 vStyle; varying float vDepth;
       void main(){
         vWave=impulse(aRoute.x,aRoute.y); vStyle=aRoute.zw;
-        vec4 view=modelViewMatrix*vec4(position,1.);
+        vec4 view=viewMatrix*vec4(morphPosition(position),1.);
+        vDepth=smoothstep(.12,.8,-view.z);
         gl_PointSize=clamp((2.4+aRoute.z*2.6+vWave*8.)*uPixelRatio*5./(-view.z),1.,16.);
         gl_Position=projectionMatrix*view;
       }`,
-    fragmentShader: `uniform float uActivity; varying float vWave; varying vec2 vStyle;
+    fragmentShader: `uniform float uActivity; uniform float uSignal; varying float vWave; varying vec2 vStyle; varying float vDepth;
       void main(){
         float r=length(gl_PointCoord-.5)*2.; if(r>1.) discard;
         float core=exp(-r*r*16.); float halo=exp(-r*r*4.)*.18;
         vec3 color=mix(vec3(.10,.46,.8),vec3(.35,.14,.7),vStyle.x*.5)+vec3(.015,.65,1.)*vWave*2.5;
         float alpha=(core+halo)*(.48+vStyle.x*.42+vWave*.9)*vStyle.y*(.42+uActivity*.58);
-        gl_FragColor=vec4(color,alpha);
+        gl_FragColor=vec4(color,alpha*vDepth*mix(1.,.04+step(.86,vStyle.x)*.15,uSignal));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
   });
+  const waveMaterial = new ShaderMaterial({
+    uniforms,
+    transparent: true,
+    depthWrite: false,
+    blending: NormalBlending,
+    side: DoubleSide,
+    forceSinglePass: true,
+    vertexShader: `attribute vec3 aSignalRoute; varying vec3 vRoute;
+      void main(){vRoute=aSignalRoute; gl_Position=projectionMatrix*viewMatrix*vec4(position,1.);}`,
+    fragmentShader: `uniform float uWaveReveal; uniform float uTime; varying vec3 vRoute;
+      void main(){
+        float edge=abs(vRoute.z); float core=exp(-edge*edge*8.); float halo=exp(-edge*edge*3.)*.14;
+        float head=fract(uTime*.075-vRoute.y*.022);
+        float pulse=exp(-pow(vRoute.x-head,2.)*280.);
+        vec3 color=mix(vec3(.025,.48,.8),vec3(.43,.19,.8),vRoute.y/5.);
+        color+=vec3(.06,.5,.7)*pulse;
+        gl_FragColor=vec4(color*1.9,min(1.,core+halo)*uWaveReveal);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+  });
+  const wave = new Mesh(createSignalGeometry(quality, 1.6), waveMaterial);
+  wave.renderOrder = 2;
   const group = new Group();
   group.name = 'Artistic surface activity';
-  group.add(
-    new Mesh(fibers, fiberMaterial),
-    new Points(particles, particleMaterial),
-  );
+  const fiberMesh = new Mesh(fibers, fiberMaterial),
+    particleMesh = new Points(particles, particleMaterial);
+  group.add(fiberMesh, particleMesh, wave);
+  group.children.forEach((child) => {
+    child.frustumCulled = false;
+  });
+  setMorphTargets(fibers, 1.6, false);
+  setMorphTargets(particles, 1.6, true);
   return {
     group,
     uniforms,
     fibers: asset.paths.length,
     particles: particleCounts[quality],
-    update(time: number, activity: number, pixelRatio: number) {
+    resize(aspect: number) {
+      setMorphTargets(fibers, aspect, false);
+      setMorphTargets(particles, aspect, true);
+      wave.geometry.dispose();
+      wave.geometry = createSignalGeometry(quality, aspect);
+    },
+    update(time: number, activity: number, pixelRatio: number, progress = 0) {
+      const story = journeyState(progress);
+      uniforms.uNetwork.value = story.network;
+      uniforms.uSignal.value = story.signal;
+      uniforms.uFiberFade.value = 1 - story.signal;
+      uniforms.uWaveReveal.value = story.signal;
+      wave.visible = story.signal > 0.001;
+      fiberMesh.visible = story.signal < 0.999;
       uniforms.uTime.value = time;
       uniforms.uActivity.value = activity;
       uniforms.uPixelRatio.value = pixelRatio;
@@ -296,6 +351,8 @@ export function createNeuralEffects(
       });
     },
     dispose() {
+      wave.geometry.dispose();
+      waveMaterial.dispose();
       fibers.dispose();
       particles.dispose();
       fiberMaterial.dispose();

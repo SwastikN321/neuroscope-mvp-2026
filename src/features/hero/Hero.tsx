@@ -15,6 +15,8 @@ import { Icon } from '../../components/ui/Icon';
 import { useMediaQuery, webGLAvailable, type SceneInput } from './sceneState';
 import './hero.css';
 import { SIGNAL_DURATION_MS } from './neuralActivity';
+import { useJourney } from './useJourney';
+import { SignalPresentation, SignalStill } from './SignalPresentation';
 import {
   dragRotation,
   keyboardRotation,
@@ -66,6 +68,7 @@ export function Hero() {
   const handleLoading = useCallback(() => setReady(false), []);
   const handleReady = useCallback(() => setReady(true), []);
   const handleFailure = useCallback(() => setFailed(true), []);
+  const journey = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const section = useRef<HTMLElement>(null);
   const drag = useRef<TrackPoint | null>(null);
@@ -76,8 +79,10 @@ export function Hero() {
     dragging: false,
     paused: false,
     signal: false,
+    scroll: 0,
   });
   const still = reducedMotion || !webGL || failed;
+  useJourney(journey, input, still);
   const lowPower =
     typeof navigator !== 'undefined' && navigator.hardwareConcurrency <= 4;
 
@@ -127,7 +132,7 @@ export function Hero() {
       ((event.clientY - rect.top) / Math.max(1, rect.height)) * 2 - 1;
   }
   function move(event: PointerEvent<HTMLDivElement>) {
-    if (still || paused) return;
+    if (still || paused || input.current.scroll > 0.18) return;
     const rect = event.currentTarget.getBoundingClientRect();
     if (drag.current) {
       const size = Math.max(1, Math.min(rect.width, rect.height) * 0.6);
@@ -150,7 +155,7 @@ export function Hero() {
       event.currentTarget.releasePointerCapture(event.pointerId);
   }
   function rotateWithKeys(event: KeyboardEvent<HTMLDivElement>) {
-    if (still) return;
+    if (still || input.current.scroll > 0.18) return;
     if (
       ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
     ) {
@@ -173,168 +178,181 @@ export function Hero() {
   }
 
   return (
-    <section
-      ref={section}
-      className={`cinematic-hero ${ready || still ? 'cinematic-hero--ready' : ''}`}
-      aria-labelledby="hero-heading"
-      onPointerMove={trackCursor}
-      onPointerLeave={() => {
-        if (!drag.current) {
-          input.current.pointerX = 0;
-          input.current.pointerY = 0;
-        }
-      }}
+    <div
+      ref={journey}
+      className={`neural-journey ${still ? 'neural-journey--static' : ''}`}
     >
-      <div className="hero-atmosphere" aria-hidden="true" />
-      <div className="hero-overline page-container">
-        <span>
-          <i />
-          NEUROSCOPE / ANATOMICAL STUDY 001
-        </span>
-        <span>A NEW PERSPECTIVE ON THE MIND</span>
-      </div>
-      <div
-        ref={stage}
-        className={`neural-stage ${still ? 'neural-stage--still' : ''}`}
-        role="group"
-        tabIndex={still ? -1 : 0}
-        aria-label={
-          still
-            ? 'Still anatomical brain'
-            : 'Anatomical brain. Drag freely or use arrow keys for 360-degree rotation. Home resets the view.'
-        }
-        aria-describedby="sculpture-caption"
-        onPointerMove={move}
-        onPointerDown={(event) => {
-          if (still || event.button !== 0) return;
-          setPaused(false);
-          const rect = event.currentTarget.getBoundingClientRect();
-          const size = Math.max(1, Math.min(rect.width, rect.height) * 0.6);
-          drag.current = trackPoint(
-            (event.clientX - rect.left - rect.width / 2) / size,
-            (rect.top + rect.height / 2 - event.clientY) / size,
-          );
-          input.current.dragging = true;
-          event.currentTarget.setPointerCapture(event.pointerId);
+      {!still && <span id="signal" className="signal-anchor" />}
+      <section
+        ref={section}
+        className={`cinematic-hero ${ready || still ? 'cinematic-hero--ready' : ''}`}
+        aria-labelledby="hero-heading"
+        onPointerMove={trackCursor}
+        onPointerLeave={() => {
+          if (!drag.current) {
+            input.current.pointerX = 0;
+            input.current.pointerY = 0;
+          }
         }}
-        onPointerUp={release}
-        onPointerCancel={release}
-        onLostPointerCapture={() => {
-          drag.current = null;
-          input.current.dragging = false;
-        }}
-        onKeyDown={rotateWithKeys}
       >
-        {still ? (
-          <StillSculpture />
-        ) : (
-          <SceneBoundary onFailure={handleFailure}>
-            {!ready && <StillSculpture />}
-            <Suspense fallback={null}>
-              <NeuralCanvas
-                input={input}
-                quality={mobile || lowPower ? 'compact' : 'full'}
-                running={active && !paused}
-                onLoading={handleLoading}
-                onReady={handleReady}
-                onFailure={handleFailure}
-              />
-            </Suspense>
-          </SceneBoundary>
-        )}
-      </div>
-      <div className="cinematic-title page-container">
-        <h1 id="hero-heading">
-          See beyond <br />
+        <div className="hero-atmosphere" aria-hidden="true" />
+        <div data-hero-copy className="hero-overline page-container">
           <span>
-            the signal<span className="hero-stop">.</span>
+            <i />
+            NEUROSCOPE / ANATOMICAL STUDY 001
           </span>
-        </h1>
-      </div>
-      <div className="cinematic-content page-container">
-        <div>
-          <p>Explore the electrical language of the brain.</p>
-          <div className="cinematic-actions">
-            <ButtonLink to="/app">
-              Explore NeuroScope <Icon name="arrow" />
-            </ButtonLink>
+          <span>A NEW PERSPECTIVE ON THE MIND</span>
+        </div>
+        <div
+          ref={stage}
+          className={`neural-stage ${still ? 'neural-stage--still' : ''}`}
+          role="group"
+          tabIndex={still ? -1 : 0}
+          aria-label={
+            still
+              ? 'Still anatomical brain'
+              : 'Anatomical brain. Drag freely or use arrow keys for 360-degree rotation. Home resets the view.'
+          }
+          aria-describedby="sculpture-caption"
+          onPointerMove={move}
+          onPointerDown={(event) => {
+            if (still || input.current.scroll > 0.18 || event.button !== 0)
+              return;
+            setPaused(false);
+            const rect = event.currentTarget.getBoundingClientRect();
+            const size = Math.max(1, Math.min(rect.width, rect.height) * 0.6);
+            drag.current = trackPoint(
+              (event.clientX - rect.left - rect.width / 2) / size,
+              (rect.top + rect.height / 2 - event.clientY) / size,
+            );
+            input.current.dragging = true;
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }}
+          onPointerUp={release}
+          onPointerCancel={release}
+          onLostPointerCapture={() => {
+            drag.current = null;
+            input.current.dragging = false;
+          }}
+          onKeyDown={rotateWithKeys}
+        >
+          {still ? (
+            <StillSculpture />
+          ) : (
+            <SceneBoundary onFailure={handleFailure}>
+              {!ready && <StillSculpture />}
+              <Suspense fallback={null}>
+                <NeuralCanvas
+                  input={input}
+                  quality={mobile || lowPower ? 'compact' : 'full'}
+                  running={active && !paused}
+                  onLoading={handleLoading}
+                  onReady={handleReady}
+                  onFailure={handleFailure}
+                />
+              </Suspense>
+            </SceneBoundary>
+          )}
+        </div>
+        <div data-hero-copy className="cinematic-title page-container">
+          <h1 id="hero-heading">
+            See beyond <br />
+            <span>
+              the signal<span className="hero-stop">.</span>
+            </span>
+          </h1>
+        </div>
+        <div data-hero-copy className="cinematic-content page-container">
+          <div>
+            <p>Explore the electrical language of the brain.</p>
+            <div className="cinematic-actions">
+              <ButtonLink to="/app">
+                Explore NeuroScope <Icon name="arrow" />
+              </ButtonLink>
+              {!still && (
+                <Button
+                  variant="secondary"
+                  className="signal-button"
+                  aria-pressed={signal}
+                  onClick={() => {
+                    setSignal(!signal);
+                    setPaused(false);
+                  }}
+                >
+                  <span className="signal-indicator" aria-hidden="true" />
+                  {signal ? 'Quiet signal' : 'Activate signal'}
+                </Button>
+              )}
+            </div>
             {!still && (
-              <Button
-                variant="secondary"
-                className="signal-button"
-                aria-pressed={signal}
-                onClick={() => {
-                  setSignal(!signal);
-                  setPaused(false);
-                }}
-              >
-                <span className="signal-indicator" aria-hidden="true" />
-                {signal ? 'Quiet signal' : 'Activate signal'}
-              </Button>
+              <p className="signal-status" role="status">
+                {signal
+                  ? 'SIGNAL ACTIVE · TRAVELING THROUGH THE CORTEX'
+                  : 'AT REST · AN ARTISTIC STUDY OF NEURAL ACTIVITY'}
+              </p>
             )}
           </div>
-          {!still && (
-            <p className="signal-status" role="status">
-              {signal
-                ? 'SIGNAL ACTIVE · TRAVELING THROUGH THE CORTEX'
-                : 'AT REST · AN ARTISTIC STUDY OF NEURAL ACTIVITY'}
-            </p>
-          )}
         </div>
-      </div>
-      <div className="sculpture-label" id="sculpture-caption">
-        <span className="sculpture-label__line" />
-        <div>
-          <strong>THE CEREBRAL CORTEX</strong>
-          <span>Real anatomy. Imagined electrical pathways.</span>
+        <div data-hero-copy className="sculpture-label" id="sculpture-caption">
+          <span className="sculpture-label__line" />
+          <div>
+            <strong>THE CEREBRAL CORTEX</strong>
+            <span>Real anatomy. Imagined electrical pathways.</span>
+          </div>
         </div>
-      </div>
-      <p className="anatomy-credit">
-        <a href="https://brainder.org/research/brain-for-blender/">
-          Brain for Blender · Anderson Winkler
-        </a>
-        {' / '}
-        <a href="/models/ATTRIBUTION.md">Adapted</a>
-        {' / '}
-        <a href="https://creativecommons.org/licenses/by-sa/3.0/">
-          CC BY-SA 3.0
-        </a>
-      </p>
-      <div className="hero-edge page-container">
-        <a href="#design-system">
-          <span className="scroll-line" aria-hidden="true" />
-          SCROLL TO DISCOVER
-        </a>
-        <div className="scene-controls">
-          {!still && (
-            <>
-              <span>DRAG TO EXPLORE / ↑ ↓ ← → / HOME TO RESET</span>
-              <Button
-                variant="secondary"
-                className="motion-button"
-                aria-label={
-                  paused ? 'Resume sculpture motion' : 'Pause sculpture motion'
-                }
-                aria-pressed={paused}
-                onClick={() => setPaused(!paused)}
-              >
-                {paused ? (
-                  <span aria-hidden="true">▶</span>
-                ) : (
-                  <span aria-hidden="true">Ⅱ</span>
-                )}
-              </Button>
-            </>
-          )}{' '}
-          {still && (
-            <span>
-              {reducedMotion
-                ? 'REDUCED MOTION / STILL VIEW'
-                : 'WEBGL UNAVAILABLE / STILL VIEW'}
-            </span>
-          )}
+        <p data-hero-copy className="anatomy-credit">
+          <a href="https://brainder.org/research/brain-for-blender/">
+            Brain for Blender · Anderson Winkler
+          </a>
+          {' / '}
+          <a href="/models/ATTRIBUTION.md">Adapted</a>
+          {' / '}
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/">
+            CC BY-SA 3.0
+          </a>
+        </p>
+        {!still && <SignalPresentation />}
+        <div className="hero-edge page-container">
+          <a data-hero-copy href="#signal">
+            <span className="scroll-line" aria-hidden="true" />
+            SCROLL INTO THE SIGNAL
+          </a>
+          <div className="scene-controls">
+            {!still && (
+              <>
+                <span data-hero-copy>
+                  DRAG TO EXPLORE / ↑ ↓ ← → / HOME TO RESET
+                </span>
+                <Button
+                  variant="secondary"
+                  className="motion-button"
+                  aria-label={
+                    paused
+                      ? 'Resume sculpture motion'
+                      : 'Pause sculpture motion'
+                  }
+                  aria-pressed={paused}
+                  onClick={() => setPaused(!paused)}
+                >
+                  {paused ? (
+                    <span aria-hidden="true">▶</span>
+                  ) : (
+                    <span aria-hidden="true">Ⅱ</span>
+                  )}
+                </Button>
+              </>
+            )}{' '}
+            {still && (
+              <span>
+                {reducedMotion
+                  ? 'REDUCED MOTION / STILL VIEW'
+                  : 'WEBGL UNAVAILABLE / STILL VIEW'}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      {still && <SignalStill />}
+    </div>
   );
 }

@@ -30,7 +30,7 @@ describe('Real cortical fiber assets', () => {
       const anatomy = inspectAnatomy(gltf.scene, quality);
       const first = createNeuralEffects(asset, anatomy.meshes, quality);
       const second = createNeuralEffects(asset, anatomy.meshes, quality);
-      expect(first.group.children).toHaveLength(2);
+      expect(first.group.children).toHaveLength(3);
       expect(first.particles).toBe(particleCounts[quality]);
       for (let i = 0; i < 2; i++) {
         const a = (first.group.children[i] as import('three').Mesh).geometry;

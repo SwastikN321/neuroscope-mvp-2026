@@ -1,0 +1,477 @@
+{
+  "browser": "155.0.8059.40",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "captures": [
+        {
+          "name": "hero",
+          "progress": 0,
+          "file": "1440x900-hero.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.0000",
+            "cameraZ": "7.6458",
+            "network": "0.0000",
+            "waveform": "0.0000",
+            "activity": "0.000",
+            "rotation": "-0.0328,0.9316,0.0338,0.3604",
+            "geometries": "4",
+            "drawCalls": "6",
+            "frameMs": "15.8",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "approach",
+          "progress": 0.15,
+          "file": "1440x900-approach.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.1500",
+            "cameraZ": "6.5604",
+            "network": "0.0000",
+            "waveform": "0.0000",
+            "activity": "0.806",
+            "rotation": "-0.0328,0.9318,0.0338,0.3600",
+            "geometries": "4",
+            "drawCalls": "6",
+            "frameMs": "16.8",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "network",
+          "progress": 0.48,
+          "file": "1440x900-network.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.4801",
+            "cameraZ": "2.0644",
+            "network": "0.8704",
+            "waveform": "0.0000",
+            "activity": "0.994",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "4",
+            "drawCalls": "2",
+            "frameMs": "17.4",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "emergence",
+          "progress": 0.72,
+          "file": "1440x900-emergence.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.7199",
+            "cameraZ": "5.0118",
+            "network": "1.0000",
+            "waveform": "0.4580",
+            "activity": "1.000",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "5",
+            "drawCalls": "3",
+            "frameMs": "16.2",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "signal",
+          "progress": 1,
+          "file": "1440x900-signal.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "1.0000",
+            "cameraZ": "8.5000",
+            "network": "1.0000",
+            "waveform": "1.0000",
+            "activity": "0.054",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "5",
+            "drawCalls": "2",
+            "frameMs": "16.0",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        }
+      ],
+      "signalTiming": {
+        "median": 16.69999999999891,
+        "p95": 16.700000000000728
+      },
+      "networkTiming": {
+        "median": 16.69999999999891,
+        "p95": 16.80000000000109
+      },
+      "reversed": {
+        "engine": "three.js r186",
+        "journey": "0.0000",
+        "cameraZ": "7.6458",
+        "network": "0.0000",
+        "waveform": "0.0000",
+        "activity": "0.037",
+        "rotation": "-0.0246,0.9525,0.0549,0.2986",
+        "geometries": "5",
+        "drawCalls": "6",
+        "frameMs": "16.3",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2",
+        "fibers": "210",
+        "particles": "28000"
+      },
+      "pausedActivity": "1.000",
+      "checks": [
+        "five states",
+        "camera approach",
+        "six labeled signals",
+        "hidden controls inert",
+        "reverse to hero",
+        "scroll while paused",
+        "activate/quiet",
+        "keyboard/reset",
+        "bounded geometry after resize",
+        "existing content reachable",
+        "no overflow or console errors"
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "captures": [
+        {
+          "name": "hero",
+          "progress": 0,
+          "file": "1920x1080-hero.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.0000",
+            "cameraZ": "7.6458",
+            "network": "0.0000",
+            "waveform": "0.0000",
+            "activity": "0.000",
+            "rotation": "-0.0328,0.9317,0.0338,0.3602",
+            "geometries": "4",
+            "drawCalls": "6",
+            "frameMs": "16.7",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "approach",
+          "progress": 0.15,
+          "file": "1920x1080-approach.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.1501",
+            "cameraZ": "6.5593",
+            "network": "0.0000",
+            "waveform": "0.0000",
+            "activity": "0.804",
+            "rotation": "-0.0328,0.9318,0.0338,0.3599",
+            "geometries": "4",
+            "drawCalls": "6",
+            "frameMs": "16.6",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "network",
+          "progress": 0.48,
+          "file": "1920x1080-network.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.4799",
+            "cameraZ": "2.0644",
+            "network": "0.8699",
+            "waveform": "0.0000",
+            "activity": "0.993",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "4",
+            "drawCalls": "2",
+            "frameMs": "16.6",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "emergence",
+          "progress": 0.72,
+          "file": "1920x1080-emergence.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.7199",
+            "cameraZ": "5.0118",
+            "network": "1.0000",
+            "waveform": "0.4580",
+            "activity": "1.000",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "5",
+            "drawCalls": "3",
+            "frameMs": "16.3",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        },
+        {
+          "name": "signal",
+          "progress": 1,
+          "file": "1920x1080-signal.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "1.0000",
+            "cameraZ": "8.5000",
+            "network": "1.0000",
+            "waveform": "1.0000",
+            "activity": "0.057",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "5",
+            "drawCalls": "2",
+            "frameMs": "16.6",
+            "model": "/models/cortex-full.glb",
+            "triangles": "200000",
+            "hemispheres": "2",
+            "fibers": "210",
+            "particles": "28000"
+          }
+        }
+      ],
+      "signalTiming": {
+        "median": 16.69999999999891,
+        "p95": 16.700000000000728
+      },
+      "networkTiming": {
+        "median": 16.700000000000728,
+        "p95": 16.700000000000728
+      },
+      "reversed": {
+        "engine": "three.js r186",
+        "journey": "0.0000",
+        "cameraZ": "7.6458",
+        "network": "0.0000",
+        "waveform": "0.0000",
+        "activity": "0.037",
+        "rotation": "-0.0245,0.9526,0.0553,0.2982",
+        "geometries": "5",
+        "drawCalls": "6",
+        "frameMs": "16.6",
+        "model": "/models/cortex-full.glb",
+        "triangles": "200000",
+        "hemispheres": "2",
+        "fibers": "210",
+        "particles": "28000"
+      },
+      "pausedActivity": "1.000",
+      "checks": [
+        "five states",
+        "camera approach",
+        "six labeled signals",
+        "hidden controls inert",
+        "reverse to hero",
+        "scroll while paused",
+        "activate/quiet",
+        "keyboard/reset",
+        "bounded geometry after resize",
+        "existing content reachable",
+        "no overflow or console errors"
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "captures": [
+        {
+          "name": "hero",
+          "progress": 0,
+          "file": "390x844-hero.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.0000",
+            "cameraZ": "13.4907",
+            "network": "0.0000",
+            "waveform": "0.0000",
+            "activity": "0.000",
+            "rotation": "-0.0328,0.9321,0.0338,0.3591",
+            "geometries": "4",
+            "drawCalls": "6",
+            "frameMs": "16.7",
+            "model": "/models/cortex-compact.glb",
+            "triangles": "60000",
+            "hemispheres": "2",
+            "fibers": "73",
+            "particles": "9000"
+          }
+        },
+        {
+          "name": "approach",
+          "progress": 0.15,
+          "file": "390x844-approach.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.1501",
+            "cameraZ": "11.5735",
+            "network": "0.0000",
+            "waveform": "0.0000",
+            "activity": "0.804",
+            "rotation": "-0.0328,0.9319,0.0338,0.3595",
+            "geometries": "4",
+            "drawCalls": "6",
+            "frameMs": "16.5",
+            "model": "/models/cortex-compact.glb",
+            "triangles": "60000",
+            "hemispheres": "2",
+            "fibers": "73",
+            "particles": "9000"
+          }
+        },
+        {
+          "name": "network",
+          "progress": 0.48,
+          "file": "390x844-network.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.4799",
+            "cameraZ": "3.6425",
+            "network": "0.8696",
+            "waveform": "0.0000",
+            "activity": "0.993",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "4",
+            "drawCalls": "2",
+            "frameMs": "16.7",
+            "model": "/models/cortex-compact.glb",
+            "triangles": "60000",
+            "hemispheres": "2",
+            "fibers": "73",
+            "particles": "9000"
+          }
+        },
+        {
+          "name": "emergence",
+          "progress": 0.72,
+          "file": "390x844-emergence.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.7201",
+            "cameraZ": "5.8715",
+            "network": "1.0000",
+            "waveform": "0.4589",
+            "activity": "1.000",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "5",
+            "drawCalls": "3",
+            "frameMs": "16.5",
+            "model": "/models/cortex-compact.glb",
+            "triangles": "60000",
+            "hemispheres": "2",
+            "fibers": "73",
+            "particles": "9000"
+          }
+        },
+        {
+          "name": "signal",
+          "progress": 1,
+          "file": "390x844-signal.png",
+          "data": {
+            "engine": "three.js r186",
+            "journey": "0.9999",
+            "cameraZ": "8.5000",
+            "network": "1.0000",
+            "waveform": "1.0000",
+            "activity": "0.053",
+            "rotation": "-0.0333,0.9264,0.0333,0.3737",
+            "geometries": "5",
+            "drawCalls": "2",
+            "frameMs": "16.9",
+            "model": "/models/cortex-compact.glb",
+            "triangles": "60000",
+            "hemispheres": "2",
+            "fibers": "73",
+            "particles": "9000"
+          }
+        }
+      ],
+      "signalTiming": {
+        "median": 16.69999999999891,
+        "p95": 16.700000000000728
+      },
+      "networkTiming": {
+        "median": 16.69999999999891,
+        "p95": 16.700000000000728
+      },
+      "reversed": {
+        "engine": "three.js r186",
+        "journey": "0.0000",
+        "cameraZ": "13.4907",
+        "network": "0.0000",
+        "waveform": "0.0000",
+        "activity": "0.037",
+        "rotation": "-0.0245,0.9516,0.0552,0.3014",
+        "geometries": "5",
+        "drawCalls": "6",
+        "frameMs": "16.8",
+        "model": "/models/cortex-compact.glb",
+        "triangles": "60000",
+        "hemispheres": "2",
+        "fibers": "73",
+        "particles": "9000"
+      },
+      "pausedActivity": "1.000",
+      "checks": [
+        "five states",
+        "camera approach",
+        "six labeled signals",
+        "hidden controls inert",
+        "reverse to hero",
+        "scroll while paused",
+        "activate/quiet",
+        "keyboard/reset",
+        "bounded geometry after resize",
+        "existing content reachable",
+        "no overflow or console errors"
+      ]
+    }
+  ],
+  "checks": {
+    "reduced": "Static anatomical hero and labeled synthetic signals remain in native document flow",
+    "webgl-unavailable": "Static anatomical hero and labeled synthetic signals remain in native document flow",
+    "model-failure": "Static anatomical hero and labeled synthetic signals remain in native document flow",
+    "preferenceChange": "Changing to reduced motion during the transition restores static content and accessible controls",
+    "recording": "Real browser recording, forward and reverse; not used by the website"
+  }
+}

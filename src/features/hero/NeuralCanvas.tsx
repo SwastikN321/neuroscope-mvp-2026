@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   Group,
+  Vector3,
+  type Mesh,
   Euler,
   Quaternion,
   MathUtils,
@@ -22,6 +24,7 @@ import {
 } from './anatomy';
 import type { SceneInput } from './sceneState';
 import { createNeuralEffects, type NeuralAsset } from './neuralEffects';
+import { journeyState, signalLayout } from './journey';
 
 type Props = {
   input: RefObject<SceneInput>;
@@ -33,6 +36,8 @@ type Props = {
 };
 type Model = {
   scene: Group;
+  meshes: Mesh[];
+  cortex: { value: number };
   radius: number;
   triangles: number;
   effects: ReturnType<typeof createNeuralEffects>;
@@ -86,6 +91,16 @@ function Sculpture({
   const [model, setModel] = useState<Model | null>(null);
   const group = useRef<Group>(null);
   const { camera, gl, size, invalidate } = useThree();
+  const view = useRef({ distance: 8, width: 8, height: 5, mobile: false });
+  const labels = useRef<HTMLElement[]>([]);
+  const projected = useMemo(() => new Vector3(), []);
+  useEffect(() => {
+    const controls = input.current;
+    controls.invalidate = invalidate;
+    return () => {
+      delete controls.invalidate;
+    };
+  }, [input, invalidate]);
   const frame = useRef({
     time: 0,
     signalTime: 0,
@@ -189,7 +204,9 @@ function Sculpture({
       if (disposed) return;
       effects = createNeuralEffects(neuralAsset, anatomy.meshes, quality);
       const neural = effects;
+      const cortex = { value: 1 };
       material.onBeforeCompile = (shader) => {
+        shader.uniforms.uCortex = cortex;
         shader.uniforms.uHotspots = neural.uniforms.uHotspots;
         shader.vertexShader =
           'varying vec3 vCortexPosition;\n' +
@@ -198,11 +215,13 @@ function Sculpture({
             '#include <begin_vertex>\nvCortexPosition = position;',
           );
         shader.fragmentShader =
-          'varying vec3 vCortexPosition; uniform vec4 uHotspots[6];\n' +
+          'varying vec3 vCortexPosition; uniform vec4 uHotspots[6]; uniform float uCortex;\n' +
           shader.fragmentShader.replace(
             '#include <emissivemap_fragment>',
             `
           #include <emissivemap_fragment>
+          float grain = fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);
+          if (grain > uCortex) discard;
           float edgeLight = pow(1.0 - max(dot(normal, normalize(vViewPosition)), 0.0), 3.4);
           totalEmissiveRadiance += vec3(0.008, 0.09, 0.16) * edgeLight;
           for (int i = 0; i < 6; i++) {
@@ -212,10 +231,12 @@ function Sculpture({
         `,
           );
       };
-      material.customProgramCacheKey = () => 'cortex-pearl-rim-v2';
+      material.customProgramCacheKey = () => 'cortex-pearl-journey-v1';
       gltf.scene.add(effects.group);
       setModel({
         scene: gltf.scene,
+        meshes: anatomy.meshes,
+        cortex,
         radius,
         triangles: anatomy.triangles,
         effects,
@@ -240,7 +261,21 @@ function Sculpture({
 
   useEffect(() => {
     if (!model || !(camera instanceof PerspectiveCamera)) return;
-    fitAnatomy(camera, model.radius, size.width / Math.max(1, size.height));
+    const aspect = size.width / Math.max(1, size.height),
+      mobile = aspect < 1;
+    const distance =
+      fitAnatomy(camera, model.radius, aspect) / (mobile ? 0.96 : 0.81);
+    const height = 2 * distance * Math.tan((34 * Math.PI) / 360);
+    view.current = { distance, height, width: height * aspect, mobile };
+    camera.near = 0.07;
+    camera.far = 50;
+    camera.updateProjectionMatrix();
+    model.effects.resize(aspect);
+    labels.current = Array.from(
+      gl.domElement
+        .closest('.cinematic-hero')
+        ?.querySelectorAll<HTMLElement>('[data-signal-channel]') ?? [],
+    );
     // Read-only diagnostics for browser QA; no scene objects exposed globally.
     gl.domElement.dataset.model = anatomyProfiles[quality].url;
     gl.domElement.dataset.triangles = String(model.triangles);
@@ -260,6 +295,7 @@ function Sculpture({
   useFrame((_, dt) => {
     if (!model || !group.current) return;
     const state = frame.current;
+    const story = journeyState(input.current.scroll);
     const step = Math.min(dt, 0.05);
     if (!input.current.paused) state.time += step;
     const uniforms = model.effects.uniforms;
@@ -268,11 +304,49 @@ function Sculpture({
     if (!input.current.paused) state.signalTime += step;
     const activity = MathUtils.damp(
       uniforms.uActivity.value,
-      input.current.signal ? 1 : 0,
+      Math.max(input.current.signal ? 1 : 0, story.activity),
       3.5,
       step,
     );
-    model.effects.update(state.signalTime, activity, gl.getPixelRatio());
+    model.effects.update(
+      state.signalTime,
+      activity,
+      gl.getPixelRatio(),
+      story.progress,
+    );
+    model.cortex.value = story.cortex;
+    model.meshes.forEach((mesh) => {
+      mesh.visible = story.cortex > 0.001;
+    });
+    const layout = view.current;
+    group.current.position.set(
+      layout.mobile ? 0 : layout.width * 0.165 * (1 - story.center),
+      -layout.height * 0.015 * (1 - story.center),
+      0,
+    );
+    camera.position.set(
+      0,
+      0,
+      MathUtils.lerp(
+        layout.distance * (1 - 0.73 * story.approach),
+        8.5,
+        story.signal,
+      ),
+    );
+    camera.lookAt(0, 0, 0);
+    if (story.signal > 0.1) {
+      const wave = signalLayout(size.width / size.height);
+      labels.current.forEach((label, i) => {
+        projected
+          .set(wave.left - 0.13, wave.top - i * wave.spacing, -i * 0.055)
+          .project(camera);
+        label.style.transform = `translate(${(projected.x * 0.5 + 0.5) * size.width}px,${(-projected.y * 0.5 + 0.5) * size.height}px)`;
+      });
+    }
+    gl.domElement.dataset.journey = story.progress.toFixed(4);
+    gl.domElement.dataset.cameraZ = camera.position.z.toFixed(4);
+    gl.domElement.dataset.network = story.network.toFixed(4);
+    gl.domElement.dataset.waveform = story.signal.toFixed(4);
     gl.domElement.dataset.activity = uniforms.uActivity.value.toFixed(3);
     if (!input.current.dragging) state.idle = Math.sin(state.time * 0.12) * 0.1;
     state.pointerX = MathUtils.damp(
@@ -298,7 +372,8 @@ function Sculpture({
     orientation.target
       .copy(orientation.sway)
       .multiply(orientation.interaction)
-      .multiply(orientation.base);
+      .multiply(orientation.base)
+      .slerp(orientation.base, story.center);
     group.current.quaternion.slerp(
       orientation.target,
       1 - Math.exp(-(input.current.dragging ? 20 : 9) * step),
@@ -312,6 +387,7 @@ function Sculpture({
         .toArray()
         .map((n) => n.toFixed(4))
         .join(',');
+      gl.domElement.dataset.geometries = String(gl.info.memory.geometries);
       gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
       gl.domElement.dataset.frameMs = (dt * 1000).toFixed(1);
     }
