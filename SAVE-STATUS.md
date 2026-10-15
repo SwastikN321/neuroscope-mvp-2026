@@ -1,9 +1,6 @@
 # NeuroScope preservation checkpoint
 
-Saved on 2026-10-12 to `/Users/swastiknanda/Documents/NeuroScope`.
-
-The entire application source was copied unchanged from:
-`/Users/swastiknanda/Documents/Codex/2026-10-12/this-is-the-complete-long-term/outputs/neuroscope`.
+Historical checkpoint from 2026-10-12; see README.md and the phase reports for current implementation status. Local source and destination paths were redacted during deployment preparation.
 
 ## Current development state
 

@@ -14,6 +14,8 @@ The source page identifies Anderson Winkler as the models' author and explicitly
 
 Checked on **2026-10-12**. Both local OBJ files matched the corresponding members of a freshly downloaded publisher archive byte for byte. `scripts/anatomy-source.json` records the download URL and SHA-256 checksums; `manifest.json` repeats that provenance with the output checksums. This establishes file identity and the publisher's stated license; it is not an independent investigation of ownership.
 
+The publisher’s author/license statement was rechecked on **2026-10-14** for public-preview preparation. Existing local source checksums were checked again; the archive was not downloaded again in this audit.
+
 ## Adaptations for NeuroScope
 
 `cortex-full.glb`, `cortex-compact.glb`, `cortex-still.png`, `neural-full.json`, `neural-compact.json`, and their derived screenshots/previews are adaptations for NeuroScope and are distributed under **CC BY-SA 3.0 Unported**.

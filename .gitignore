@@ -33,3 +33,10 @@ work/phase-2a4/
 work/phase-2a5a/
 work/phase-2a5b/
 work/phase-3a/
+
+# Deployment QA and reproducible third-party notice output
+work/deployment/
+public/THIRD-PARTY-NOTICES.txt
+.wrangler/
+.dev.vars
+.dev.vars.*

@@ -1,6 +1,6 @@
 {
-  "source": "/Users/swastiknanda/Documents/Codex/2026-10-12/this-is-the-complete-long-term/outputs/neuroscope",
-  "destination": "/Users/swastiknanda/Documents/NeuroScope",
+  "source": "[local checkpoint source path redacted]",
+  "destination": "[repository root]",
   "files": [
     {
       "path": ".env.example",

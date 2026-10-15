@@ -1,0 +1,47 @@
+{
+  "browser": "155.0.8059.41",
+  "origin": "http://127.0.0.1:4173",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "model": "/models/cortex-full.glb",
+      "checks": [
+        "production assets",
+        "electrical interaction",
+        "forward and reverse scroll",
+        "homepage CTA",
+        "channel visibility",
+        "zoom/pan/reset",
+        "sample readout",
+        "/app refresh",
+        "local fonts",
+        "no development diagnostics",
+        "no external requests or errors"
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "model": "/models/cortex-compact.glb",
+      "checks": [
+        "production assets",
+        "electrical interaction",
+        "forward and reverse scroll",
+        "homepage CTA",
+        "channel visibility",
+        "zoom/pan/reset",
+        "sample readout",
+        "/app refresh",
+        "local fonts",
+        "no development diagnostics",
+        "no external requests or errors"
+      ]
+    }
+  ],
+  "additional": [
+    "fresh /app and /app/ plus refresh",
+    "reduced-motion fallback without GLB",
+    "binary GLB responses and accessible notices"
+  ]
+}

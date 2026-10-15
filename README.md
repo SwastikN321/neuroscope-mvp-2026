@@ -6,7 +6,7 @@ The cinematic homepage is preserved. `/app` now provides a functional EEG worksp
 
 ## Run locally
 
-Use Node **24.15+ in the 24.x LTS series** (`.nvmrc` selects 24). The locked tooling also supports Node 22.22.2+, but older Node 22 versions do not meet several dependency requirements.
+Use Node **24.15+ in the 24.x LTS series** (`.nvmrc` pins the verified 24.19.0). The locked tooling also supports Node 22.22.2+, but older Node 22 versions do not meet several dependency requirements.
 
 ```sh
 npm ci
@@ -53,7 +53,7 @@ src/features/hero/
   rotation.ts            Quaternion trackball and keyboard rotation
   sceneState.ts          Input types, media-query and WebGL support
   hero.css               Desktop/mobile hero composition
-src/pages/               Homepage, workspace placeholder, 404
+src/pages/               Homepage, EEG workspace, 404
 src/styles/              Shared theme and styles
 public/models/           Full/compact GLBs, anatomical still, attribution/reports
 scripts/                 Offline preparation, preview, validation, browser QA
@@ -87,3 +87,7 @@ The procedural studio environment uses Three.js's bundled `RoomEnvironment`; Man
 The project has not been deployed. A future production host must serve `dist/`, use HTTPS, and rewrite application routes such as `/app` to `/index.html`. Serve compressed GLBs where supported and retain their attribution. Vite dev/preview servers are local tools.
 
 Baseline `eba86b8` preserves the original application. Commit `f762760` preserves Phase 2A.2. `SAVE-STATUS.md` and `SAVE-MANIFEST.json` remain the historical preservation record.
+
+## Public preview deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the audited Cloudflare Pages settings, private GitHub preparation, SPA routing, release checklist, and account authorization steps. Only `dist/` is deployed. Nothing has been pushed or published.
