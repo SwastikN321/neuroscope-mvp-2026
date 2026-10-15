@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useLocation } from 'react-router';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -10,12 +10,13 @@ import { NotFoundPage } from '../pages/NotFoundPage';
 const WorkspacePage = lazy(() => import('../pages/WorkspacePage'));
 
 export function App() {
+  const workspace = useLocation().pathname.replace(/\/$/, '') === '/app';
   return (
     <ErrorBoundary>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
-      <Header />
+      {!workspace && <Header />}
       <RouteEffects />
       <main id="main-content" tabIndex={-1}>
         <Suspense
@@ -32,7 +33,7 @@ export function App() {
           </Routes>
         </Suspense>
       </main>
-      <Footer />
+      {!workspace && <Footer />}
     </ErrorBoundary>
   );
 }

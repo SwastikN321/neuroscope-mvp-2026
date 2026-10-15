@@ -22,7 +22,7 @@ describe('Application shell', () => {
     await user.click(screen.getByRole('link', { name: 'Explore NeuroScope' }));
     expect(
       await screen.findByRole('heading', {
-        name: 'Your workspace starts here.',
+        name: /Signal explorer/,
       }),
     ).toBeInTheDocument();
     const mainNav = within(
@@ -39,13 +39,11 @@ describe('Application shell', () => {
     renderAt('/app');
     expect(
       await screen.findByRole('heading', {
-        name: 'Your workspace starts here.',
+        name: /Signal explorer/,
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'No recordings, uploads, or account connections are available in this phase.',
-      ),
+      screen.getByText('For demonstration. Not for clinical use.'),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /upload/i }),
@@ -80,7 +78,7 @@ describe('Application shell', () => {
     );
     expect(
       await screen.findByRole('heading', {
-        name: 'Your workspace starts here.',
+        name: /Signal explorer/,
       }),
     ).toBeInTheDocument();
     expect(

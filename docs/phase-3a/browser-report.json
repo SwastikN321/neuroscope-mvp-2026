@@ -1,0 +1,66 @@
+{
+  "browser": "155.0.8059.41",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "drawnFullRecording": 21072,
+      "zoomSequenceMs": 512,
+      "checks": [
+        "fresh homepage CTA to workspace",
+        "12 channels",
+        "individual/all/no channels",
+        "zoom and pan",
+        "pointer drag",
+        "overview navigation",
+        "reset",
+        "original sample amplitude",
+        "keyboard navigation and sample inspection",
+        "full-recording point budget",
+        "no overflow or console errors",
+        "return home"
+      ]
+    },
+    {
+      "width": 1180,
+      "height": 900,
+      "drawnFullRecording": 14760,
+      "zoomSequenceMs": 443,
+      "checks": [
+        "fresh homepage CTA to workspace",
+        "12 channels",
+        "individual/all/no channels",
+        "zoom and pan",
+        "pointer drag",
+        "overview navigation",
+        "reset",
+        "original sample amplitude",
+        "keyboard navigation and sample inspection",
+        "full-recording point budget",
+        "no overflow or console errors",
+        "return home"
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "drawnFullRecording": 6768,
+      "zoomSequenceMs": 854,
+      "checks": [
+        "fresh homepage CTA to workspace",
+        "12 channels",
+        "individual/all/no channels",
+        "zoom and pan",
+        "pointer drag",
+        "overview navigation",
+        "reset",
+        "original sample amplitude",
+        "keyboard navigation and sample inspection",
+        "full-recording point budget",
+        "no overflow or console errors",
+        "return home"
+      ]
+    }
+  ],
+  "directRoute": "Direct /app entry with reduced motion works; no GLB requested"
+}

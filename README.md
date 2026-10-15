@@ -1,8 +1,8 @@
-# NeuroScope · Phase 2A.5B
+# NeuroScope · Phase 3A
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
-The current scope is the hero and existing design-system showcase. `/app` remains a workspace placeholder. EEG tools, uploads, measured neural activity, authentication, Supabase, and backend services are not implemented.
+The cinematic homepage is preserved. `/app` now provides a functional EEG workspace with a deterministic 12-channel synthetic recording, calibrated microvolt traces, zoom/pan, channel visibility, an overview timeline, sample inspection, and metadata. Uploads, measured neural activity, authentication, Supabase, and backend services are not implemented.
 
 ## Run locally
 
@@ -14,6 +14,12 @@ npm run dev
 ```
 
 Open the URL printed by Vite. No credentials or backend are required. Optional `.env.example` values are future public service boundaries; never put secrets in `VITE_*` variables.
+
+## EEG workspace
+
+Open `/app` or click **Explore NeuroScope**. The built-in recording contains 120 seconds at 256 Hz across 12 clearly labeled synthetic channels. Drag to pan, use the zoom controls, select channels, navigate the bottom timeline, and hover/tap or enter a time to inspect an original sample in microvolts. **Reset view** returns to the first ten seconds. Arrow keys pan, plus/minus zoom, Home resets, and Shift+left/right inspect adjacent samples.
+
+The viewer uses Canvas 2D with peak-preserving display reduction and an asynchronous recording-provider contract. No extra production dependency is required. [PHASE-3A.md](PHASE-3A.md) describes the data model, controls, limitations, tests, and desktop/mobile screenshots. The demo is not patient data or a clinical simulation.
 
 ## Anatomical hero
 
@@ -33,6 +39,7 @@ The GLBs depict the cerebral cortex only; they contain no cerebellum, brainstem,
 ```text
 src/app/                 Router, shell, navigation, error boundary
 src/components/          Shared brand and controls
+src/features/eeg/        Recording contracts, synthetic source, canvas viewer, channels, timeline, metadata
 src/features/hero/
   Hero.tsx               Input, responsive profile choice, loading/fallback UI
   NeuralCanvas.tsx       GLB lifecycle, materials, lighting, scene motion
