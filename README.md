@@ -1,4 +1,4 @@
-# NeuroScope · Phase 2A.5A
+# NeuroScope · Phase 2A.5B
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
@@ -67,7 +67,7 @@ scripts/                 Offline preparation, preview, validation, browser QA
 | `npm run check`        | All checks above                                                 |
 | `npm run preview`      | Local preview of the production build                            |
 
-See [PHASE-2A5A.md](PHASE-2A5A.md) for scroll choreography, browser evidence, and the forward/reverse recording. [PHASE-2A4.md](PHASE-2A4.md) documents the neural surface pipeline and preceding visual milestone. Actual browser inspection is separate from the DOM tests, which mock the canvas. A short local Chrome timing sample is not a device-wide performance guarantee. The WebGL chunk exceeds Vite's default uncompressed warning threshold because it contains Three.js/R3F and GLTFLoader.
+See [PHASE-2A5B.md](PHASE-2A5B.md) for the final transition polish, loading checks, and updated recording. See [PHASE-2A5A.md](PHASE-2A5A.md) for scroll choreography, browser evidence, and the forward/reverse recording. [PHASE-2A4.md](PHASE-2A4.md) documents the neural surface pipeline and preceding visual milestone. Actual browser inspection is separate from the DOM tests, which mock the canvas. A short local Chrome timing sample is not a device-wide performance guarantee. The WebGL chunk exceeds Vite's default uncompressed warning threshold because it contains Three.js/R3F and GLTFLoader.
 
 ## Assets and licensing
 

@@ -83,7 +83,7 @@
   .neural-stage canvas {
     display: block;
     opacity: 0;
-    transition: opacity 1.2s ease;
+    transition: opacity 0.5s ease;
   }
   .cinematic-hero--ready .neural-stage canvas {
     opacity: 1;
@@ -499,7 +499,7 @@
 }
 .network-caption small {
   font-size: 8px;
-  color: #60869d;
+  color: #87a8b9;
 }
 .signal-content {
   position: absolute;
@@ -554,24 +554,24 @@
   position: absolute;
   left: 0;
   top: 0;
-  color: #7baccc;
+  color: #b3d9e8;
   margin-top: -7px;
-  font-size: 10px;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 .signal-axis-label {
   position: absolute;
   left: 49%;
   top: 23%;
   font-size: 8px;
-  color: #678697;
+  color: #8daebb;
 }
 .signal-axis-end {
   position: absolute;
   right: var(--page-gutter);
-  bottom: 16%;
+  bottom: 12%;
   font-size: 8px;
-  color: #567385;
+  color: #7998aa;
 }
 .journey-meter {
   position: absolute;
@@ -665,7 +665,7 @@
     letter-spacing: 0.04em;
   }
   .signal-axis-end {
-    bottom: 15%;
+    bottom: 12%;
     font-size: 6px;
   }
   .signal-channel {
@@ -701,5 +701,41 @@
     right: 2%;
     top: 31%;
     bottom: 27%;
+  }
+}
+
+/* Quiet time references; amplitudes intentionally have no clinical units. */
+.signal-time-axis {
+  position: absolute;
+  inset: 0;
+  color: #8daebb;
+  font:
+    10px/1.8 ui-monospace,
+    monospace;
+}
+.signal-time-axis span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin-left: -7px;
+}
+.signal-time-axis span::before {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 5px;
+  background: #53768b;
+  margin-bottom: 6px;
+}
+.network-caption {
+  transform: translateY(calc((1 - var(--network-opacity)) * 14px));
+  text-shadow: 0 2px 18px #080d14;
+}
+@media (max-width: 780px) {
+  .signal-time-axis {
+    font-size: 8px;
+  }
+  .signal-channel {
+    font-size: 10px;
   }
 }

@@ -51,11 +51,11 @@ export function useJourney(
       style.setProperty('--signal-opacity', String(s.signalText));
       style.setProperty('--signal-shift', `${(1 - s.signalText) * 26}px`);
       element!.dataset.chapter =
-        progress < 0.25 ? 'sculpture' : progress < 0.72 ? 'network' : 'signal';
+        progress < 0.25 ? 'sculpture' : progress < 0.7 ? 'network' : 'signal';
       heroCopy.forEach((node) => {
-        node.inert = progress > 0.21;
+        node.inert = progress > 0.24;
       });
-      if (signalCopy) signalCopy.inert = progress < 0.72;
+      if (signalCopy) signalCopy.inert = progress < 0.7;
       input.current.invalidate?.();
       raf = progress !== target ? requestAnimationFrame(frame) : 0;
       if (!raf) previous = 0;

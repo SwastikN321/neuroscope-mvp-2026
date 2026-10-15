@@ -8,15 +8,15 @@ export function journeyState(progress: number) {
   const p = clamp01(progress);
   return {
     progress: p,
-    approach: interval(0.02, 0.48, p),
+    approach: interval(0.03, 0.57, p),
     center: interval(0.04, 0.35, p),
-    network: interval(0.24, 0.55, p),
+    network: interval(0.17, 0.55, p),
     signal: interval(0.55, 0.91, p),
-    cortex: 1 - interval(0.24, 0.44, p),
-    heroText: 1 - interval(0.025, 0.2, p),
-    networkText: interval(0.24, 0.35, p) * (1 - interval(0.52, 0.65, p)),
-    signalText: interval(0.72, 0.91, p),
-    activity: interval(0.025, 0.19, p) * (1 - interval(0.84, 1, p)),
+    cortex: 1 - interval(0.23, 0.46, p),
+    heroText: 1 - interval(0.07, 0.24, p),
+    networkText: interval(0.34, 0.43, p) * (1 - interval(0.61, 0.71, p)),
+    signalText: interval(0.7, 0.86, p),
+    activity: interval(0.015, 0.16, p) * (1 - interval(0.84, 1, p)),
   };
 }
 export const channelNames = ['Fp1', 'F3', 'C3', 'P3', 'O1', 'F4'] as const;
@@ -54,13 +54,18 @@ export function signalLayout(aspect: number) {
     amplitude: height * (mobile ? 0.036 : 0.052),
   };
 }
-export function signalPoint(channel: number, t: number, aspect: number) {
+export function signalPoint(
+  channel: number,
+  t: number,
+  aspect: number,
+  timeOffset = 0,
+) {
   const layout = signalLayout(aspect);
   return [
     layout.left + t * layout.width,
     layout.top -
       channel * layout.spacing +
-      syntheticEEG(channel, t * 8) * layout.amplitude,
+      syntheticEEG(channel, t * 8 + timeOffset) * layout.amplitude,
     -channel * 0.055,
   ] as const;
 }
@@ -73,4 +78,9 @@ export function networkPoint(t: number, channel: number, strand: number) {
     Math.sin(angle) * radius * 0.72,
     3.2 - t * 15 + Math.sin(strand * 1.4) * 0.18,
   ] as const;
+}
+
+/** Small deterministic interpolation between two synthetic time windows. */
+export function signalMotion(seconds: number) {
+  return (1 - Math.cos(seconds * 0.45)) * 0.5;
 }

@@ -73,14 +73,21 @@ export function SignalPresentation() {
       </div>
       <div className="signal-annotations" aria-hidden="true">
         <span className="signal-axis-label">
-          6 CHANNELS / 8 SECONDS / NORMALIZED AMPLITUDE
+          6 CHANNELS / 8 s WINDOW / NORMALIZED
         </span>
         {channelNames.map((name, i) => (
           <span key={name} className="signal-channel" data-signal-channel={i}>
             {name}
           </span>
         ))}
-        <span className="signal-axis-end">SYNTHETIC SIGNAL STUDY — 001</span>
+        <div className="signal-time-axis">
+          {[0, 2, 4, 6, 8].map((seconds) => (
+            <span key={seconds} data-signal-tick={seconds}>
+              {seconds} s
+            </span>
+          ))}
+        </div>
+        <span className="signal-axis-end">TIME-BLENDED SYNTHETIC STUDY</span>
       </div>
       <div className="journey-meter" aria-hidden="true">
         <span>01 / SCULPTURE</span>

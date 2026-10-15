@@ -1,16 +1,20 @@
-/* global window, document, innerWidth, requestAnimationFrame -- browser callbacks */
+/* global window, document, innerWidth, requestAnimationFrame, getComputedStyle -- browser callbacks */
 // Actual browser QA. Recording additionally requires Playwright's ffmpeg binary.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const { chromium } = require(process.env.NEUROSCOPE_PLAYWRIGHT || 'playwright');
-const output = path.resolve('work/phase-2a5a');
+const output = path.resolve('work/phase-2a5b');
 const url = process.env.NEUROSCOPE_URL || 'http://127.0.0.1:5173';
 const states = [
   ['hero', 0],
   ['approach', 0.15],
-  ['network', 0.48],
-  ['emergence', 0.72],
+  ['closeup', 0.26],
+  ['bridge', 0.36],
+  ['network', 0.5],
+  ['field', 0.59],
+  ['emergence', 0.76],
   ['signal', 1],
 ];
 async function scrollToProgress(page, progress) {
@@ -58,6 +62,68 @@ async function main() {
   });
   const report = { browser: browser.version(), viewports: [], checks: {} };
   try {
+    // Reproduce the previous HTML's pre-CSS state, independently of video startup.
+    const baselinePage = await browser.newPage({
+      viewport: { width: 1440, height: 900 },
+    });
+    const baselineHTML = execFileSync('git', ['show', 'f803b29:index.html'], {
+      encoding: 'utf8',
+    });
+    await baselinePage.route(url + '/', (route) =>
+      route.fulfill({ contentType: 'text/html', body: baselineHTML }),
+    );
+    await baselinePage.route('**/src/main.tsx', (route) => route.abort());
+    await baselinePage.goto(url);
+    const baselineBackground = await baselinePage.evaluate(
+      () => getComputedStyle(document.documentElement).backgroundColor,
+    );
+    assert.equal(baselineBackground, 'rgba(0, 0, 0, 0)');
+    await baselinePage.screenshot({
+      path: path.join(output, 'baseline-before-css.png'),
+    });
+    report.checks.baselineLoading =
+      'Previous HTML has a transparent default background before application CSS; reproduced separately from recording startup';
+    await baselinePage.close();
+    // Hold the entry module to inspect the real HTML before application CSS/JS.
+    const loadingContext = await browser.newContext({
+      viewport: { width: 1440, height: 900 },
+    });
+    const loadingPage = await loadingContext.newPage();
+    let releaseEntry;
+    const held = new Promise((resolve) => {
+      releaseEntry = resolve;
+    });
+    await loadingPage.route('**/src/main.tsx', async (route) => {
+      await held;
+      await route.continue();
+    });
+    await loadingPage.goto(url, { waitUntil: 'commit' });
+    await loadingPage.locator('body').waitFor({ state: 'attached' });
+    const earlyBackground = await loadingPage.evaluate(
+      () => getComputedStyle(document.documentElement).backgroundColor,
+    );
+    assert.equal(earlyBackground, 'rgb(8, 13, 20)');
+    await loadingPage.screenshot({
+      path: path.join(output, 'initial-html.png'),
+    });
+    let releaseModels;
+    const heldModels = new Promise((resolve) => {
+      releaseModels = resolve;
+    });
+    await loadingPage.route('**/*.glb', async (route) => {
+      await heldModels;
+      await route.continue();
+    });
+    releaseEntry();
+    await loadingPage.locator('.neural-still img').waitFor();
+    await loadingPage.waitForTimeout(250);
+    await loadingPage.screenshot({
+      path: path.join(output, 'loading-still.png'),
+    });
+    releaseModels();
+    await loadingPage.locator('canvas[data-model]').waitFor();
+    report.checks.initialLoading = { earlyBackground, entryModuleHeld: true };
+    await loadingContext.close();
     for (const [width, height] of [
       [1440, 900],
       [1920, 1080],
@@ -107,7 +173,10 @@ async function main() {
         Number(captures[1].data.cameraZ) < Number(captures[0].data.cameraZ),
         'Camera did not approach',
       );
-      assert.equal(captures[4].data.waveform, '1.0000');
+      assert.equal(
+        captures.find((c) => c.name === 'signal').data.waveform,
+        '1.0000',
+      );
       assert.equal(await page.locator('.signal-channel').count(), 6);
       assert.equal(
         await page.locator('.signal-content').evaluate((e) => e.inert),
@@ -118,6 +187,35 @@ async function main() {
           .locator('.cinematic-actions')
           .evaluate((e) => e.closest('[data-hero-copy]').inert),
         true,
+      );
+      const motionBefore = await canvas.getAttribute('data-signal-motion');
+      await page.waitForTimeout(650);
+      assert.notEqual(
+        await canvas.getAttribute('data-signal-motion'),
+        motionBefore,
+        'Settled traces should move',
+      );
+      await page
+        .getByRole('button', { name: 'Pause sculpture motion' })
+        .click();
+      await page.waitForTimeout(150);
+      const frozen = await canvas.getAttribute('data-signal-motion');
+      await page.waitForTimeout(350);
+      assert.equal(
+        await canvas.getAttribute('data-signal-motion'),
+        frozen,
+        'Pause must freeze the waveform timeline',
+      );
+      await page
+        .getByRole('button', { name: 'Resume sculpture motion' })
+        .click();
+      const endLabel = await page.locator('.signal-axis-end').boundingBox();
+      const lastTick = await page
+        .locator('[data-signal-tick="8"]')
+        .boundingBox();
+      assert(
+        endLabel.y > lastTick.y + lastTick.height,
+        'Time labels must not overlap the synthetic-study note',
       );
       const signalTiming = await timing(page);
       await scrollToProgress(page, 0.48);
@@ -196,7 +294,8 @@ async function main() {
         reversed,
         pausedActivity: paused,
         checks: [
-          'five states',
+          'eight visual states',
+          'moving waveforms and paused timeline',
           'camera approach',
           'six labeled signals',
           'hidden controls inert',
@@ -273,6 +372,10 @@ async function main() {
         },
       });
       const page = await recording.newPage();
+      const session = await recording.newCDPSession(page);
+      await session.send('Emulation.setDefaultBackgroundColorOverride', {
+        color: { r: 8, g: 13, b: 20, a: 1 },
+      });
       await page.goto(url);
       await page.locator('canvas[data-model]').waitFor();
       await page.waitForTimeout(1500);

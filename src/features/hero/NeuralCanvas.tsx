@@ -38,6 +38,7 @@ type Model = {
   scene: Group;
   meshes: Mesh[];
   cortex: { value: number };
+  cameraDepth: { value: number };
   radius: number;
   triangles: number;
   effects: ReturnType<typeof createNeuralEffects>;
@@ -93,6 +94,7 @@ function Sculpture({
   const { camera, gl, size, invalidate } = useThree();
   const view = useRef({ distance: 8, width: 8, height: 5, mobile: false });
   const labels = useRef<HTMLElement[]>([]);
+  const ticks = useRef<HTMLElement[]>([]);
   const projected = useMemo(() => new Vector3(), []);
   useEffect(() => {
     const controls = input.current;
@@ -158,7 +160,8 @@ function Sculpture({
         clearcoat: 0.08,
         clearcoatRoughness: 0.38,
         envMapIntensity: 0.07,
-        // Opaque pearl finish: no expensive transmission render pass.
+        transparent: true,
+        // Pearl at rest, alpha fade during entry; no transmission render pass.
       });
       // Assigned after the asynchronous neural asset request; cleanup can run earlier.
       // eslint-disable-next-line prefer-const
@@ -205,8 +208,10 @@ function Sculpture({
       effects = createNeuralEffects(neuralAsset, anatomy.meshes, quality);
       const neural = effects;
       const cortex = { value: 1 };
+      const cameraDepth = { value: 8 };
       material.onBeforeCompile = (shader) => {
         shader.uniforms.uCortex = cortex;
+        shader.uniforms.uCameraDepth = cameraDepth;
         shader.uniforms.uHotspots = neural.uniforms.uHotspots;
         shader.vertexShader =
           'varying vec3 vCortexPosition;\n' +
@@ -215,13 +220,16 @@ function Sculpture({
             '#include <begin_vertex>\nvCortexPosition = position;',
           );
         shader.fragmentShader =
-          'varying vec3 vCortexPosition; uniform vec4 uHotspots[6]; uniform float uCortex;\n' +
+          'varying vec3 vCortexPosition; uniform vec4 uHotspots[6]; uniform float uCortex; uniform float uCameraDepth;\n' +
           shader.fragmentShader.replace(
             '#include <emissivemap_fragment>',
             `
           #include <emissivemap_fragment>
-          float grain = fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);
-          if (grain > uCortex) discard;
+          // Clear near cortex first as the camera enters; distant folds survive longer.
+          float peel = mix(-2.6, 2.6, 1.0-uCortex);
+          float coverage = smoothstep(peel-1.1, peel+1.1, vViewPosition.z-uCameraDepth);
+          if (coverage < 0.02) discard;
+          diffuseColor.a *= coverage;
           float edgeLight = pow(1.0 - max(dot(normal, normalize(vViewPosition)), 0.0), 3.4);
           totalEmissiveRadiance += vec3(0.008, 0.09, 0.16) * edgeLight;
           for (int i = 0; i < 6; i++) {
@@ -231,12 +239,13 @@ function Sculpture({
         `,
           );
       };
-      material.customProgramCacheKey = () => 'cortex-pearl-journey-v1';
+      material.customProgramCacheKey = () => 'cortex-pearl-journey-v2';
       gltf.scene.add(effects.group);
       setModel({
         scene: gltf.scene,
         meshes: anatomy.meshes,
         cortex,
+        cameraDepth,
         radius,
         triangles: anatomy.triangles,
         effects,
@@ -275,6 +284,11 @@ function Sculpture({
       gl.domElement
         .closest('.cinematic-hero')
         ?.querySelectorAll<HTMLElement>('[data-signal-channel]') ?? [],
+    );
+    ticks.current = Array.from(
+      gl.domElement
+        .closest('.cinematic-hero')
+        ?.querySelectorAll<HTMLElement>('[data-signal-tick]') ?? [],
     );
     // Read-only diagnostics for browser QA; no scene objects exposed globally.
     gl.domElement.dataset.model = anatomyProfiles[quality].url;
@@ -333,6 +347,7 @@ function Sculpture({
         story.signal,
       ),
     );
+    model.cameraDepth.value = camera.position.z;
     camera.lookAt(0, 0, 0);
     if (story.signal > 0.1) {
       const wave = signalLayout(size.width / size.height);
@@ -343,11 +358,26 @@ function Sculpture({
         label.style.transform = `translate(${(projected.x * 0.5 + 0.5) * size.width}px,${(-projected.y * 0.5 + 0.5) * size.height}px)`;
       });
     }
+    if (story.signal > 0.1) {
+      const wave = signalLayout(size.width / size.height);
+      ticks.current.forEach((tick, i) => {
+        projected
+          .set(
+            wave.left + (wave.width * i) / 4,
+            wave.top - 5 * wave.spacing - wave.amplitude * 1.05,
+            -5 * 0.055,
+          )
+          .project(camera);
+        tick.style.transform = `translate(${(projected.x * 0.5 + 0.5) * size.width}px,${(-projected.y * 0.5 + 0.5) * size.height}px)`;
+      });
+    }
     gl.domElement.dataset.journey = story.progress.toFixed(4);
     gl.domElement.dataset.cameraZ = camera.position.z.toFixed(4);
     gl.domElement.dataset.network = story.network.toFixed(4);
     gl.domElement.dataset.waveform = story.signal.toFixed(4);
     gl.domElement.dataset.activity = uniforms.uActivity.value.toFixed(3);
+    gl.domElement.dataset.signalMotion =
+      uniforms.uSignalMotion.value.toFixed(5);
     if (!input.current.dragging) state.idle = Math.sin(state.time * 0.12) * 0.1;
     state.pointerX = MathUtils.damp(
       state.pointerX,

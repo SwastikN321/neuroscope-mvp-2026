@@ -4,6 +4,7 @@ import {
   networkPoint,
   signalPoint,
   syntheticEEG,
+  signalMotion,
 } from './journey';
 import { createSignalGeometry } from './signalGeometry';
 
@@ -46,6 +47,17 @@ describe('Reversible scroll choreography', () => {
   });
 });
 describe('Synthetic signal and morph destinations', () => {
+  it('keeps timeline motion continuous, bounded and reproducible', () => {
+    for (let time = 0; time < 60; time += 0.1) {
+      expect(signalMotion(time)).toBeGreaterThanOrEqual(0);
+      expect(signalMotion(time)).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(signalMotion(time + 1 / 60) - signalMotion(time)),
+      ).toBeLessThan(0.004);
+      expect(signalMotion(time)).toBe(signalMotion(time));
+    }
+    expect(signalMotion(0)).not.toBe(signalMotion(4));
+  });
   it('produces reproducible, distinct, bounded, aperiodic channels', () => {
     const samples = Array.from({ length: 640 }, (_, i) =>
       syntheticEEG(0, i / 80),
@@ -72,6 +84,9 @@ describe('Synthetic signal and morph destinations', () => {
       expect(
         Array.from(geometry.attributes.position!.array).every(Number.isFinite),
       ).toBe(true);
+      const drift = geometry.attributes.aSignalDrift!;
+      expect(drift.count).toBe(geometry.attributes.position!.count);
+      expect(Array.from(drift.array).every(Number.isFinite)).toBe(true);
       const p = geometry.attributes.position!;
       for (let i = 0; i < p.count; i += 2) {
         expect(

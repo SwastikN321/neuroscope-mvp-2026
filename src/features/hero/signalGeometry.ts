@@ -15,21 +15,33 @@ export function setMorphTargets(
   const routes = geometry.getAttribute('aRoute') as BufferAttribute;
   const network = new Float32Array(routes.count * 3);
   const signal = new Float32Array(routes.count * 3);
+  const drift = new Float32Array(routes.count * 3);
   for (let i = 0; i < routes.count; i++) {
     const t = routes.getX(i),
       channel = Math.floor(routes.getY(i)) % 6;
     const strand = particles
       ? i % 71
       : geometry.getAttribute('aStrand').getX(i);
-    const n = networkPoint(t, channel, strand),
+    // Jitter only field destinations; original surface points stay untouched.
+    const spread = particles ? routes.getZ(i) - 0.5 : 0;
+    const n = networkPoint(
+        Math.max(0, Math.min(1, t + spread * 0.07)),
+        channel,
+        strand,
+      ),
       s = signalPoint(channel, t, aspect);
     const side = particles ? 0 : routes.getZ(i) * 0.003;
-    network.set([n[0], n[1] + side, n[2]], i * 3);
+    network.set(
+      [n[0] + spread * 0.16, n[1] + side + spread * 0.11, n[2]],
+      i * 3,
+    );
+    drift.set([0, signalPoint(channel, t, aspect, 0.22)[1] - s[1], 0], i * 3);
     signal.set([s[0], s[1] + side, s[2]], i * 3);
   }
   for (const [name, values] of [
     ['aNetwork', network],
     ['aSignal', signal],
+    ['aSignalDrift', drift],
   ] as const) {
     const attribute = geometry.getAttribute(name) as
       BufferAttribute | undefined;
@@ -43,6 +55,8 @@ export function createSignalGeometry(quality: Quality, aspect: number) {
   const count = quality === 'full' ? 1280 : 640;
   const positions: number[] = [],
     coordinates: number[] = [],
+    drift: number[] = [],
+    tangents: number[] = [],
     indices: number[] = [];
   channelNames.forEach((_, channel) => {
     const base = positions.length / 3;
@@ -59,6 +73,18 @@ export function createSignalGeometry(quality: Quality, aspect: number) {
         Math.min(1, t + 1 / (count - 1)),
         aspect,
       );
+      const shiftedBefore = signalPoint(
+        channel,
+        Math.max(0, t - 1 / (count - 1)),
+        aspect,
+        0.22,
+      );
+      const shiftedAfter = signalPoint(
+        channel,
+        Math.min(1, t + 1 / (count - 1)),
+        aspect,
+        0.22,
+      );
       const dx = after[0] - before[0],
         dy = after[1] - before[1],
         length = Math.hypot(dx, dy);
@@ -67,6 +93,13 @@ export function createSignalGeometry(quality: Quality, aspect: number) {
           p[0] - (dy / length) * side * 0.013,
           p[1] + (dx / length) * side * 0.013,
           p[2],
+        );
+        drift.push(0, signalPoint(channel, t, aspect, 0.22)[1] - p[1], 0);
+        tangents.push(
+          dx,
+          dy,
+          shiftedAfter[0] - shiftedBefore[0],
+          shiftedAfter[1] - shiftedBefore[1],
         );
         coordinates.push(t, channel, side);
       }
@@ -82,14 +115,16 @@ export function createSignalGeometry(quality: Quality, aspect: number) {
     'aSignalRoute',
     new Float32BufferAttribute(coordinates, 3),
   );
+  geometry.setAttribute('aSignalDrift', new Float32BufferAttribute(drift, 3));
+  geometry.setAttribute('aTangent', new Float32BufferAttribute(tangents, 4));
   geometry.setIndex(indices);
   return geometry;
 }
 export const morphGLSL = `
-  uniform float uNetwork; uniform float uSignal;
-  attribute vec3 aNetwork; attribute vec3 aSignal;
+  uniform float uNetwork; uniform float uSignal; uniform float uSignalMotion;
+  attribute vec3 aNetwork; attribute vec3 aSignal; attribute vec3 aSignalDrift;
   vec3 morphPosition(vec3 source) {
     vec3 world = (modelMatrix * vec4(source,1.)).xyz;
-    return mix(mix(world,aNetwork,uNetwork),aSignal,uSignal);
+    return mix(mix(world,aNetwork,uNetwork),aSignal + aSignalDrift * uSignalMotion,uSignal);
   }
 `;

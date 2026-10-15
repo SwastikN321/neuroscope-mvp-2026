@@ -14,7 +14,7 @@ import {
 } from 'three';
 import type { Quality } from './anatomy';
 import { activityGLSL } from './neuralActivity';
-import { journeyState } from './journey';
+import { journeyState, signalMotion } from './journey';
 import {
   createSignalGeometry,
   setMorphTargets,
@@ -88,6 +88,8 @@ export function createNeuralEffects(
     uTime: { value: 0 },
     uNetwork: { value: 0 },
     uSignal: { value: 0 },
+    uSignalMotion: { value: 0 },
+    uBridge: { value: 0 },
     uFiberFade: { value: 1 },
     uWaveReveal: { value: 0 },
     uHotspots: { value: Array.from({ length: 6 }, () => new Vector4()) },
@@ -154,16 +156,19 @@ export function createNeuralEffects(
     transparent: true,
     depthWrite: false,
     blending: AdditiveBlending,
-    vertexShader: `${morphGLSL} attribute vec4 aRoute; varying vec4 vRoute;
-      void main(){ vRoute=aRoute; gl_Position=projectionMatrix*viewMatrix*vec4(morphPosition(position),1.); }`,
+    vertexShader: `${morphGLSL} attribute vec4 aRoute; varying vec4 vRoute; varying float vDepth;
+      void main(){ vRoute=aRoute; vec4 view=viewMatrix*vec4(morphPosition(position),1.);
+        vDepth=-view.z; gl_Position=projectionMatrix*view; }`,
     fragmentShader: `${activityGLSL}
-      varying vec4 vRoute; uniform float uFiberFade;
+      varying vec4 vRoute; varying float vDepth; uniform float uFiberFade; uniform float uBridge; uniform float uNetwork;
       void main(){
         float wave=impulse(vRoute.x,vRoute.y);
         vec3 quiet=mix(vec3(.01,.18,.32),vec3(.18,.07,.34),mod(vRoute.y,3.)/3.);
-        vec3 color=quiet*.9 + vec3(.015,.65,1.)*wave*5.0;
+        float depth=mix(1.,smoothstep(.12,.9,vDepth)*exp(-max(0.,vDepth-3.)*.052),uNetwork);
+        vec3 color=quiet*(.9+uBridge*2.4) + vec3(.015,.65,1.)*wave*3.8;
+        color+=vec3(.02,.23,.31)*uBridge*vRoute.w;
         float edge=1.-pow(abs(vRoute.z),2.);
-        gl_FragColor=vec4(color,edge*vRoute.w*(.3+uActivity*.65)*uFiberFade);
+        gl_FragColor=vec4(color,edge*vRoute.w*(.3+uActivity*.65)*uFiberFade*depth);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
@@ -254,17 +259,17 @@ export function createNeuralEffects(
       void main(){
         vWave=impulse(aRoute.x,aRoute.y); vStyle=aRoute.zw;
         vec4 view=viewMatrix*vec4(morphPosition(position),1.);
-        vDepth=smoothstep(.12,.8,-view.z);
+        vDepth=smoothstep(.18,1.15,-view.z)*mix(1.,exp(-max(0.,-view.z-3.)*.065),uNetwork);
         gl_PointSize=clamp((2.4+aRoute.z*2.6+vWave*8.)*uPixelRatio*5./(-view.z),1.,16.);
         gl_Position=projectionMatrix*view;
       }`,
-    fragmentShader: `uniform float uActivity; uniform float uSignal; varying float vWave; varying vec2 vStyle; varying float vDepth;
+    fragmentShader: `uniform float uActivity; uniform float uSignal; uniform float uNetwork; varying float vWave; varying vec2 vStyle; varying float vDepth;
       void main(){
         float r=length(gl_PointCoord-.5)*2.; if(r>1.) discard;
         float core=exp(-r*r*16.); float halo=exp(-r*r*4.)*.18;
         vec3 color=mix(vec3(.10,.46,.8),vec3(.35,.14,.7),vStyle.x*.5)+vec3(.015,.65,1.)*vWave*2.5;
         float alpha=(core+halo)*(.48+vStyle.x*.42+vWave*.9)*vStyle.y*(.42+uActivity*.58);
-        gl_FragColor=vec4(color,alpha*vDepth*mix(1.,.04+step(.86,vStyle.x)*.15,uSignal));
+        gl_FragColor=vec4(color,alpha*vDepth*mix(1.,.32+smoothstep(.62,.96,vStyle.x)*.65,uNetwork)*mix(1.,.02+step(.94,vStyle.x)*.08,uSignal));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
@@ -276,8 +281,17 @@ export function createNeuralEffects(
     blending: NormalBlending,
     side: DoubleSide,
     forceSinglePass: true,
-    vertexShader: `attribute vec3 aSignalRoute; varying vec3 vRoute;
-      void main(){vRoute=aSignalRoute; gl_Position=projectionMatrix*viewMatrix*vec4(position,1.);}`,
+    vertexShader: `attribute vec3 aSignalRoute; attribute vec3 aSignalDrift; attribute vec4 aTangent;
+      uniform float uSignalMotion; varying vec3 vRoute;
+      void main(){
+        vRoute=aSignalRoute;
+        vec2 tangent=mix(aTangent.xy,aTangent.zw,uSignalMotion);
+        vec2 baseNormal=normalize(vec2(-aTangent.y,aTangent.x));
+        vec2 normal=normalize(vec2(-tangent.y,tangent.x));
+        vec3 point=position+aSignalDrift*uSignalMotion;
+        point.xy+=(normal-baseNormal)*aSignalRoute.z*.013;
+        gl_Position=projectionMatrix*viewMatrix*vec4(point,1.);
+      }`,
     fragmentShader: `uniform float uWaveReveal; uniform float uTime; varying vec3 vRoute;
       void main(){
         float edge=abs(vRoute.z); float core=exp(-edge*edge*8.); float halo=exp(-edge*edge*3.)*.14;
@@ -317,6 +331,9 @@ export function createNeuralEffects(
       const story = journeyState(progress);
       uniforms.uNetwork.value = story.network;
       uniforms.uSignal.value = story.signal;
+      uniforms.uSignalMotion.value = signalMotion(time) * story.signal;
+      uniforms.uBridge.value =
+        Math.sin(Math.PI * story.network) + story.network * 0.45;
       uniforms.uFiberFade.value = 1 - story.signal;
       uniforms.uWaveReveal.value = story.signal;
       wave.visible = story.signal > 0.001;
