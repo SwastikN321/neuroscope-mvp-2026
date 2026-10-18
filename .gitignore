@@ -40,3 +40,11 @@ public/THIRD-PARTY-NOTICES.txt
 .wrangler/
 .dev.vars
 .dev.vars.*
+
+# Real EEG data and backend-local state must never be committed
+*.edf
+*.EDF
+*.bdf
+*.BDF
+backend/.env
+work/backend/

@@ -1,8 +1,8 @@
-# NeuroScope · Phase 3A
+# NeuroScope · Phase 3B.1
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
-The cinematic homepage is preserved. `/app` now provides a functional EEG workspace with a deterministic 12-channel synthetic recording, calibrated microvolt traces, zoom/pan, channel visibility, an overview timeline, sample inspection, and metadata. Uploads, measured neural activity, authentication, Supabase, and backend services are not implemented.
+The cinematic homepage is preserved. `/app` now provides a functional EEG workspace with a deterministic 12-channel synthetic recording, calibrated microvolt traces, zoom/pan, channel visibility, an overview timeline, sample inspection, and metadata. The frontend remains synthetic-only. A separate local FastAPI/MNE backend now reads genuine EDF recordings; it is not connected to the viewer yet. Authentication, Supabase and public deployment are not implemented.
 
 ## Run locally
 
@@ -91,3 +91,7 @@ Baseline `eba86b8` preserves the original application. Commit `f762760` preserve
 ## Public preview deployment
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the audited Cloudflare Pages settings, private GitHub preparation, SPA routing, release checklist, and account authorization steps. Only `dist/` is deployed. Nothing has been pushed or published.
+
+## Local EDF backend (Phase 3B.1)
+
+The standalone service reads classical EDF and continuous EDF+C with original channel rates, calibration and µV output. It supports private temporary uploads, technical metadata, channel listing, bounded sample windows and deletion. See [backend/README.md](backend/README.md) for exact startup commands, API contracts, resource/privacy limits and scientific validation. No frontend upload UI or integration has been added. Public deployment is deliberately postponed until real-recording support has been tested further.

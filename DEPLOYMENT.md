@@ -1,6 +1,8 @@
 # NeuroScope public preview — deployment preparation
 
-Prepared 2026-10-14 from Phase 3A (`23792fb`). **No remote was added, no push was made, and no Cloudflare project or public deployment was created.** This is a static frontend with synthetic EEG only. Phase 3B has not started.
+Prepared 2026-10-14 from Phase 3A (`23792fb`). **No remote was added, no push was made, and no Cloudflare project or public deployment was created.** That checkpoint covered the static frontend with synthetic EEG only, before backend development.
+
+> **Deployment hold after Phase 3B.1:** the frontend deployment preparation below remains historical guidance. Public deployment is postponed. The new `backend/` service is local-only and must not be included in Pages output, exposed through a proxy, or deployed using these instructions.
 
 ## Release configuration
 
