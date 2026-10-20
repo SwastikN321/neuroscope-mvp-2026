@@ -1,6 +1,6 @@
-# Phase 3B.1 — local EDF processing backend
+# Phase 3B.2 — local EDF processing and viewer integration
 
-A separate FastAPI/MNE service for actual EEG measurements. The cinematic homepage and synthetic `/app` viewer are unchanged and **are not connected to this API yet**. Public deployment remains postponed. No authentication, upload UI, cloud storage, annotations API, filtering, re-referencing, montage changes, or advanced analysis is included.
+A separate FastAPI/MNE service for actual EEG measurements. The cinematic homepage is unchanged. The `/app` viewer now supports local EDF uploads alongside the independent synthetic demo. Public deployment remains postponed. No authentication, cloud storage, annotations API, filtering, re-referencing, montage changes, or advanced analysis is included.
 
 ## Start locally
 
@@ -12,7 +12,7 @@ python3.12 -m venv .venv-backend
 .venv-backend/bin/python -m backend.neuroscope_api
 ```
 
-This command binds **127.0.0.1:8000**, with one worker, no access log, no forwarded-IP trust, and a bounded connection count. Keep it on localhost; do not substitute a public bind, reverse proxy, tunnel or deployment command. Stop with Ctrl+C. Records are temporary and removed on shutdown. The service intentionally rejects browser origins from the frontend until an integration milestone configures that boundary.
+This command binds **127.0.0.1:8000**, with one worker, no access log, no forwarded-IP trust, and a bounded connection count. Keep it on localhost; do not substitute a public bind, reverse proxy, tunnel or deployment command. Stop with Ctrl+C. Records are temporary and removed on shutdown. The service accepts only loopback clients and explicit local origins on ports 8000 and 5173. Vite uses a same-origin development proxy; no permissive CORS is enabled.
 
 Run the existing frontend in a separate terminal:
 
@@ -22,7 +22,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-The frontend continues to use only its built-in synthetic recording. `.env.example` lists optional `NEUROSCOPE_*` limits; **the backend does not load dotenv files automatically**. Export the desired values in the shell before starting. No credentials are required. For example:
+Open `/app` and select Upload Recording; the frontend sends raw EDF bytes through the local development proxy. `.env.example` lists optional `NEUROSCOPE_*` limits; **the backend does not load dotenv files automatically**. Export the desired values in the shell before starting. No credentials are required. For example:
 
 ```sh
 export NEUROSCOPE_TTL_SECONDS=1800
@@ -43,7 +43,7 @@ All recording endpoints are under `/api/recordings`. Responses use JSON, `Cache-
 | `GET /api/recordings/{id}/samples`  | Repeated `channel_ids`, `start_seconds`, `end_seconds` query parameters                      | `200` per-channel original samples in µV             |
 | `DELETE /api/recordings/{id}`       | Recording ID                                                                                 | `204` empty body; subsequent reads return `404`      |
 
-Uploads are streamed directly to a private file. **Multipart/form-data is deliberately unsupported** to avoid unbounded multipart spooling; a later frontend can send a `File` as the raw request body. No original filename is stored, returned, or used as a filesystem path. Compressed request bodies are unsupported.
+Uploads are streamed directly to a private file. **Multipart/form-data is deliberately unsupported** to avoid unbounded multipart spooling; the frontend sends a `File` as the raw request body. No original filename is stored, returned, or used as a filesystem path. Compressed request bodies are unsupported.
 
 Metadata includes format, duration, non-annotation channel count, available EEG/candidate count, channel names, source units, sampling frequencies, sample counts, type classification and remaining lifetime. There is no single global sample rate when channels differ. `source` is `edf`, not `synthetic`; this means uploaded data, not clinical verification. Dates, patient/recording identity fields, transducer descriptions, prefilter text and annotations are withheld. Original channel labels are returned because they are required for scientific use; a file's labels can themselves contain sensitive text.
 
@@ -166,3 +166,10 @@ The HTTP check uploads the generated fixture, optionally uploads the public reco
 Current results and actual HTTP verification are recorded in [VALIDATION.md](VALIDATION.md).
 
 The backend CI job installs the pinned Python environment, checks dependency consistency/lint/formatting, and runs the offline tests. It does not download public recordings or deploy anything. The existing frontend CI remains intact.
+
+## Phase 3B.2 display integration
+
+`GET /api/recordings/{id}/display?channel_id=ch000&start_sample=0&end_sample=512&bins=128`
+returns peak-preserving display bins for one original channel. Indices use that channel's native sample clock, with `[start_sample, end_sample)` boundaries. Each bin contains its original `min`, `max`, `min_sample`, and `max_sample`, plus `start_sample`/`end_sample`. Values remain µV. Up to 2,048 bins are returned. The scan uses chunks of at most 65,536 selected-channel samples and a 10-second scan deadline. It does not change the signal or average away spikes. Requesting a single sample returns that exact original measurement, also used for inspection at wide zoom levels. A full overview scans server-side, not in browser memory. The existing raw `/samples` endpoint and limits remain unchanged.
+
+`GET /health` also exposes the configured upload/window/value/channel limits for the local client. The client serializes reads, coalesces remote navigation for 80 ms, aborts obsolete work, and bounds retries. Production preview has no EEG proxy; production upload controls are disabled. See [../PHASE-3B2.md](../PHASE-3B2.md) for verification and startup instructions.

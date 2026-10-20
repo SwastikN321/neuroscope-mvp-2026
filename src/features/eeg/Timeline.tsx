@@ -62,7 +62,14 @@ export function Timeline({
     <section className="eeg-timeline" aria-label="Recording timeline">
       <div className="eeg-timeline-heading">
         <span>
-          Recording overview <small>· {overviewChannel}</small>
+          Recording overview{' '}
+          <small>
+            ·{' '}
+            {
+              source.recording.channels.find((c) => c.id === overviewChannel)
+                ?.label
+            }
+          </small>
         </span>
         <span>
           {formatTime(range.start)} / {formatTime(duration)}

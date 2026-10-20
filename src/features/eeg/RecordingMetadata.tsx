@@ -1,4 +1,9 @@
-import { formatTime, type EEGRecording, type TimeRange } from './recording';
+import {
+  rateLabel,
+  formatTime,
+  type EEGRecording,
+  type TimeRange,
+} from './recording';
 export function RecordingMetadata({
   recording,
   range,
@@ -15,11 +20,15 @@ export function RecordingMetadata({
         <dl>
           <div>
             <dt>Source</dt>
-            <dd className="eeg-accent">Synthetic demo</dd>
+            <dd className="eeg-accent">
+              {recording.source === 'synthetic'
+                ? 'Synthetic demo'
+                : 'Local EDF'}
+            </dd>
           </div>
           <div>
             <dt>Sampling frequency</dt>
-            <dd>{recording.sampleRateHz} Hz</dd>
+            <dd>{rateLabel(recording)}</dd>
           </div>
           <div>
             <dt>Duration</dt>
@@ -36,7 +45,17 @@ export function RecordingMetadata({
           </div>
           <div>
             <dt>Samples / channel</dt>
-            <dd>{recording.sampleCount.toLocaleString('en-US')}</dd>
+            <dd>
+              {[
+                ...new Set(
+                  recording.channels.map(
+                    (c) => c.sampleCount ?? recording.sampleCount,
+                  ),
+                ),
+              ]
+                .map((n) => n.toLocaleString('en-US'))
+                .join(' / ')}
+            </dd>
           </div>
           <div>
             <dt>Amplitude unit</dt>
@@ -51,21 +70,21 @@ export function RecordingMetadata({
           <span>{(range.end - range.start).toFixed(2)} seconds displayed</span>
         </div>
         <div className="eeg-method">
-          <h3>About this sample</h3>
-          <p>
-            Overlapping frequency components, changing envelopes, and seeded
-            noise. Labels follow EEG channel naming conventions.
-          </p>
-          <p>
-            Independent synthetic potentials; no acquisition reference or
-            clinical montage. Positive voltage plots upward.
-          </p>
+          <h3>About this recording</h3>
+          <p>{recording.description}</p>
+          <p>{recording.reference}</p>
         </div>
       </details>
       <p className="eeg-synthetic-notice">
-        SYNTHETIC DATA ONLY
+        {recording.source === 'synthetic'
+          ? 'SYNTHETIC DATA ONLY'
+          : 'LOCAL RESEARCH DATA'}
         <br />
-        <span>For demonstration. Not for clinical use.</span>
+        <span>
+          {recording.source === 'synthetic'
+            ? 'For demonstration. Not for clinical use.'
+            : 'Not for clinical use.'}
+        </span>
       </p>
     </aside>
   );

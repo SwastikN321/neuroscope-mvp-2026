@@ -1,0 +1,6 @@
+{
+  "browser": "155.0.8059.82",
+  "checks": [
+    "Actual stopped backend: clear error; synthetic viewer and zoom remain usable."
+  ]
+}

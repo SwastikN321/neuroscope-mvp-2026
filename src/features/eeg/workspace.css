@@ -744,3 +744,54 @@
     min-height: 38px;
   }
 }
+
+.eeg-source-bar {
+  margin: 0 32px 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--eeg-line);
+  border-radius: 8px;
+  background: #0e1822;
+}
+.eeg-source-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.eeg-workspace .eeg-upload-button {
+  color: #092225;
+  background: #a4e0da;
+  font-weight: 700;
+  border-color: #a4e0da;
+}
+.eeg-source-bar p {
+  color: #a8bac7;
+  margin: 10px 0 0;
+  line-height: 1.6;
+}
+.eeg-source-bar [role='alert'] {
+  color: #f2b8a9;
+}
+.eeg-source-bar progress {
+  width: 100%;
+  height: 4px;
+  accent-color: #a4e0da;
+}
+.eeg-recording-card p {
+  overflow-wrap: anywhere;
+}
+.eeg-channel-list {
+  max-height: 620px;
+  overflow-y: auto;
+}
+@media (max-width: 720px) {
+  .eeg-source-bar {
+    margin: 0 16px 18px;
+  }
+  .eeg-source-actions .eeg-kicker {
+    width: 100%;
+  }
+  .eeg-channel-list {
+    max-height: 240px;
+  }
+}

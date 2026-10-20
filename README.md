@@ -1,8 +1,8 @@
-# NeuroScope · Phase 3B.1
+# NeuroScope · Phase 3B.2
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
-The cinematic homepage is preserved. `/app` now provides a functional EEG workspace with a deterministic 12-channel synthetic recording, calibrated microvolt traces, zoom/pan, channel visibility, an overview timeline, sample inspection, and metadata. The frontend remains synthetic-only. A separate local FastAPI/MNE backend now reads genuine EDF recordings; it is not connected to the viewer yet. Authentication, Supabase and public deployment are not implemented.
+The cinematic homepage is preserved. `/app` now provides a functional EEG workspace with a deterministic 12-channel synthetic recording, calibrated microvolt traces, zoom/pan, channel visibility, an overview timeline, sample inspection, and metadata. In local development, Upload Recording connects the workspace to FastAPI/MNE for genuine EDF measurements, preserving native channel rates and microvolt values. The synthetic demo works independently of the backend. Authentication, Supabase and public deployment are not implemented.
 
 ## Run locally
 
@@ -13,13 +13,15 @@ npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite. No credentials or backend are required. Optional `.env.example` values are future public service boundaries; never put secrets in `VITE_*` variables.
+Open the URL printed by Vite. No credentials or backend are required. For EDF uploads, start the local backend in a second terminal using `.venv-backend/bin/python -m backend.neuroscope_api`; first-time Python setup is in [backend/README.md](backend/README.md). Vite proxies `/local-eeg` to loopback only. `.env.example` documents the optional proxy target.
 
 ## EEG workspace
 
 Open `/app` or click **Explore NeuroScope**. The built-in recording contains 120 seconds at 256 Hz across 12 clearly labeled synthetic channels. Drag to pan, use the zoom controls, select channels, navigate the bottom timeline, and hover/tap or enter a time to inspect an original sample in microvolts. **Reset view** returns to the first ten seconds. Arrow keys pan, plus/minus zoom, Home resets, and Shift+left/right inspect adjacent samples.
 
 The viewer uses Canvas 2D with peak-preserving display reduction and an asynchronous recording-provider contract. No extra production dependency is required. [PHASE-3A.md](PHASE-3A.md) describes the data model, controls, limitations, tests, and desktop/mobile screenshots. The demo is not patient data or a clinical simulation.
+
+[PHASE-3B2.md](PHASE-3B2.md) documents the local upload flow, native-rate integration, exact sample inspection, bounded display envelopes, validation, and screenshots. Uploads are disabled in production builds. No public deployment has been performed.
 
 ## Anatomical hero
 

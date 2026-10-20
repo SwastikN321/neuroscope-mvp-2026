@@ -430,3 +430,74 @@ def test_rational_sampling_frequency(service, tmp_path):
     assert data["start_time_seconds"] == 3
     expected = [(digital(0, n) + 32768) * 300 / 65535 - 200 for n in range(128, 256)]
     np.testing.assert_allclose(data["values"], expected, rtol=1e-12, atol=1e-10)
+
+
+@pytest.mark.parametrize("channel_id,rate", [("ch000", 128), ("ch001", 64), ("ch002", 128)])
+def test_display_extrema_are_original_samples(service, edf, channel_id, rate):
+    client, _ = service
+    key = upload(client, edf).json()["id"]
+    original = window(client, key, (channel_id,), "0", "4").json()["channels"][0]["values"]
+    result = client.get(
+        f"/api/recordings/{key}/display",
+        params={"channel_id": channel_id, "start_sample": 1, "end_sample": rate * 4, "bins": 13},
+    )
+    assert result.status_code == 200
+    data = result.json()
+    assert data["unit"] == "µV" and data["sampling_frequency_hz"] == rate
+    bins = data["bins"]
+    assert len(bins) == 13 and bins[0]["start_sample"] == 1
+    assert bins[-1]["end_sample"] == rate * 4
+    for i, b in enumerate(bins):
+        segment = original[b["start_sample"] : b["end_sample"]]
+        assert b["min"] == min(segment) and b["max"] == max(segment)
+        assert original[b["min_sample"]] == b["min"]
+        assert original[b["max_sample"]] == b["max"]
+        if i:
+            assert bins[i - 1]["end_sample"] == b["start_sample"]
+    exact = client.get(
+        f"/api/recordings/{key}/display",
+        params={"channel_id": channel_id, "start_sample": 37, "end_sample": 38, "bins": 1},
+    ).json()["bins"][0]
+    assert exact["min"] == exact["max"] == original[37]
+
+
+def test_display_chunk_boundaries_and_limits(service, tmp_path, monkeypatch):
+    client, app = service
+    key = upload(client, make_edf(tmp_path / "long.edf", records=1030)).json()["id"]
+    reader = app.state.store.get(key)["reader"]
+    read = reader.read
+    chunks = []
+
+    def bounded(channels, start, end):
+        chunks.append(end - start)
+        return read(channels, start, end)
+
+    monkeypatch.setattr(reader, "read", bounded)
+    params = {"channel_id": "ch000", "start_sample": 0, "end_sample": 128 * 1030, "bins": 7}
+    response = client.get(f"/api/recordings/{key}/display", params=params)
+    assert response.status_code == 200
+    assert len(chunks) == 3 and max(chunks) <= 65536
+    for b in response.json()["bins"]:
+        assert b["min"] == pytest.approx(-200) and b["max"] == pytest.approx(100)
+    for invalid_params in [
+        dict(params, bins=2049),
+        dict(params, channel_id="ch003"),
+        dict(params, end_sample=999999),
+        dict(params, start_sample=-1),
+    ]:
+        assert (
+            client.get(f"/api/recordings/{key}/display", params=invalid_params).status_code == 422
+        )
+    client.delete(f"/api/recordings/{key}")
+    assert client.get(f"/api/recordings/{key}/display", params=params).status_code == 404
+
+
+def test_local_frontend_origin_and_limits(service):
+    client, _ = service
+    response = client.get(
+        "/health", headers={"Origin": "http://127.0.0.1:5173", "Sec-Fetch-Site": "same-origin"}
+    )
+    assert response.status_code == 200
+    assert response.json()["limits"]["window_seconds"] == 30
+    for origin in ["https://example.com", "http://127.0.0.1:9999", "http://localhost.evil:5173"]:
+        assert client.get("/health", headers={"Origin": origin}).status_code == 403

@@ -1,4 +1,4 @@
-"""Local-only EDF service. No static recording routes, authentication or frontend wiring."""
+"""Local-only EDF service. No static recording routes or public authentication boundary."""
 
 import asyncio
 import logging
@@ -53,7 +53,7 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
 
     app = FastAPI(
         title="NeuroScope local EDF API",
-        version="0.1.0",
+        version="0.2.0",
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,
@@ -67,7 +67,16 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
             request.client is None
             or request.client.host not in {"127.0.0.1", "::1"}
             or request.headers.get("sec-fetch-site") == "cross-site"
-            or (origin and origin not in {"http://localhost:8000", "http://127.0.0.1:8000"})
+            or (
+                origin
+                and origin
+                not in {
+                    "http://localhost:8000",
+                    "http://127.0.0.1:8000",
+                    "http://localhost:5173",
+                    "http://127.0.0.1:5173",
+                }
+            )
         ):
             return JSONResponse(
                 {
@@ -98,7 +107,16 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
 
     @app.get("/health")
     async def health():
-        return {"status": "ok", "mode": "local-only"}
+        return {
+            "status": "ok",
+            "mode": "local-only",
+            "limits": {
+                "upload_bytes": settings.max_upload_bytes,
+                "window_seconds": settings.max_window_seconds,
+                "window_values": settings.max_window_values,
+                "selected_channels": settings.max_selected_channels,
+            },
+        }
 
     @app.post(
         "/api/recordings",
@@ -201,6 +219,19 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
         async with operation():
             return await run_in_threadpool(
                 app.state.store.samples, recording_id, channel_ids, start_seconds, end_seconds
+            )
+
+    @app.get("/api/recordings/{recording_id}/display")
+    async def display(
+        recording_id: str,
+        channel_id: str,
+        start_sample: Annotated[int, Query(ge=0)],
+        end_sample: Annotated[int, Query(gt=0)],
+        bins: Annotated[int, Query(ge=1, le=2048)] = 1024,
+    ):
+        async with operation():
+            return await run_in_threadpool(
+                app.state.store.display, recording_id, channel_id, start_sample, end_sample, bins
             )
 
     @app.delete("/api/recordings/{recording_id}", status_code=204)

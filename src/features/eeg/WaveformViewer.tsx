@@ -7,6 +7,9 @@ import {
   type KeyboardEvent,
 } from 'react';
 import {
+  channelClock,
+  sampleAt,
+  sampleValue,
   constrainRange,
   nearestVisibleSample,
   peakSamples,
@@ -17,7 +20,7 @@ import {
   type TimeRange,
 } from './recording';
 export type Probe = { sample: number; channelId: string };
-const LEFT = 62,
+const LEFT = 92,
   RIGHT = 22,
   TOP = 16,
   BOTTOM = 32;
@@ -73,7 +76,9 @@ export function WaveformViewer({
   const points = useMemo(
     () =>
       ids.map((id) =>
-        peakSamples(data.channels[id] ?? new Float32Array(), width),
+        data.timing?.[id]?.indices
+          ? data.timing[id]!.indices!.map((_, i) => i)
+          : peakSamples(data.channels[id] ?? new Float32Array(), width),
       ),
     [ids, data, width],
   );
@@ -121,7 +126,8 @@ export function WaveformViewer({
       ctx.lineWidth = 1.15;
       ctx.beginPath();
       points[lane]!.forEach((index, i) => {
-        const time = (data.startSample + index) / recording.sampleRateHz;
+        const time =
+          sampleAt(data, id, index) / channelClock(recording, id).sampleRateHz;
         const px = LEFT + ((time - range.start) / span) * width;
         const py = y - (data.channels[id]![index]! / amplitude) * row * 0.42;
         if (i === 0) ctx.moveTo(px, py);
@@ -151,11 +157,12 @@ export function WaveformViewer({
     const sample = nearestVisibleSample(
       range.start + (x / width) * span,
       range,
-      recording,
+      channelClock(recording, ids[lane]),
     );
     if (ids[lane]) onProbe({ sample, channelId: ids[lane] });
   }
   function key(event: KeyboardEvent) {
+    const clock = channelClock(recording, probe?.channelId || ids[0]);
     if (
       [
         'ArrowLeft',
@@ -182,9 +189,9 @@ export function WaveformViewer({
           sample: Math.max(
             0,
             Math.min(
-              recording.sampleCount - 1,
-              (probe?.sample ??
-                Math.round(range.start * recording.sampleRateHz)) + direction,
+              clock.sampleCount - 1,
+              (probe?.sample ?? Math.round(range.start * clock.sampleRateHz)) +
+                direction,
             ),
           ),
         });
@@ -199,26 +206,35 @@ export function WaveformViewer({
     }
     if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && ids.length) {
       const index = Math.max(0, ids.indexOf(probe?.channelId || ids[0]!));
+      const id =
+        ids[
+          Math.max(
+            0,
+            Math.min(
+              ids.length - 1,
+              index + (event.key === 'ArrowUp' ? -1 : 1),
+            ),
+          )
+        ]!;
+      const target = channelClock(recording, id);
       onProbe({
-        sample:
-          probe?.sample ?? Math.round(range.start * recording.sampleRateHz),
-        channelId:
-          ids[
-            Math.max(
-              0,
-              Math.min(
-                ids.length - 1,
-                index + (event.key === 'ArrowUp' ? -1 : 1),
-              ),
-            )
-          ]!,
+        channelId: id,
+        sample: Math.min(
+          target.sampleCount - 1,
+          Math.round(
+            (probe ? probe.sample / clock.sampleRateHz : range.start) *
+              target.sampleRateHz,
+          ),
+        ),
       });
     }
   }
-  const probeTime = probe ? probe.sample / recording.sampleRateHz : -1;
+  const probeTime = probe
+    ? probe.sample / channelClock(recording, probe.channelId).sampleRateHz
+    : -1;
   const lane = probe ? ids.indexOf(probe.channelId) : -1;
   const value = probe
-    ? data.channels[probe.channelId]?.[probe.sample - data.startSample]
+    ? sampleValue(data, probe.channelId, probe.sample)
     : undefined;
   const showProbe =
     lane >= 0 &&
@@ -229,6 +245,7 @@ export function WaveformViewer({
     <div
       ref={host}
       className="eeg-plot"
+      style={ids.length > 16 ? { height: ids.length * 30 + 48 } : undefined}
       tabIndex={0}
       role="group"
       aria-label="Interactive EEG waveform viewer"

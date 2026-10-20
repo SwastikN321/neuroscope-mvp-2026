@@ -10,6 +10,8 @@ from fractions import Fraction
 from pathlib import Path
 from uuid import uuid4
 
+import numpy as np
+
 from .config import Settings
 from .edf import EDFReader
 from .errors import RecordingError
@@ -156,6 +158,56 @@ class Store:
             "requested_end_seconds": float(end),
             "boundary": "[start, end)",
             "channels": [result[key] for key in ids],
+        }
+
+    def display(self, key, channel_id, start, end, bins):
+        """Peak-preserving display only: original extrema and their sample indices.
+
+        Scan in bounded chunks. No resampling, interpolation or averaging. Each
+        bucket covers a disjoint half-open original-sample interval.
+        """
+        reader = self.get(key)["reader"]
+        channel = next((c for c in reader.eeg if c.id == channel_id), None)
+        if channel is None or not 0 <= start < end <= channel.sample_count:
+            raise RecordingError(422, "invalid_window", "Invalid channel or sample interval.")
+        count = min(bins, end - start)
+        edges = [start + i * (end - start) // count for i in range(count + 1)]
+        lows, highs = np.full(count, np.inf), np.full(count, -np.inf)
+        low_at, high_at = np.zeros(count, dtype=int), np.zeros(count, dtype=int)
+        deadline = time.monotonic() + 10
+        bucket = 0
+        for first in range(start, end, 65536):
+            if time.monotonic() > deadline:
+                raise RecordingError(408, "display_timeout", "Display scan timed out; zoom in.")
+            stop = min(end, first + 65536)
+            values = reader.read([channel], first, stop)[0]
+            while bucket < count and edges[bucket] < stop:
+                left, right = max(first, edges[bucket]), min(stop, edges[bucket + 1])
+                part = values[left - first : right - first]
+                lo, hi = int(np.argmin(part)), int(np.argmax(part))
+                if part[lo] < lows[bucket]:
+                    lows[bucket], low_at[bucket] = part[lo], left + lo
+                if part[hi] > highs[bucket]:
+                    highs[bucket], high_at[bucket] = part[hi], left + hi
+                if edges[bucket + 1] > stop:
+                    break
+                bucket += 1
+        return {
+            "channel_id": channel_id,
+            "sampling_frequency_hz": float(channel.rate),
+            "unit": "µV",
+            "representation": "original_sample_extrema",
+            "bins": [
+                {
+                    "start_sample": edges[i],
+                    "end_sample": edges[i + 1],
+                    "min": float(lows[i]),
+                    "max": float(highs[i]),
+                    "min_sample": int(low_at[i]),
+                    "max_sample": int(high_at[i]),
+                }
+                for i in range(count)
+            ],
         }
 
     def delete(self, key):

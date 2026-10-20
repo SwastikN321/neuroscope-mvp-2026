@@ -48,3 +48,4 @@ public/THIRD-PARTY-NOTICES.txt
 *.BDF
 backend/.env
 work/backend/
+work/phase-3b2/

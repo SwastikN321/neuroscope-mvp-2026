@@ -94,3 +94,54 @@ describe('Functional EEG workspace', () => {
     ).toBeInTheDocument();
   });
 });
+
+it('keeps inspection time when switching between native channel rates and clears a hidden channel readout', async () => {
+  const user = userEvent.setup();
+  const dataSource: EEGDataSource = {
+    ...source,
+    recording: {
+      ...source.recording,
+      source: 'edf',
+      channels: [
+        {
+          ...source.recording.channels[0]!,
+          sampleRateHz: 256,
+          sampleCount: 30720,
+        },
+        {
+          ...source.recording.channels[1]!,
+          sampleRateHz: 128,
+          sampleCount: 15360,
+        },
+      ],
+    },
+    readWindow: async (startSample, endSample) => ({
+      startSample,
+      endSample,
+      channels: {
+        Fp1: new Float64Array(3000).fill(17),
+        Fp2: new Float64Array(1500).fill(-29),
+      },
+      timing: { Fp1: { startSample: 0 }, Fp2: { startSample: 0 } },
+    }),
+  };
+  renderViewer(dataSource);
+  await screen.findByRole('group', { name: 'Interactive EEG waveform viewer' });
+  fireEvent.change(screen.getByLabelText('Inspect time in seconds'), {
+    target: { value: '1.25' },
+  });
+  await waitFor(() =>
+    expect(screen.getByTestId('amplitude-readout')).toHaveTextContent(
+      '+17.00 µV',
+    ),
+  );
+  await user.selectOptions(screen.getByLabelText('Inspect channel'), 'Fp2');
+  expect(screen.getByLabelText('Inspect time in seconds')).toHaveValue(1.25);
+  await waitFor(() =>
+    expect(screen.getByTestId('amplitude-readout')).toHaveTextContent(
+      '-29.00 µV',
+    ),
+  );
+  await user.click(screen.getByRole('button', { name: 'Deselect all' }));
+  expect(screen.getByTestId('amplitude-readout')).toHaveTextContent('— µV');
+});

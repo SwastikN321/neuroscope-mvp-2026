@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { EEGWorkspace } from '../features/eeg/EEGWorkspace';
+import { RecordingSession } from '../features/eeg/RecordingSession';
 import type { EEGDataSource } from '../features/eeg/recording';
 import '../features/eeg/workspace.css';
 export default function WorkspacePage() {
@@ -38,5 +38,5 @@ export default function WorkspacePage() {
         <p>Preparing your demo recording…</p>
       </section>
     );
-  return <EEGWorkspace source={source} />;
+  return <RecordingSession demo={source} />;
 }

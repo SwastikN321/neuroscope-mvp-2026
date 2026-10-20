@@ -4,11 +4,14 @@ export type EEGChannel = {
   region: string;
   color: string;
   unit: 'µV';
+  sampleRateHz?: number;
+  sampleCount?: number;
 };
 export type EEGRecording = {
   id: string;
   name: string;
   source: 'synthetic' | 'edf';
+  /** Navigation grid only for mixed-rate recordings; channel rates govern measurements. */
   sampleRateHz: number;
   sampleCount: number;
   durationSeconds: number;
@@ -20,7 +23,9 @@ export type EEGRecording = {
 export type EEGWindow = {
   startSample: number;
   endSample: number;
-  channels: Record<string, Float32Array>;
+  channels: Record<string, Float32Array | Float64Array>;
+  timing?: Record<string, { startSample: number; indices?: number[] }>;
+  reduced?: boolean;
 };
 export type OverviewBin = {
   startSample: number;
@@ -36,6 +41,11 @@ export interface EEGDataSource {
     channelIds: string[],
     signal?: AbortSignal,
   ): Promise<EEGWindow>;
+  readSample?(
+    channelId: string,
+    sample: number,
+    signal?: AbortSignal,
+  ): Promise<number>;
   readOverview(
     channelId: string,
     bins: number,
@@ -83,7 +93,10 @@ export function formatTime(seconds: number) {
     .padStart(2, '0')}:${(seconds % 60).toFixed(2).padStart(5, '0')}`;
 }
 /** At most two extrema per horizontal bucket, in original sample order. No averaging away peaks. */
-export function peakSamples(samples: Float32Array, pixels: number): number[] {
+export function peakSamples(
+  samples: Float32Array | Float64Array,
+  pixels: number,
+): number[] {
   const step = Math.max(1, Math.ceil(samples.length / Math.max(1, pixels)));
   const indices: number[] = [];
   for (let i = 0; i < samples.length; i += step) {
@@ -117,7 +130,7 @@ export function timeTicks(range: TimeRange, width: number) {
 export function nearestVisibleSample(
   time: number,
   range: TimeRange,
-  recording: EEGRecording,
+  recording: Pick<EEGRecording, 'sampleRateHz' | 'sampleCount'>,
 ) {
   return Math.min(
     recording.sampleCount - 1,
@@ -127,4 +140,41 @@ export function nearestVisibleSample(
       Math.round(time * recording.sampleRateHz),
     ),
   );
+}
+
+/** Resolve a channel's native clock; the recording grid is never a resampling target. */
+export function channelClock(recording: EEGRecording, id?: string) {
+  const channel = recording.channels.find((c) => c.id === id);
+  return {
+    sampleRateHz: channel?.sampleRateHz ?? recording.sampleRateHz,
+    sampleCount: channel?.sampleCount ?? recording.sampleCount,
+  };
+}
+export function rateLabel(recording: EEGRecording) {
+  const rates = [
+    ...new Set(
+      recording.channels.map((c) => channelClock(recording, c.id).sampleRateHz),
+    ),
+  ];
+  return rates.length === 1
+    ? `${rates[0]} Hz`
+    : `${rates.join(' / ')} Hz (native)`;
+}
+export function sampleAt(data: EEGWindow, id: string, index: number) {
+  return (
+    data.timing?.[id]?.indices?.[index] ??
+    (data.timing?.[id]?.startSample ?? data.startSample) + index
+  );
+}
+export function sampleValue(
+  data: EEGWindow | undefined,
+  id: string,
+  sample: number,
+) {
+  if (!data) return undefined;
+  const timing = data.timing?.[id];
+  const index = timing?.indices
+    ? timing.indices.indexOf(sample)
+    : sample - (timing?.startSample ?? data.startSample);
+  return data.channels[id]?.[index];
 }

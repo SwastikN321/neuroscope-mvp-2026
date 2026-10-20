@@ -1,0 +1,29 @@
+{
+  "browser": "155.0.8059.85",
+  "checks": [
+    {
+      "width": 1440,
+      "publicRecording": "PhysioNet eegmmidb/1.0.0/S001/S001R01.edf",
+      "rawBytes": 1275936,
+      "channels": 64,
+      "rate": 160,
+      "duration": 61,
+      "mixedRates": [128, 64, 128],
+      "amplitudeOracle": "independent single-channel MNE reads",
+      "apiRequests": 195,
+      "pass": true
+    },
+    {
+      "width": 390,
+      "publicRecording": "PhysioNet eegmmidb/1.0.0/S001/S001R01.edf",
+      "rawBytes": 1275936,
+      "channels": 64,
+      "rate": 160,
+      "duration": 61,
+      "mixedRates": [128, 64, 128],
+      "amplitudeOracle": "independent single-channel MNE reads",
+      "apiRequests": 195,
+      "pass": true
+    }
+  ]
+}

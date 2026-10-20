@@ -11,11 +11,16 @@ export function ChannelPanel({
   return (
     <aside className="eeg-channels" aria-label="Channel controls">
       <div className="eeg-recording-card">
-        <span className="eeg-kicker">DEMO RECORDING</span>
+        <span className="eeg-kicker">
+          {recording.source === 'synthetic'
+            ? 'DEMO RECORDING'
+            : 'UPLOADED RECORDING'}
+        </span>
         <h2>{recording.name}</h2>
         <p>{recording.id}</p>
         <span className="eeg-tag">
-          Synthetic · {formatTime(recording.durationSeconds).slice(0, 5)}
+          {recording.source === 'synthetic' ? 'Synthetic' : 'EDF'} ·{' '}
+          {formatTime(recording.durationSeconds).slice(0, 5)}
         </span>
       </div>
       <details open className="eeg-channel-details">
@@ -58,7 +63,9 @@ export function ChannelPanel({
         </div>
       </details>
       <p className="eeg-sidebar-note">
-        A reproducible sample for exploring the viewer. No patient recordings.
+        {recording.source === 'synthetic'
+          ? 'A reproducible sample for exploring the viewer. No patient recordings.'
+          : 'Original channel names and native sampling rates. Non-EEG channels are excluded.'}
       </p>
     </aside>
   );

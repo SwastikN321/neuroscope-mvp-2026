@@ -46,8 +46,8 @@ describe('Application shell', () => {
       screen.getByText('For demonstration. Not for clinical use.'),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /upload/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Upload Recording' }),
+    ).toBeInTheDocument();
   });
 
   it('opens the mobile navigation, closes on Escape, and returns focus', async () => {

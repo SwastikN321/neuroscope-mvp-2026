@@ -20,22 +20,31 @@ export function useRecordingWindow(
   const key = `${start}:${end}:${ids.join(',')}:${retry}`;
   useEffect(() => {
     const controller = new AbortController();
-    void source
-      .readWindow(start, end, ids, controller.signal)
-      .then((data) => {
-        if (!controller.signal.aborted) setResult({ key, data });
-      })
-      .catch((error: unknown) => {
-        if (!controller.signal.aborted)
-          setResult({
-            key,
-            error:
-              error instanceof Error
-                ? error.message
-                : 'Unable to read recording',
-          });
-      });
-    return () => controller.abort();
+    const read = () => {
+      void source
+        .readWindow(start, end, ids, controller.signal)
+        .then((data) => {
+          if (!controller.signal.aborted) setResult({ key, data });
+        })
+        .catch((error: unknown) => {
+          if (!controller.signal.aborted)
+            setResult({
+              key,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'Unable to read recording',
+            });
+        });
+    };
+    // Coalesce pointer/slider movement for remote windows; synthetic reads stay immediate.
+    const timer =
+      source.recording.source === 'edf' ? setTimeout(read, 80) : undefined;
+    if (timer === undefined) read();
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [source, start, end, ids, key]);
   return { ...result, pending: result.key !== key };
 }
