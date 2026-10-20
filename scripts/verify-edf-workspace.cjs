@@ -166,7 +166,10 @@ async function main() {
       assert(
         requests.some(
           (r) =>
-            r.url.includes('/samples?') && r.url.includes('start_seconds=5.'),
+            (r.url.includes('/samples?') &&
+              r.url.includes('start_seconds=5.')) ||
+            (r.url.includes('/windows?') &&
+              new URL(r.url).searchParams.get('start_tick') === '800'),
         ),
       );
       await page.getByLabel('Recording position').evaluate((input) => {
@@ -234,9 +237,21 @@ async function main() {
         .click();
       await settled();
       assert.equal(
-        (await plot.getAttribute('data-channels')).split(',').length,
+        await page.getByRole('checkbox', { checked: true }).count(),
         64,
       );
+      assert.equal(
+        (await plot.getAttribute('data-channels')).split(',').length,
+        32,
+      );
+      await page.getByRole('button', { name: 'Next channels' }).click();
+      await settled();
+      assert.equal(
+        (await plot.getAttribute('data-channels')).split(',')[0],
+        'ch032',
+      );
+      await page.getByRole('button', { name: 'Previous channels' }).click();
+      await settled();
       await page
         .getByRole('button', { name: 'Deselect all', exact: true })
         .click();

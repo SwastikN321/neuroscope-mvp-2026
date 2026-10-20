@@ -1,0 +1,11 @@
+{
+  "browser": "155.0.8059.85",
+  "checks": [
+    "Cancel active raw upload; second selection disabled until cancel; incomplete file removed",
+    "Backend process terminated during upload; clear offline recovery; restart removes crash leftovers",
+    "Six-hour navigation and original non-extremum sample inspection at full zoom; first transient and last sample preserved",
+    "Reload clearly returns to demo; backend file remains subject to TTL/shutdown cleanup",
+    "Real two-second expiry removes data and switches explicitly to synthetic demo",
+    "Aggregate storage exhaustion preserves current recording; oversized, corrupt and truncated uploads fail without leaked files"
+  ]
+}

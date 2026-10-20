@@ -145,3 +145,38 @@ it('keeps inspection time when switching between native channel rates and clears
   await user.click(screen.getByRole('button', { name: 'Deselect all' }));
   expect(screen.getByTestId('amplitude-readout')).toHaveTextContent('— µV');
 });
+
+it('pages large channel selections without losing selection or requesting hidden channels', async () => {
+  const user = userEvent.setup();
+  const channels = Array.from({ length: 70 }, (_, i) => ({
+    ...source.recording.channels[0]!,
+    id: `B${i}`,
+    label: `B${i}`,
+  }));
+  const data: EEGDataSource = {
+    ...source,
+    recording: { ...source.recording, source: 'edf', channels },
+    readWindow: async (startSample, endSample, ids) => {
+      expect(ids.length).toBeLessThanOrEqual(32);
+      return {
+        startSample,
+        endSample,
+        channels: Object.fromEntries(
+          ids.map((id) => [id, new Float32Array(endSample - startSample)]),
+        ),
+      };
+    },
+  };
+  renderViewer(data);
+  const plot = await screen.findByRole('group', {
+    name: 'Interactive EEG waveform viewer',
+  });
+  await user.click(screen.getByRole('button', { name: /^Select all$/ }));
+  expect(screen.getAllByRole('checkbox', { checked: true })).toHaveLength(70);
+  expect(plot.getAttribute('data-channels')!.split(',')).toHaveLength(32);
+  await user.click(screen.getByRole('button', { name: 'Next channels' }));
+  expect(plot.getAttribute('data-channels')!.split(',')[0]).toBe('B32');
+  await user.click(screen.getByRole('button', { name: 'Next channels' }));
+  expect(plot.getAttribute('data-channels')!.split(',')).toHaveLength(6);
+  expect(screen.getByRole('button', { name: 'Next channels' })).toBeDisabled();
+});

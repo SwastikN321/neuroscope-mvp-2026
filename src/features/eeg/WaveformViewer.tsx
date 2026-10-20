@@ -106,6 +106,7 @@ export function WaveformViewer({
     }
     ids.forEach((id, lane) => {
       const channel = recording.channels.find((c) => c.id === id)!;
+      const nativeRate = channelClock(recording, id).sampleRateHz;
       const y = TOP + row * (lane + 0.5);
       ctx.strokeStyle = '#1b2934';
       ctx.setLineDash([2, 5]);
@@ -117,7 +118,7 @@ export function WaveformViewer({
       ctx.fillStyle = channel.color;
       ctx.textAlign = 'left';
       ctx.font = '11px ui-monospace, monospace';
-      ctx.fillText(channel.label, 14, y + 4);
+      ctx.fillText(channel.label, 14, y + 4, LEFT - 22);
       ctx.save();
       ctx.beginPath();
       ctx.rect(LEFT, TOP + row * lane, width, row);
@@ -126,8 +127,7 @@ export function WaveformViewer({
       ctx.lineWidth = 1.15;
       ctx.beginPath();
       points[lane]!.forEach((index, i) => {
-        const time =
-          sampleAt(data, id, index) / channelClock(recording, id).sampleRateHz;
+        const time = sampleAt(data, id, index) / nativeRate;
         const px = LEFT + ((time - range.start) / span) * width;
         const py = y - (data.channels[id]![index]! / amplitude) * row * 0.42;
         if (i === 0) ctx.moveTo(px, py);

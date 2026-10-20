@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import threading
 from contextlib import asynccontextmanager, suppress
 from decimal import Decimal
 from pathlib import Path
@@ -53,7 +54,7 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
 
     app = FastAPI(
         title="NeuroScope local EDF API",
-        version="0.2.0",
+        version="0.3.0",
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,
@@ -115,6 +116,7 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
                 "window_seconds": settings.max_window_seconds,
                 "window_values": settings.max_window_values,
                 "selected_channels": settings.max_selected_channels,
+                "window_batch": True,
             },
         }
 
@@ -176,6 +178,9 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
                 if length is not None and size != int(length):
                     raise invalid()
                 result = await run_in_threadpool(store.finish_upload, key, path, size)
+                if await request.is_disconnected():
+                    await run_in_threadpool(store.delete, key)
+                    raise RecordingError(400, "incomplete_upload", "Upload was interrupted.")
                 return JSONResponse(
                     result, status_code=201, headers={"Location": f"/api/recordings/{key}"}
                 )
@@ -221,8 +226,46 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
                 app.state.store.samples, recording_id, channel_ids, start_seconds, end_seconds
             )
 
+    async def cancellable(request, function, *args):
+        cancel = threading.Event()
+        task = asyncio.create_task(run_in_threadpool(function, *args, cancel))
+        try:
+            while not task.done():
+                await asyncio.wait({task}, timeout=0.02)
+                if not task.done() and await request.is_disconnected():
+                    cancel.set()
+            return await task
+        finally:
+            cancel.set()
+            # Never release the store gate while a thread still accesses a file.
+            with suppress(Exception):
+                await asyncio.shield(task)
+
+    @app.get("/api/recordings/{recording_id}/windows")
+    async def windows(
+        request: Request,
+        recording_id: str,
+        channel_ids: Annotated[list[str], Query(min_length=1, max_length=8)],
+        clock_channel_id: str,
+        start_tick: Annotated[int, Query(ge=0)],
+        end_tick: Annotated[int, Query(gt=0)],
+        bins: Annotated[int, Query(ge=1, le=1024)] = 1024,
+    ):
+        async with operation():
+            return await cancellable(
+                request,
+                app.state.store.windows,
+                recording_id,
+                channel_ids,
+                clock_channel_id,
+                start_tick,
+                end_tick,
+                bins,
+            )
+
     @app.get("/api/recordings/{recording_id}/display")
     async def display(
+        request: Request,
         recording_id: str,
         channel_id: str,
         start_sample: Annotated[int, Query(ge=0)],
@@ -230,8 +273,14 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
         bins: Annotated[int, Query(ge=1, le=2048)] = 1024,
     ):
         async with operation():
-            return await run_in_threadpool(
-                app.state.store.display, recording_id, channel_id, start_sample, end_sample, bins
+            return await cancellable(
+                request,
+                app.state.store.display,
+                recording_id,
+                channel_id,
+                start_sample,
+                end_sample,
+                bins,
             )
 
     @app.delete("/api/recordings/{recording_id}", status_code=204)

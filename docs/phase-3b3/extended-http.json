@@ -1,0 +1,23 @@
+[
+  {
+    "case": "near-extended",
+    "bytes": 134201600,
+    "cap_mib": 128,
+    "upload_parse_s": 0.3112,
+    "status": 201,
+    "channels": 64,
+    "duration_s": 4095.0,
+    "raw_12ch_median_ms": 4.09,
+    "display_status": 200,
+    "full_display_ms": [31.5, 7.12],
+    "sampled_peak_rss_mib": 91.9
+  },
+  {
+    "case": "over-extended",
+    "bytes": 134234368,
+    "cap_mib": 128,
+    "upload_parse_s": 0.0687,
+    "status": 413,
+    "sampled_peak_rss_mib": 61.9
+  }
+]

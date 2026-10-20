@@ -795,3 +795,15 @@
     max-height: 240px;
   }
 }
+.eeg-channel-pages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--eeg-line);
+}
+.eeg-channel-pages span {
+  color: var(--eeg-muted);
+  font-size: 11px;
+}

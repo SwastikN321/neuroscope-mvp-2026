@@ -173,3 +173,28 @@ The backend CI job installs the pinned Python environment, checks dependency con
 returns peak-preserving display bins for one original channel. Indices use that channel's native sample clock, with `[start_sample, end_sample)` boundaries. Each bin contains its original `min`, `max`, `min_sample`, and `max_sample`, plus `start_sample`/`end_sample`. Values remain µV. Up to 2,048 bins are returned. The scan uses chunks of at most 65,536 selected-channel samples and a 10-second scan deadline. It does not change the signal or average away spikes. Requesting a single sample returns that exact original measurement, also used for inspection at wide zoom levels. A full overview scans server-side, not in browser memory. The existing raw `/samples` endpoint and limits remain unchanged.
 
 `GET /health` also exposes the configured upload/window/value/channel limits for the local client. The client serializes reads, coalesces remote navigation for 80 ms, aborts obsolete work, and bounds retries. Production preview has no EEG proxy; production upload controls are disabled. See [../PHASE-3B2.md](../PHASE-3B2.md) for verification and startup instructions.
+
+## Phase 3B.3 bounded research profile and batch API
+
+The default remains **64 MiB per upload / 256 MiB aggregate / four temporary recordings**. A separately tested opt-in profile supports **128 MiB** uploads without preloading the recording:
+
+```sh
+export NEUROSCOPE_MAX_UPLOAD_BYTES=134217728
+export NEUROSCOPE_MAX_STORAGE_BYTES=268435456
+export NEUROSCOPE_UPLOAD_TIMEOUT=60
+.venv-backend/bin/python -m backend.neuroscope_api
+```
+
+See `backend/large-recordings.env.example`. The existing configuration hard ceiling of 512 MiB is retained for compatibility, but **files above 128 MiB have not been validated and are not recommended**. Format/header limits, aggregate storage and TTL still apply. CHB-MIT files with duplicate channel names remain unsupported; increasing the size limit does not change this.
+
+The existing endpoints remain compatible. API v0.3.0 adds:
+
+`GET /api/recordings/{id}/windows?channel_ids=ch000&channel_ids=ch001&clock_channel_id=ch000&start_tick=0&end_tick=1280&bins=1024`
+
+The clock channel supplies an original rational EDF sampling rate; integer ticks form a half-open interval. Each selected channel maps that interval to its own native indices using exact rational arithmetic. Up to eight channels per batch (or the smaller configured channel cap), at most 1,024 display bins per channel. The response contains `channels` with original ID, native rate, `unit: "µV"`, `start_sample`, `end_sample`, `representation`, and `values`; display extrema also include original `indices`. Narrow batches use grouped lazy MNE reads when the raw limits allow them. Otherwise the same peak-preserving representation is returned and labeled. No implicit resampling or unit conversion is performed by the frontend.
+
+`/health.limits.window_batch` advertises this capability. The frontend still supports the prior endpoint contract. Requests have a client deadline and the backend polls disconnection during scans; worker threads stop cooperatively between bounded reads. The store lock is retained until a canceled worker finishes, preventing deletion while it is reading a file. Uploads disconnected during parsing are removed after parsing completes. Interrupted byte streams and crash leftovers are also cleaned up.
+
+A process-wide LRU display cache retains at most 8,192 bins / 64 entries, with exact extrema and positions. Expiry and deletion invalidate it. Raw measurement windows are not cached server-side. This is not an analysis cache or persisted derived dataset.
+
+See [../PHASE-3B3.md](../PHASE-3B3.md) for measured results and security boundaries.

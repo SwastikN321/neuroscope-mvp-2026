@@ -144,3 +144,38 @@ it('does not issue requests for already canceled windows', async () => {
   ).rejects.toThrow();
   expect(mock).toHaveBeenCalledTimes(1);
 });
+
+it('batches native integer-clock windows and retains exact per-channel offsets', async () => {
+  const mock = vi.fn(async (input: string) => {
+    const url = new URL(input, 'http://localhost');
+    if (url.pathname.endsWith('/channels')) return response({ channels });
+    if (url.pathname.endsWith('/windows')) {
+      expect(url.searchParams.getAll('channel_ids')).toEqual([
+        'ch000',
+        'ch001',
+      ]);
+      expect(url.searchParams.get('start_tick')).toBe('1');
+      expect(url.searchParams.get('clock_channel_id')).toBe('ch000');
+      return response({
+        channels: [
+          { id: 'ch000', start_sample: 1, values: [13.123456789] },
+          { id: 'ch001', start_sample: 1, values: [-7.25] },
+        ],
+      });
+    }
+    return response(meta);
+  });
+  vi.stubGlobal('fetch', mock);
+  const source = await createEDFSource(
+    meta,
+    { ...limits, window_batch: true },
+    vi.fn(),
+  );
+  const data = await source.readWindow(1, 3, ['ch000', 'ch001']);
+  expect(sampleValue(data, 'ch000', 1)).toBe(13.123456789);
+  expect(sampleValue(data, 'ch001', 1)).toBe(-7.25);
+  await source.readWindow(1, 3, ['ch000', 'ch001']);
+  expect(
+    mock.mock.calls.filter(([url]) => url.includes('/windows?')),
+  ).toHaveLength(1);
+});

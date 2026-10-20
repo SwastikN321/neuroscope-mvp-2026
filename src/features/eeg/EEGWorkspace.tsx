@@ -31,6 +31,15 @@ export function EEGWorkspace({
       .slice(0, recording.source === 'edf' ? 12 : undefined)
       .map((c) => c.id),
   );
+  const [channelPage, setChannelPage] = useState(0);
+  const page = Math.min(
+    channelPage,
+    Math.max(0, Math.ceil(visible.length / 32) - 1),
+  );
+  const viewIds = useMemo(
+    () => visible.slice(page * 32, (page + 1) * 32),
+    [visible, page],
+  );
   const [range, setRange] = useState<TimeRange>({
     start: 0,
     end: Math.min(10, recording.durationSeconds),
@@ -40,7 +49,7 @@ export function EEGWorkspace({
   );
   const [probe, setProbe] = useState<Probe | null>(null);
   const [retry, setRetry] = useState(0);
-  const window = useRecordingWindow(source, range, visible, retry);
+  const window = useRecordingWindow(source, range, viewIds, retry);
   const span = range.end - range.start;
   function reset() {
     setRange({ start: 0, end: Math.min(10, recording.durationSeconds) });
@@ -65,7 +74,7 @@ export function EEGWorkspace({
   const probeKey = probe ? `${probe.channelId}:${probe.sample}` : '';
   const loadedValue =
     probe &&
-    visible.includes(probe.channelId) &&
+    viewIds.includes(probe.channelId) &&
     !window.pending &&
     !window.error
       ? sampleValue(window.data, probe.channelId, probe.sample)
@@ -75,7 +84,7 @@ export function EEGWorkspace({
       !probe ||
       loadedValue !== undefined ||
       !source.readSample ||
-      !visible.includes(probe.channelId) ||
+      !viewIds.includes(probe.channelId) ||
       window.pending ||
       window.error
     )
@@ -106,7 +115,7 @@ export function EEGWorkspace({
     probe,
     probeKey,
     loadedValue,
-    visible,
+    viewIds,
     window.pending,
     window.error,
   ]);
@@ -115,21 +124,21 @@ export function EEGWorkspace({
     (!window.pending &&
     !window.error &&
     probe &&
-    visible.includes(probe.channelId) &&
+    viewIds.includes(probe.channelId) &&
     exact?.key === probeKey
       ? exact.value
       : undefined);
   const clipped = useMemo(
     () =>
-      visible.filter((id) =>
+      viewIds.filter((id) =>
         window.data?.channels[id]?.some((v) => Math.abs(v) > amplitude),
       ).length,
-    [visible, window.data, amplitude],
+    [viewIds, window.data, amplitude],
   );
   const displayedChannel =
-    probe && visible.includes(probe.channelId)
+    probe && viewIds.includes(probe.channelId)
       ? probe.channelId
-      : visible[0] || '';
+      : viewIds[0] || '';
   const clock = channelClock(recording, displayedChannel);
   const synthetic = recording.source === 'synthetic';
   return (
@@ -178,10 +187,34 @@ export function EEGWorkspace({
             <div>
               <i />
               <strong>Multichannel view</strong>
-              <span>{visible.length} channels</span>
+              <span>
+                {viewIds.length} channels
+                {visible.length > 32 ? ` / ${visible.length} selected` : ''}
+              </span>
             </div>
             <span>{rateLabel(recording)} · µV</span>
           </div>
+          {visible.length > 32 && (
+            <nav className="eeg-channel-pages" aria-label="Channel pages">
+              <button
+                disabled={page === 0}
+                onClick={() => setChannelPage(page - 1)}
+              >
+                Previous channels
+              </button>
+              <span>
+                Channels {page * 32 + 1}–
+                {Math.min(visible.length, (page + 1) * 32)} of {visible.length}{' '}
+                selected
+              </span>
+              <button
+                disabled={(page + 1) * 32 >= visible.length}
+                onClick={() => setChannelPage(page + 1)}
+              >
+                Next channels
+              </button>
+            </nav>
+          )}
           <div className="eeg-toolbar">
             <div className="eeg-button-group">
               <button
@@ -267,7 +300,7 @@ export function EEGWorkspace({
               recording={recording}
               data={window.data}
               range={range}
-              ids={visible}
+              ids={viewIds}
               amplitude={amplitude}
               probe={probe}
               onProbe={inspect}
@@ -304,7 +337,7 @@ export function EEGWorkspace({
                   })
                 }
               >
-                {visible.map((id) => (
+                {viewIds.map((id) => (
                   <option key={id} value={id}>
                     {recording.channels.find((c) => c.id === id)?.label}
                   </option>
@@ -321,7 +354,7 @@ export function EEGWorkspace({
                 step={1 / clock.sampleRateHz}
                 disabled={!visible.length}
                 value={
-                  probe && visible.includes(probe.channelId)
+                  probe && viewIds.includes(probe.channelId)
                     ? Number((probe.sample / clock.sampleRateHz).toFixed(6))
                     : Number(range.start.toFixed(6))
                 }
@@ -389,7 +422,7 @@ export function EEGWorkspace({
         <RecordingMetadata
           recording={recording}
           range={range}
-          count={visible.length}
+          count={viewIds.length}
         />
       </div>
       <footer className="eeg-footer">

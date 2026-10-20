@@ -14,23 +14,31 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
   const [uploaded, setUploaded] = useState<EEGDataSource | null>(null);
   const [useDemo, setUseDemo] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState(
     'EDF files stay on this computer. Temporary recordings expire automatically.',
   );
   const [error, setError] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
+  const activeId = useRef<string | null>(null);
+  const generation = useRef(0);
   const input = useRef<HTMLInputElement>(null);
   const controller = useRef<AbortController | null>(null);
   const expiry = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const enabled = localUploadsEnabled();
   useEffect(
     () => () => {
+      generation.current++;
+      activeId.current = null;
       controller.current?.abort();
       clearTimeout(expiry.current);
     },
     [],
   );
-  function missing() {
+  function missing(id: string) {
+    if (activeId.current !== id) return;
+    activeId.current = null;
+    clearTimeout(expiry.current);
     setUploaded(null);
     setUseDemo(true);
     setError(true);
@@ -40,32 +48,37 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
   }
   useEffect(() => {
     if (!uploaded) return;
+    const abort = new AbortController();
     const validate = () => {
       void request<ApiMetadata>(
         `/api/recordings/${uploaded.recording.id}`,
+        abort.signal,
       ).catch((failure: unknown) => {
         if (
           failure instanceof Error &&
           'status' in failure &&
-          failure.status === 404
+          failure.status === 404 &&
+          !abort.signal.aborted &&
+          activeId.current === uploaded.recording.id
         ) {
-          setUploaded(null);
-          setUseDemo(true);
-          setError(true);
-          setMessage(
-            'The temporary EDF recording expired or was deleted. Showing the synthetic demo; upload again to continue.',
-          );
+          missing(uploaded.recording.id);
         }
       });
     };
     window.addEventListener('focus', validate);
-    return () => window.removeEventListener('focus', validate);
+    return () => {
+      abort.abort();
+      window.removeEventListener('focus', validate);
+    };
   }, [uploaded]);
   async function open(file: File) {
+    const run = ++generation.current;
+    controller.current?.abort();
     setBusy(true);
     setError(false);
     setProgress(null);
     setMessage('Checking EDF file and local backend…');
+    setUploading(true);
     const abort = new AbortController();
     controller.current = abort;
     let newId: string | undefined;
@@ -73,6 +86,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
       const { metadata, limits } = await uploadEDF(
         file,
         (loaded, total) => {
+          if (abort.signal.aborted || generation.current !== run) return;
           const percent = Math.floor((loaded / total) * 100);
           setProgress(percent);
           setMessage(
@@ -84,19 +98,30 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
         abort.signal,
       );
       newId = metadata.id;
-      const next = await createEDFSource(metadata, limits, missing);
+      const next = await createEDFSource(
+        metadata,
+        limits,
+        () => missing(metadata.id),
+        abort.signal,
+      );
+      abort.signal.throwIfAborted();
+      setUploading(false);
       if (uploaded) await deleteRecording(uploaded.recording.id);
       abort.signal.throwIfAborted();
+      activeId.current = metadata.id;
       setUploaded(next);
       setUseDemo(false);
       clearTimeout(expiry.current);
-      expiry.current = setTimeout(missing, metadata.expires_in_seconds * 1000);
+      expiry.current = setTimeout(
+        () => missing(metadata.id),
+        metadata.expires_in_seconds * 1000,
+      );
       setMessage(
         'EDF ready · original measurements in µV · stored temporarily on this computer.',
       );
     } catch (failure) {
       if (newId) void deleteRecording(newId).catch(() => {});
-      if (!abort.signal.aborted) {
+      if (!abort.signal.aborted && generation.current === run) {
         setError(true);
         setMessage(
           failure instanceof Error
@@ -105,8 +130,10 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
         );
       }
     } finally {
-      if (!abort.signal.aborted) {
+      if (!abort.signal.aborted && generation.current === run) {
+        controller.current = null;
         setBusy(false);
+        setUploading(false);
         setProgress(null);
       }
     }
@@ -119,6 +146,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
     try {
       await deleteRecording(uploaded.recording.id);
       clearTimeout(expiry.current);
+      activeId.current = null;
       setUploaded(null);
       setUseDemo(true);
       setMessage(
@@ -163,6 +191,23 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
                 if (file) void open(file);
               }}
             />
+            {busy && uploading && (
+              <button
+                onClick={() => {
+                  generation.current++;
+                  controller.current?.abort();
+                  controller.current = null;
+                  setBusy(false);
+                  setUploading(false);
+                  setProgress(null);
+                  setMessage(
+                    'Upload canceled. Choose another EDF file. Incomplete temporary data is cleaned up by the backend.',
+                  );
+                }}
+              >
+                Cancel upload
+              </button>
+            )}
             {uploaded && (
               <>
                 <button

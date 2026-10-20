@@ -20,6 +20,7 @@ type Limits = {
   window_seconds: number;
   window_values: number;
   selected_channels: number;
+  window_batch?: boolean;
 };
 type Display = {
   bins: {
@@ -65,6 +66,11 @@ function errorResponse(status: number, body: { error?: { message?: string } }) {
       'This temporary recording has expired or was deleted. Upload it again or return to the synthetic demo.',
       404,
     );
+  if (status === 507)
+    return new ApiError(
+      'Local temporary storage is unavailable. Check free disk space and permissions, then retry.',
+      507,
+    );
   if (status >= 500) return offline();
   return new ApiError(
     body.error?.message || 'The local backend could not process this request.',
@@ -93,16 +99,22 @@ export function request<T>(
   method = 'GET',
 ): Promise<T> {
   return serial(async () => {
+    const timeout = AbortSignal.timeout(20000);
+    const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
     for (let attempt = 0; ; attempt++) {
       let response: Response;
       try {
         response = await fetch(endpoint(path), {
-          signal,
+          signal: requestSignal,
           method,
           cache: 'no-store',
         });
       } catch (error) {
         if (signal?.aborted) throw error;
+        if (timeout.aborted)
+          throw new ApiError(
+            'Local request timed out. Retry the current view or zoom into a shorter interval.',
+          );
         throw offline();
       }
       if (response.status === 429 && attempt < 8) {
@@ -198,10 +210,12 @@ export async function createEDFSource(
   meta: ApiMetadata,
   limits: Limits,
   onMissing: () => void,
+  signal?: AbortSignal,
 ): Promise<EEGDataSource> {
   const path = `/api/recordings/${meta.id}`;
   const available = await request<{ channels: ApiChannel[] }>(
     `${path}/channels`,
+    signal,
   );
   const rate = Math.max(
     ...available.channels.map((c) => c.sampling_frequency_hz),
@@ -270,6 +284,58 @@ export async function createEDFSource(
         channels: {},
         timing: {},
       };
+      if (limits.window_batch) {
+        const clock = recording.channels.find((c) => c.sampleRateHz === rate)!;
+        for (const id of ids) {
+          const data = cache.get(`${id}:ticks:${start}:${end}`);
+          if (data) {
+            result.channels[id] = data.values;
+            result.timing![id] = data;
+            result.reduced ||= !!data.indices;
+          }
+        }
+        const pending = ids.filter((id) => !result.channels[id]);
+        for (
+          let offset = 0;
+          offset < pending.length;
+          offset += Math.min(8, limits.selected_channels)
+        ) {
+          signal?.throwIfAborted();
+          const group = pending.slice(
+            offset,
+            offset + Math.min(8, limits.selected_channels),
+          );
+          const params = new URLSearchParams({
+            clock_channel_id: clock.id,
+            start_tick: String(start),
+            end_tick: String(end),
+            bins: '1024',
+          });
+          group.forEach((id) => params.append('channel_ids', id));
+          const batch = await read<{
+            channels: {
+              id: string;
+              start_sample: number;
+              values: number[];
+              indices?: number[];
+            }[];
+          }>(`${path}/windows?${params}`, signal);
+          signal?.throwIfAborted();
+          for (const channel of batch.channels) {
+            cache.set(`${channel.id}:ticks:${start}:${end}`, {
+              values: new Float64Array(channel.values),
+              startSample: channel.start_sample,
+              indices: channel.indices,
+            });
+            const data = cache.get(`${channel.id}:ticks:${start}:${end}`)!;
+            result.channels[channel.id] = data.values;
+            result.timing![channel.id] = data;
+            result.reduced ||= !!data.indices;
+            if (cache.size > 128) cache.delete(cache.keys().next().value!);
+          }
+        }
+        return result;
+      }
       for (const id of ids) {
         signal?.throwIfAborted();
         const channel = recording.channels.find((c) => c.id === id)!;

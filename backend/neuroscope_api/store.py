@@ -6,6 +6,7 @@ import os
 import re
 import tempfile
 import time
+from collections import OrderedDict
 from fractions import Fraction
 from pathlib import Path
 from uuid import uuid4
@@ -37,6 +38,8 @@ class Store:
             if re.fullmatch(r"[a-f0-9]{32}\.(edf|part)", path.name):
                 path.unlink()
         self.entries = {}
+        self.display_cache = OrderedDict()
+        self.cached_bins = 0
 
     def expire(self):
         for key, entry in list(self.entries.items()):
@@ -160,7 +163,7 @@ class Store:
             "channels": [result[key] for key in ids],
         }
 
-    def display(self, key, channel_id, start, end, bins):
+    def display(self, key, channel_id, start, end, bins, cancel=None):
         """Peak-preserving display only: original extrema and their sample indices.
 
         Scan in bounded chunks. No resampling, interpolation or averaging. Each
@@ -170,6 +173,12 @@ class Store:
         channel = next((c for c in reader.eeg if c.id == channel_id), None)
         if channel is None or not 0 <= start < end <= channel.sample_count:
             raise RecordingError(422, "invalid_window", "Invalid channel or sample interval.")
+        if cancel is not None and cancel.is_set():
+            raise RecordingError(408, "canceled", "Request canceled; retry the current view.")
+        cache_key = (key, channel_id, start, end, bins)
+        if cache_key in self.display_cache:
+            self.display_cache.move_to_end(cache_key)
+            return self.display_cache[cache_key]
         count = min(bins, end - start)
         edges = [start + i * (end - start) // count for i in range(count + 1)]
         lows, highs = np.full(count, np.inf), np.full(count, -np.inf)
@@ -177,6 +186,8 @@ class Store:
         deadline = time.monotonic() + 10
         bucket = 0
         for first in range(start, end, 65536):
+            if cancel is not None and cancel.is_set():
+                raise RecordingError(408, "canceled", "Request canceled; retry the current view.")
             if time.monotonic() > deadline:
                 raise RecordingError(408, "display_timeout", "Display scan timed out; zoom in.")
             stop = min(end, first + 65536)
@@ -192,7 +203,7 @@ class Store:
                 if edges[bucket + 1] > stop:
                     break
                 bucket += 1
-        return {
+        result = {
             "channel_id": channel_id,
             "sampling_frequency_hz": float(channel.rate),
             "unit": "µV",
@@ -210,9 +221,94 @@ class Store:
             ],
         }
 
+        # Global bounded display cache; includes native index positions. Validity
+        # was checked with get() before lookup. Deletion/TTL also purge entries.
+        self.display_cache[cache_key] = result
+        self.cached_bins += count
+        while self.cached_bins > 8192 or len(self.display_cache) > 64:
+            _, old = self.display_cache.popitem(last=False)
+            self.cached_bins -= len(old["bins"])
+        return result
+
+    def windows(self, key, ids, clock_id, start, end, bins, cancel=None):
+        reader = self.get(key)["reader"]
+        available = {c.id: c for c in reader.eeg}
+        if (
+            not ids
+            or len(ids) != len(set(ids))
+            or any(i not in available for i in ids)
+            or clock_id not in available
+        ):
+            raise RecordingError(422, "invalid_channels", "Select unique available EEG channels.")
+        if len(ids) > min(8, self.settings.max_selected_channels):
+            raise RecordingError(413, "channel_limit", "Select at most eight channels per batch.")
+        clock = available[clock_id]
+        if not 0 <= start < end <= clock.sample_count:
+            raise RecordingError(422, "invalid_window", "Invalid native clock interval.")
+        # Integers and EDF rational rates avoid decimal rounding at sample edges.
+        left, right = Fraction(start) / clock.rate, Fraction(end) / clock.rate
+        selected = [available[i] for i in ids]
+        ranges = {c.id: (math.ceil(left * c.rate), math.ceil(right * c.rate)) for c in selected}
+        total = sum(b - a for a, b in ranges.values())
+        raw_mode = (
+            right - left <= self.settings.max_window_seconds
+            and total <= self.settings.max_window_values
+            and all(b - a <= 8192 for a, b in ranges.values())
+        )
+        result = {}
+        if raw_mode:
+            for rate in {c.rate for c in selected}:
+                if cancel is not None and cancel.is_set():
+                    raise RecordingError(
+                        408, "canceled", "Request canceled; retry the current view."
+                    )
+                group = [c for c in selected if c.rate == rate]
+                first, stop = ranges[group[0].id]
+                values = (
+                    reader.read(group, first, stop).tolist()
+                    if stop > first
+                    else [[] for _ in group]
+                )
+                for c, data in zip(group, values, strict=True):
+                    result[c.id] = {
+                        "id": c.id,
+                        "start_sample": first,
+                        "end_sample": stop,
+                        "sampling_frequency_hz": float(rate),
+                        "unit": "µV",
+                        "representation": "original_samples",
+                        "values": data,
+                    }
+        else:
+            for c in selected:
+                first, stop = ranges[c.id]
+                display = (
+                    self.display(key, c.id, first, stop, bins, cancel)
+                    if stop > first
+                    else {"bins": []}
+                )
+                points = []
+                for b in display["bins"]:
+                    pair = [(b["min_sample"], b["min"]), (b["max_sample"], b["max"])]
+                    points.extend(sorted(set(pair)))
+                result[c.id] = {
+                    "id": c.id,
+                    "start_sample": first,
+                    "end_sample": stop,
+                    "sampling_frequency_hz": float(c.rate),
+                    "unit": "µV",
+                    "representation": "original_sample_extrema",
+                    "values": [v for _, v in points],
+                    "indices": [i for i, _ in points],
+                }
+        return {"channels": [result[i] for i in ids]}
+
     def delete(self, key):
         if key not in self.entries:
             raise RecordingError(404, "recording_not_found", "Recording not found or expired.")
+        for cached in list(self.display_cache):
+            if cached[0] == key:
+                self.cached_bins -= len(self.display_cache.pop(cached)["bins"])
         entry = self.entries.pop(key)
         entry["reader"].close()
         entry["path"].unlink(missing_ok=True)

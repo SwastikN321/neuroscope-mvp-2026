@@ -1,4 +1,4 @@
-# NeuroScope · Phase 3B.2
+# NeuroScope · Phase 3B.3
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
@@ -22,6 +22,8 @@ Open `/app` or click **Explore NeuroScope**. The built-in recording contains 120
 The viewer uses Canvas 2D with peak-preserving display reduction and an asynchronous recording-provider contract. No extra production dependency is required. [PHASE-3A.md](PHASE-3A.md) describes the data model, controls, limitations, tests, and desktop/mobile screenshots. The demo is not patient data or a clinical simulation.
 
 [PHASE-3B2.md](PHASE-3B2.md) documents the local upload flow, native-rate integration, exact sample inspection, bounded display envelopes, validation, and screenshots. Uploads are disabled in production builds. No public deployment has been performed.
+
+[PHASE-3B3.md](PHASE-3B3.md) adds measured large-recording validation, native-clock batched reads, bounded channel pages, cancellation/recovery checks, and an opt-in 128 MiB local profile. The default upload cap remains 64 MiB.
 
 ## Anatomical hero
 
