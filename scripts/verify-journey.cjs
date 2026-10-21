@@ -280,7 +280,7 @@ async function main() {
       await page.waitForTimeout(400);
       assert(
         await page
-          .getByRole('heading', { name: 'Clarity, by design.' })
+          .getByRole('heading', { name: 'Your EEG. A clearer perspective.' })
           .isVisible(),
         'Existing content remains reachable',
       );

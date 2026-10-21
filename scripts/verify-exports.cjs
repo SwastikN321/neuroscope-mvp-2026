@@ -33,7 +33,7 @@ async function main() {
       });
       await page.goto('http://127.0.0.1:5173/');
       await page
-        .getByRole('link', { name: 'Explore NeuroScope', exact: true })
+        .getByRole('link', { name: 'Try NeuroScope', exact: true })
         .click();
       await plot.waitFor();
       const download = async (name, filename) => {

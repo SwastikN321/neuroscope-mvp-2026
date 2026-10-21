@@ -34,7 +34,7 @@ async function main() {
       });
       await page.goto(url);
       await page
-        .getByRole('link', { name: 'Explore NeuroScope', exact: true })
+        .getByRole('link', { name: 'Try NeuroScope', exact: true })
         .click();
       await page.waitForURL('**/app');
       const plot = page.getByRole('group', {

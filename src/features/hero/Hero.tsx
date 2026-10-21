@@ -199,9 +199,9 @@ export function Hero() {
         <div data-hero-copy className="hero-overline page-container">
           <span>
             <i />
-            NEUROSCOPE / ANATOMICAL STUDY 001
+            EEG EXPLORATION / RESEARCH PREVIEW
           </span>
-          <span>A NEW PERSPECTIVE ON THE MIND</span>
+          <span>A NEW PERSPECTIVE ON NEURAL DATA</span>
         </div>
         <div
           ref={stage}
@@ -264,25 +264,18 @@ export function Hero() {
         </div>
         <div data-hero-copy className="cinematic-content page-container">
           <div>
-            <p>Explore the electrical language of the brain.</p>
+            <p className="hero-positioning">
+              Explore real EEG recordings directly in your browser. Visualize
+              neural signals, annotate meaningful events, and export your
+              findings.
+            </p>
             <div className="cinematic-actions">
               <ButtonLink to="/app">
-                Explore NeuroScope <Icon name="arrow" />
+                Try NeuroScope <Icon name="arrow" />
               </ButtonLink>
-              {!still && (
-                <Button
-                  variant="secondary"
-                  className="signal-button"
-                  aria-pressed={signal}
-                  onClick={() => {
-                    setSignal(!signal);
-                    setPaused(false);
-                  }}
-                >
-                  <span className="signal-indicator" aria-hidden="true" />
-                  {signal ? 'Quiet signal' : 'Activate signal'}
-                </Button>
-              )}
+              <ButtonLink to="/#product" variant="text">
+                Explore the platform <Icon name="arrow" />
+              </ButtonLink>
             </div>
             {!still && (
               <p className="signal-status" role="status">
@@ -292,6 +285,22 @@ export function Hero() {
               </p>
             )}
           </div>
+        </div>
+        <div data-hero-copy className="hero-activity">
+          {!still && (
+            <Button
+              variant="secondary"
+              className="signal-button"
+              aria-pressed={signal}
+              onClick={() => {
+                setSignal(!signal);
+                setPaused(false);
+              }}
+            >
+              <span className="signal-indicator" aria-hidden="true" />
+              {signal ? 'Quiet signal' : 'Activate signal'}
+            </Button>
+          )}
         </div>
         <div data-hero-copy className="sculpture-label" id="sculpture-caption">
           <span className="sculpture-label__line" />

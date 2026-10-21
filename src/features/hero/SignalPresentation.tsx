@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { channelNames, syntheticEEG } from './journey';
 
 export function SignalCopy() {
@@ -9,14 +10,15 @@ export function SignalCopy() {
         <br />
         <span>tells a story.</span>
       </h2>
-      <p className="signal-description">
-        From electrical activity to meaningful exploration.
-      </p>
+      <p className="signal-description">A closer look is just the beginning.</p>
       <p className="signal-disclosure">
         SYNTHETIC EXAMPLE EEG
         <br />
         <span>Illustrative signals. No patient recordings.</span>
       </p>
+      <Link className="signal-product-link" to="/#product">
+        Continue to the research platform <span aria-hidden="true">↓</span>
+      </Link>
     </>
   );
 }

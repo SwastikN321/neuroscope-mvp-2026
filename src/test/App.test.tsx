@@ -21,7 +21,7 @@ describe('Application shell', () => {
     expect(
       screen.getByRole('heading', { name: 'See beyond the signal.' }),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole('link', { name: 'Explore NeuroScope' }));
+    await user.click(screen.getByRole('link', { name: 'Try NeuroScope' }));
     expect(
       await screen.findByRole('heading', {
         name: /Signal explorer/,
@@ -76,7 +76,7 @@ describe('Application shell', () => {
     await user.click(
       within(
         screen.getByRole('navigation', { name: 'Mobile navigation' }),
-      ).getByRole('link', { name: 'Workspace' }),
+      ).getByRole('link', { name: 'Open App' }),
     );
     expect(
       await screen.findByRole('heading', {
@@ -100,13 +100,13 @@ describe('Application shell', () => {
     ).toBeInTheDocument();
   });
 
-  it('provides a skip link and a real design-system anchor', () => {
+  it('provides a skip link and real product section anchors', () => {
     renderAt();
     expect(
       screen.getByRole('link', { name: 'Skip to content' }),
     ).toHaveAttribute('href', '#main-content');
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
-    expect(document.getElementById('design-system')).toHaveAttribute(
+    expect(document.getElementById('product')).toHaveAttribute(
       'tabindex',
       '-1',
     );

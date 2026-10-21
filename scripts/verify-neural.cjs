@@ -234,7 +234,7 @@ async function main() {
     assert.equal(await failedPage.locator('canvas').count(), 0);
     assert(
       await failedPage
-        .getByRole('link', { name: 'Explore NeuroScope' })
+        .getByRole('link', { name: 'Try NeuroScope' })
         .isVisible(),
     );
     report.checks.modelFailure =

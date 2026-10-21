@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="NeuroScope research preview guide: supported EEG files, local setup, native samples, annotations, exports, privacy and validation limits."
+    />
+    <meta name="theme-color" content="#080d14" />
+    <title>Research preview guide — NeuroScope</title>
+    <link rel="icon" href="/favicon.svg" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #080d14;
+        color: #e3ebef;
+        line-height: 1.8;
+      }
+      body {
+        margin: 0;
+      }
+      main,
+      header,
+      footer {
+        max-width: 920px;
+        margin: auto;
+        padding: 30px 24px;
+      }
+      a {
+        color: #9bdde1;
+        text-underline-offset: 5px;
+      }
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 2px solid #49dceb;
+        outline-offset: 5px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 25px;
+        border-bottom: 1px solid #2c3b47;
+      }
+      h1 {
+        font-size: clamp(36px, 6vw, 64px);
+        line-height: 1.1;
+        font-weight: 450;
+        letter-spacing: -0.05em;
+        margin: 20px 0;
+      }
+      h2 {
+        font-size: 26px;
+        font-weight: 450;
+        letter-spacing: -0.03em;
+      }
+      p,
+      li,
+      dd {
+        color: #b0c0cd;
+      }
+      .eyebrow {
+        color: #8bbbc9;
+        font: 11px/1.6 monospace;
+        letter-spacing: 0.1em;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 25px;
+        padding: 24px 0;
+      }
+      section {
+        border-top: 1px solid #263645;
+        padding: 30px 0;
+        scroll-margin-top: 20px;
+      }
+      pre {
+        padding: 20px;
+        overflow: auto;
+        background: #111d29;
+        border: 1px solid #2a3c4b;
+        font-size: 13px;
+      }
+      code {
+        color: #c2e3e7;
+      }
+      dt {
+        font-weight: 600;
+      }
+      dd {
+        margin: 6px 0 22px;
+      }
+      footer {
+        border-top: 1px solid #263645;
+        font-size: 12px;
+      }
+      .note {
+        border-left: 2px solid #8d83b8;
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/">← NeuroScope</a><a href="/app">Open workspace →</a>
+    </header>
+    <main>
+      <p class="eyebrow">
+        DOCUMENTATION / RESEARCH PREVIEW / UPDATED OCTOBER 2026
+      </p>
+      <h1>A guide to your<br />first recording.</h1>
+      <p>
+        Explore a synthetic demo immediately. Use the existing local development
+        setup for real EDF recordings. No registration is required.
+      </p>
+      <nav aria-label="Guide sections">
+        <a href="#start">Get started</a><a href="#signals">Signals</a
+        ><a href="#annotations">Annotations</a><a href="#exports">Exports</a
+        ><a href="#limits">Limits</a><a href="#privacy">Data handling</a
+        ><a href="#validation">Validation</a>
+      </nav>
+      <section id="start">
+        <h2>Get started</h2>
+        <p>
+          <a href="/app">Open the workspace</a> to explore a twelve-channel,
+          two-minute synthetic recording at 256 Hz. It contains no patient data
+          and works without the EEG backend. Select channels in the sidebar, use
+          +/− to zoom, drag to pan, and use the bottom timeline to move through
+          the recording. Home resets the view; arrow keys pan, Shift +
+          left/right inspects adjacent samples, and up/down selects channels
+          when the plot is focused.
+        </p>
+        <p>
+          To use an EDF, start the local backend and development frontend from
+          your NeuroScope checkout. Use Python 3.12 and the Node version
+          specified by <code>.nvmrc</code>. Install dependencies once:
+        </p>
+        <pre><code>python3.12 -m venv .venv-backend
+.venv-backend/bin/python -m pip install -r backend/requirements.txt
+npm ci</code></pre>
+        <p>In separate terminals:</p>
+        <pre><code># Terminal 1: localhost-only EEG service
+.venv-backend/bin/python -m backend.neuroscope_api
+
+# Terminal 2: development frontend
+npm run dev</code></pre>
+        <p>
+          Open the local URL printed by Vite, go to <code>/app</code>, and
+          choose <strong>Upload Recording</strong>. The backend launcher binds
+          to loopback; do not expose it through a public host, tunnel or proxy.
+          The backend currently supports macOS/Linux. EDF uploads are
+          intentionally disabled in production builds; a static preview offers
+          the synthetic demo only.
+        </p>
+      </section>
+      <section id="signals">
+        <h2>Signals, samples and timing</h2>
+        <p>
+          NeuroScope preserves original channel names, native channel sampling
+          frequencies and calibrated measurements. Voltage values are expressed
+          in microvolts (µV). Mixed-rate channels retain their own clocks; they
+          are not represented as if acquired on a common sample grid.
+        </p>
+        <p>
+          Zoomed-out views use extrema envelopes to retain peaks. Exact
+          inspection retrieves the original sample. The inspector formats
+          amplitude to 0.01 µV and time to six decimal places; use CSV when you
+          need full-precision exported values. A narrow display range can clip
+          peaks, with a visible warning. No new filters, re-referencing, montage
+          or signal analysis is applied.
+        </p>
+        <p>
+          Unprefixed voltage channels may be treated as EEG candidates. A label
+          alone cannot establish a channel’s physiological meaning. The
+          introductory brain and electrical pathways are artistic and are not
+          linked to an uploaded recording.
+        </p>
+      </section>
+      <section id="annotations">
+        <h2>Keep observations located</h2>
+        <p>
+          Create a point or interval with the annotation controls or by
+          selecting on the waveform. Channel-linked boundaries snap to that
+          channel’s native samples. Recording-wide annotations use seconds.
+          Intervals include their start and exclude their end.
+        </p>
+        <p>
+          Annotations are held in the current session. Refreshing, leaving the
+          workspace, switching recordings, or EDF expiry can discard them.
+          Export JSON before you leave. To restore, load the matching recording
+          and import the JSON. Review compatibility and conflicts before
+          confirming. Missing file identity requires explicit confirmation; a
+          known different fingerprint is rejected. A fingerprint is not an
+          authenticated signature.
+        </p>
+      </section>
+      <section id="exports">
+        <h2>Three formats, three purposes</h2>
+        <dl>
+          <dt>PNG — the visual record</dt>
+          <dd>
+            A labeled visualization of the current window with visible channels
+            and annotations. The export may expand the amplitude scale to fit
+            peaks, and labels that scale. It is a picture, not raw data.
+          </dd>
+          <dt>CSV — original measurements</dt>
+          <dd>
+            Long-form rows contain channel identity, original sample index,
+            recording-relative time in seconds and amplitude in µV. Selected
+            channels are exported in selection order. Each uses its native
+            clock; different rates produce different row counts. No display
+            downsampling, filtering or interpolation is applied.
+          </dd>
+          <dt>JSON — portable annotations</dt>
+          <dd>
+            Recording compatibility information and point/interval annotations,
+            including native anchors where applicable. It does not contain or
+            reconstruct the original EDF.
+          </dd>
+        </dl>
+      </section>
+      <section id="limits">
+        <h2>Supported formats and limits</h2>
+        <p>
+          Supported: classical EDF and continuous EDF+C with known lengths,
+          unique ASCII channel labels and recognized voltage units. Unsupported:
+          EDF+D, BDF, unknown record counts, duplicate channel names,
+          unrecognized units and invalid calibration. Unsupported files are
+          rejected rather than silently repaired.
+        </p>
+        <ul>
+          <li>Default upload limit: <strong>64 MiB per file</strong>.</li>
+          <li>
+            Default temporary storage: four recordings, 256 MiB total, one-hour
+            lifetime.
+          </li>
+          <li>
+            File structure: up to 256 source signals, eight distinct available
+            EEG rates, 100,000 data records and 24 hours. Other per-record and
+            annotation limits also apply.
+          </li>
+          <li>
+            EDF view: up to 32 selected channels per page; initial selection is
+            limited to twelve.
+          </li>
+          <li>
+            CSV export: at most 60 seconds, 32 channels, 250,000 rows and 16
+            MiB.
+          </li>
+          <li>
+            Windowed retrieval and display limits prevent loading whole large
+            recordings into browser memory. Busy or oversized requests return an
+            explicit error.
+          </li>
+        </ul>
+        <p>
+          These are the standard local configuration limits, not a promise that
+          every file below the size cap is supported. See
+          <code>backend/README.md</code> in the checkout for the complete
+          contract and configuration.
+        </p>
+      </section>
+      <section id="privacy">
+        <h2>Current local data handling</h2>
+        <p>
+          The synthetic demo contains no patient data. In local development,
+          uploaded EDF bytes are sent to a service on the same computer and
+          stored in private temporary files outside public directories. The
+          application has no cloud recording storage or authentication.
+        </p>
+        <p>
+          The default lifetime is one hour. Expired recordings are rejected on
+          access and cleaned up periodically; manual deletion and graceful
+          shutdown remove temporary copies. After an unclean exit, copies may
+          remain until the next backend startup. This is deletion, not
+          guaranteed secure erasure or encryption at rest.
+        </p>
+        <p>
+          Patient identity fields are withheld from API responses and access
+          logging is disabled by the launcher. That does not anonymize the
+          original file. Channel labels, annotations, screenshots and downloaded
+          exports can still contain sensitive information. Other local processes
+          are not isolated by an account system.
+        </p>
+        <p class="note">
+          The service is not designed for public, hostile or multi-user traffic.
+          A future hosted service requires a separate privacy and security
+          review. Local handling statements must not be treated as guarantees
+          for a future deployment. This page documents current behavior; it is
+          not a hosted-service privacy policy.
+        </p>
+      </section>
+      <section id="validation">
+        <h2>Independent data-integrity checks</h2>
+        <p>
+          Phase 3D.1, baseline <code>22fff1f</code>, validated in commit
+          <code>f64f16b</code>. A separately implemented standard-library EDF
+          reader compared raw digital bytes and exact rational header
+          calibration with NeuroScope’s outputs, independently of the MNE
+          decoding path.
+        </p>
+        <ul>
+          <li>
+            Six accepted cases: two public EEG Motor Movement/Imagery files, a
+            22-hour Sleep-EDF file, a 256-channel fixture, a mixed-rate fixture
+            and a file just below the 64 MiB limit.
+          </li>
+          <li>Corrupted and oversized files were rejected as expected.</li>
+          <li>
+            270,361 native sample values compared; largest measured amplitude
+            difference: 5.684341886080802e-14 µV.
+          </li>
+          <li>
+            Largest API CSV timestamp difference: 6.984919309616089e-12 seconds.
+            Discrete sample-index mismatches: zero.
+          </li>
+          <li>
+            115,915 browser draw points and 3,216 downloaded CSV rows checked
+            against original byte calculations. Annotation restoration and
+            actual PNG correspondence were also tested.
+          </li>
+          <li>
+            Fractional-rate final-viewport navigation and long-duration labels
+            were corrected.
+          </li>
+        </ul>
+        <p>
+          This is finite coverage, not proof for every vendor format or every
+          sample in every recording. The reference was separately implemented
+          within the project; this was not an audit by an independent
+          institution. Full methods, file checksums, numerical errors,
+          reproduction commands and limitations are in
+          <code>SCIENTIFIC-VALIDATION.md</code> in the project checkout.
+        </p>
+        <p>
+          Public dataset sources:
+          <a href="https://physionet.org/content/eegmmidb/1.0.0/"
+            >EEG Motor Movement/Imagery Dataset (Schalk et al.)</a
+          >
+          and
+          <a href="https://physionet.org/content/sleep-edfx/1.0.0/"
+            >Sleep-EDF Expanded (Kemp)</a
+          >, under
+          <a href="https://opendatacommons.org/licenses/by/1-0/"
+            >Open Data Commons Attribution v1.0</a
+          >. No private clinical recordings were used for this validation.
+        </p>
+      </section>
+      <section id="research">
+        <h2>Research-use limitations</h2>
+        <p>
+          NeuroScope is a research preview. It does not diagnose epilepsy or
+          other conditions. Data-integrity checks do not establish clinical
+          validation, diagnostic accuracy, medical-device approval or
+          privacy-compliance certification. Interpretations and downstream
+          analysis remain outside the viewer’s scope.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <a href="/">Back to NeuroScope</a> ·
+      <a href="/models/ATTRIBUTION.md">Anatomical asset attribution</a> ·
+      <a href="/THIRD-PARTY-NOTICES.txt">Third-party licenses</a>
+    </footer>
+  </body>
+</html>

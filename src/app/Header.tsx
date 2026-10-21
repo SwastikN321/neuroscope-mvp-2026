@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { Logo } from '../components/brand/Logo';
 import { Button, ButtonLink } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
@@ -33,14 +33,13 @@ export function Header() {
           <Logo />
         </Link>
         <nav className="desktop-nav" aria-label="Main navigation">
-          <NavLink to="/" end>
-            Overview
-          </NavLink>
-          <NavLink to="/app">Workspace</NavLink>
-          <Link to="/#design-system">Design system</Link>
+          <Link to="/#product">Product</Link>
+          <Link to="/#how-it-works">How It Works</Link>
+          <Link to="/#use-cases">Use Cases</Link>
+          <Link to="/#documentation">Documentation</Link>
         </nav>
         <ButtonLink className="header-cta" to="/app" variant="secondary">
-          Open workspace <Icon name="corner" />
+          Open App <Icon name="corner" />
         </ButtonLink>
         <Button
           className="menu-toggle"
@@ -60,15 +59,17 @@ export function Header() {
           className="mobile-nav page-container"
           aria-label="Mobile navigation"
         >
-          <NavLink to="/" end onClick={closeMenu}>
-            Overview <Icon name="arrow" />
-          </NavLink>
-          <NavLink to="/app" onClick={closeMenu}>
-            Workspace <Icon name="arrow" />
-          </NavLink>
-          <Link to="/#design-system" onClick={closeMenu}>
-            Design system <Icon name="arrow" />
-          </Link>
+          {[
+            ['Product', '/#product'],
+            ['How It Works', '/#how-it-works'],
+            ['Use Cases', '/#use-cases'],
+            ['Documentation', '/#documentation'],
+            ['Open App', '/app'],
+          ].map(([label, to]) => (
+            <Link key={to} to={to!} onClick={closeMenu}>
+              {label} <Icon name="arrow" />
+            </Link>
+          ))}
         </nav>
       )}
     </header>

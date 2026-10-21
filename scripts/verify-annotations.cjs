@@ -34,7 +34,7 @@ async function main() {
       });
       await page.goto(origin);
       await page
-        .getByRole('link', { name: 'Explore NeuroScope', exact: true })
+        .getByRole('link', { name: 'Try NeuroScope', exact: true })
         .click();
       const plot = page.getByRole('group', {
         name: 'Interactive EEG waveform viewer',

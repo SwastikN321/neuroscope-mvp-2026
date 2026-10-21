@@ -105,7 +105,7 @@ async function main() {
           });
       }
       await page
-        .getByRole('link', { name: 'Explore NeuroScope', exact: true })
+        .getByRole('link', { name: 'Try NeuroScope', exact: true })
         .click();
       const plot = page.getByRole('group', {
         name: 'Interactive EEG waveform viewer',
@@ -206,7 +206,7 @@ async function main() {
     }
     await page.goto(url);
     await page
-      .getByRole('link', { name: 'Explore NeuroScope', exact: true })
+      .getByRole('link', { name: 'Try NeuroScope', exact: true })
       .waitFor();
     await page.locator('.signal-still').waitFor();
     assert.deepEqual(models, []);

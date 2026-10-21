@@ -130,7 +130,7 @@ describe('Hero alternatives', () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Explore NeuroScope' }),
+      screen.getByRole('link', { name: 'Try NeuroScope' }),
     ).toHaveAttribute('href', '/app');
     expect(
       screen.queryByRole('button', { name: 'Activate signal' }),
