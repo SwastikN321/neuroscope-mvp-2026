@@ -3,6 +3,7 @@ import { ButtonLink } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { AnnotationPreview } from '../features/marketing/AnnotationPreview';
 import { ProductPreview } from '../features/marketing/ProductPreview';
+import { WorkflowMark } from '../features/marketing/WorkflowMark';
 import { Documentation } from '../features/marketing/Documentation';
 import '../features/marketing/marketing.css';
 
@@ -151,7 +152,7 @@ export function HomePage() {
                   <p>
                     Mark a point or interval without losing its place.
                     Channel-linked annotations anchor to native samples;
-                    recording-wide annotations use exact seconds.
+                    recording-wide annotations use recording-relative seconds.
                   </p>
                 </div>
               </article>
@@ -202,6 +203,7 @@ export function HomePage() {
                     0{i + 1}
                     <Icon name="arrow" />
                   </span>
+                  <WorkflowMark step={i} />
                   <h3>{title}</h3>
                   <p>{body}</p>
                 </li>
@@ -233,6 +235,29 @@ export function HomePage() {
               For people working to understand neural signals—and people
               learning where to begin.
             </p>
+            <figure className="audience-study">
+              <figcaption>
+                <span className="marketing-eyebrow">
+                  A SHARED STARTING POINT
+                </span>
+                <strong>Start with a known example.</strong>
+                <span>Twelve channels. Two minutes. Entirely synthetic.</span>
+              </figcaption>
+              <img
+                src="/product/study-detail.webp"
+                alt="C3 and P3 traces cropped from the actual synthetic workspace at 2.5–7.5 seconds."
+                width="968"
+                height="146"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="audience-study__footer">
+                <span>256 Hz · 2.5–7.5 s excerpt</span>
+                <a className="marketing-link" href="/app">
+                  Explore the demo <Icon name="arrow" />
+                </a>
+              </div>
+            </figure>
           </div>
           <dl>
             {audiences.map(([audience, benefit], i) => (

@@ -27,7 +27,7 @@ const questions = [
   ],
   [
     'How is recording privacy handled?',
-    'The synthetic demo contains no patient data. In the current local setup, EDF bytes go to a backend on the same computer and are stored outside public directories in temporary storage. The default expiry is one hour; you can also delete a recording. There is no cloud storage or account system. A future hosted service would need its own reviewed privacy and security arrangements; these local guarantees must not be assumed for it.',
+    'The synthetic demo contains no patient data. In the current local setup, EDF bytes go to a backend on the same computer and are stored outside public directories in temporary storage. The default expiry is one hour; you can also delete a recording. Deletion is not secure erasure; after a crash, files may remain until the backend restarts. There is no cloud storage or account system. A future hosted service would need its own reviewed privacy and security arrangements; these local guarantees must not be assumed for it.',
   ],
 ] as const;
 

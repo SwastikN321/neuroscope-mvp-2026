@@ -5,7 +5,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require(process.env.NEUROSCOPE_PLAYWRIGHT || 'playwright');
 const origin = process.env.NEUROSCOPE_URL || 'http://127.0.0.1:4173';
-const output = path.resolve('work/phase-2b');
+const output = path.resolve(
+  process.env.NEUROSCOPE_QA_OUTPUT || 'work/phase-2b',
+);
 const sections = [
   'product',
   'capabilities',
@@ -92,7 +94,28 @@ async function main() {
         await gallery.getByRole('button', { name: label }).click();
         const img = page.locator('.product-demo__image img');
         await img.evaluate((el) => el.decode());
+        assert.ok(
+          (await img.getAttribute('src')).endsWith(`${file}-detail.webp`),
+        );
+        assert.ok(
+          (await img.evaluate((el) => el.currentSrc)).endsWith(
+            `${file}-detail${width === 390 ? '-mobile' : ''}.webp`,
+          ),
+        );
+        await page
+          .getByRole('button', { name: 'Full workspace', exact: true })
+          .click();
+        await img.evaluate((el) => el.decode());
         assert.ok((await img.getAttribute('src')).endsWith(`${file}.webp`));
+        // Keyboard activation preserves the selected example across framing changes.
+        await page
+          .getByRole('button', { name: 'Signal detail', exact: true })
+          .focus();
+        await page.keyboard.press('Enter');
+        await img.evaluate((el) => el.decode());
+        assert.ok(
+          (await img.getAttribute('src')).endsWith(`${file}-detail.webp`),
+        );
         assert.equal(
           await gallery
             .getByRole('button', { name: label })
@@ -100,6 +123,7 @@ async function main() {
           'true',
         );
       }
+      await gallery.getByRole('button', { name: 'Select channels' }).click();
       await page
         .getByRole('button', { name: 'Explore exports', exact: true })
         .click();
@@ -118,6 +142,32 @@ async function main() {
       for (const link of await page.locator('a[href^="/#"]').all()) {
         const href = await link.getAttribute('href');
         assert.equal(await page.locator(href.slice(1)).count(), 1, href);
+      }
+      // Check footer resource paths as well as hash destinations, without leaving the page.
+      for (const href of await page
+        .locator('.product-footer a[href^="/"]')
+        .evaluateAll((nodes) => [
+          ...new Set(nodes.map((n) => n.getAttribute('href'))),
+        ])) {
+        if (!href.startsWith('/#')) {
+          const response = await page.request.get(origin + href);
+          assert.equal(response.status(), 200, href);
+          if (href.endsWith('.md') || href.endsWith('.txt'))
+            assert.ok(
+              !(await response.text()).includes('<!doctype html>'),
+              href,
+            );
+        }
+      }
+      for (const link of await page
+        .locator('.product-footer a[href^="/#"]')
+        .all()) {
+        const id = (await link.getAttribute('href')).slice(2);
+        await link.click();
+        await page.waitForFunction(
+          (target) => document.activeElement?.id === target,
+          id,
+        );
       }
       await scroll(page, 0);
       if (width === 390) {
@@ -145,6 +195,19 @@ async function main() {
         await page.waitForFunction(
           () => document.activeElement?.id === 'product',
         );
+      }
+      if (width > 780) {
+        for (const label of ['How It Works', 'Use Cases', 'Documentation']) {
+          const link = page
+            .getByRole('navigation', { name: 'Main navigation' })
+            .getByRole('link', { name: label, exact: true });
+          const id = (await link.getAttribute('href')).slice(2);
+          await link.click();
+          await page.waitForFunction(
+            (target) => document.activeElement?.id === target,
+            id,
+          );
+        }
       }
       // Return to the brain, then traverse forward and backward through the preserved canvas.
       await scroll(page, 0);

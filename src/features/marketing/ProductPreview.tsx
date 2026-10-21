@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { Icon } from '../../components/ui/Icon';
 
 const views = [
@@ -7,7 +8,7 @@ const views = [
     title: 'Overview',
     detail:
       'Twelve synthetic channels. One shared time axis. A full recording overview.',
-    alt: 'NeuroScope synthetic workspace with twelve labeled channels, metadata and a recording timeline.',
+    alt: 'Twelve labeled synthetic EEG channels sharing a time axis and recording timeline.',
   },
   {
     id: 'channels',
@@ -40,7 +41,8 @@ const views = [
 ] as const;
 
 export function ProductPreview() {
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState(1);
+  const [detail, setDetail] = useState(true);
   const view = views[selected]!;
   return (
     <div className="product-demo">
@@ -66,18 +68,33 @@ export function ProductPreview() {
           </button>
         ))}
       </div>
+      <div className="product-demo__reading-bar">
+        <p>
+          Actual workspace captures <span>· Synthetic EEG</span>
+        </p>
+        <div role="group" aria-label="Preview framing">
+          <button aria-pressed={detail} onClick={() => setDetail(true)}>
+            Signal detail
+          </button>
+          <button aria-pressed={!detail} onClick={() => setDetail(false)}>
+            Full workspace
+          </button>
+        </div>
+      </div>
       <figure>
-        <div className="product-demo__image">
+        <div
+          className={`product-demo__image${detail ? ' product-demo__image--detail' : ''}`}
+        >
           <picture>
             <source
               media="(max-width: 600px)"
-              srcSet={`/product/${view.id}-mobile.webp`}
+              srcSet={`/product/${view.id}${detail ? '-detail' : ''}-mobile.webp`}
             />
             <img
-              src={`/product/${view.id}.webp`}
+              src={`/product/${view.id}${detail ? '-detail' : ''}.webp`}
               alt={view.alt}
-              width="1392"
-              height="893"
+              width={detail ? 968 : 1392}
+              height={detail ? 725 : 893}
               loading="lazy"
               decoding="async"
             />
@@ -90,10 +107,18 @@ export function ProductPreview() {
           </a>
         </figcaption>
       </figure>
-      <p className="product-demo__disclosure">
-        Captured from the working application. Select an example above; open the
-        workspace to interact with the signals.
-      </p>
+      <div className="product-demo__footer">
+        <p className="product-demo__disclosure">
+          {detail
+            ? 'A closer crop of the real viewer.'
+            : 'The complete desktop workspace, with a responsive viewer capture on mobile.'}{' '}
+          These are screenshots. Open the workspace to interact with the
+          signals.
+        </p>
+        <Link className="marketing-link" to="/app">
+          Try it yourself <Icon name="arrow" />
+        </Link>
+      </div>
     </div>
   );
 }

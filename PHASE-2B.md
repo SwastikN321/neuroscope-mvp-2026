@@ -79,3 +79,29 @@ Set `NEUROSCOPE_PLAYWRIGHT` and `NEUROSCOPE_CHROME` to your installed browser to
 - [Browser verification report](work/phase-2b/browser-report.json)
 
 The delivered video trims only browser initialization from the source capture, using the offsets recorded in `work/phase-2b/video-trim.json`. The scrolling sequence itself is continuous. Local artifacts are intentionally excluded from Git; the source capture and encoding scripts, actual website assets and this report are tracked.
+
+## Focused visual polish — 2026-10-20
+
+Preserved the section order, homepage design, cinematic renderer, brain assets, transition choreography and scientific workspace. Changes are limited to marketing presentation and its verification tooling:
+
+- The product demonstration defaults to a readable six-channel signal crop, with a keyboard-accessible choice of signal detail or full framing. All five genuine examples remain available. Crops preserve the axes, inspector and timeline; no samples, controls or measurements were fabricated. The selected example survives framing changes. On mobile all five selectors are visible, without a horizontal control carousel.
+- Static process illustrations distinguish the four workflow steps. The use-case section gains a genuine C3/P3 excerpt and a direct route into the synthetic demo. These are illustrations and explicitly labeled screenshots, not additional product features.
+- Supporting text has stronger contrast and slightly larger type. The original primary “Try NeuroScope” CTA remains unchanged; additional contextual links lead to the real `/app` workspace.
+- Checked scientific copy against `src/features/eeg/synthetic.ts`, `annotations.ts`, `localApi.ts`, backend configuration/storage code, the backend guide and `SCIENTIFIC-VALIDATION.md`. The demo is 12 channels, 256 Hz, 120 seconds. Real EDF uploads remain local-development-only. Native sample anchors and recording-relative seconds are distinguished. Privacy wording now explicitly mentions crash-delayed cleanup and that deletion is not secure erasure. No cloud, authentication, clinical certification or diagnostic claims were added.
+
+Verification:
+
+- PASS: 99 frontend tests, ESLint, Prettier, TypeScript, production build and artifact audit.
+- PASS: backend regression suite, 63 passed; three optional public-recording tests skipped because their environment variables were not supplied. The existing Starlette/httpx deprecation warning remains.
+- PASS: production Chrome at 1920×1080, 1440×900, 834×1112 and 390×844, including all five captures in both framings, mobile image selection, keyboard activation, FAQs, navigation/anchor focus, footer resource paths, cinematic forward/reverse scrolling and entry into the real workspace. No page errors or horizontal overflow.
+- PASS: reduced motion and WebGL failure fallbacks. Additional 320×740 reduced-motion layout inspection found no page or preview-control overflow. The added visuals are static and use no animation loop.
+- PASS: existing production regression at 1440×1000 and 390×844, including electrical activity, waveform interactions, direct workspace navigation and fallbacks.
+- Reviewed full-page and section screenshots, preview close-ups and footer composition. The external Creative Commons footer destination also resolves to the intended license page. Physical mobile devices and browsers other than Chrome were not tested. Full-page screenshots contain empty space in the sticky cinematic scroll region; actual forward/reverse browser checks cover that region.
+
+Review artifacts are local and ignored by Git: `work/phase-2b-polish/1440-full.png`, `390-full.png`, `1440-preview-detail.png`, `390-preview-detail.png`, section screenshots, `browser-report.json` and `narrow-layout.json`. Existing production regression evidence is under `work/deployment/`. Reproduce the expanded homepage check with:
+
+```sh
+NEUROSCOPE_QA_OUTPUT=work/phase-2b-polish node scripts/verify-marketing.cjs
+```
+
+The new lossless crops add approximately 0.32 MB across all variants; only selected responsive variants load. No runtime dependencies, EEG processing code or 3D scene code changed. The existing Three.js bundle-size advisory remains. No deployment was performed.
