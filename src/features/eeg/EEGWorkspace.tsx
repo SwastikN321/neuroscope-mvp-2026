@@ -26,8 +26,10 @@ export function EEGWorkspace({
   source,
   recordingControls,
   onAnnotationDirtyChange,
+  unavailable,
 }: {
   source: EEGDataSource;
+  unavailable?: string;
   recordingControls?: ReactNode;
   onAnnotationDirtyChange?: (dirty: boolean) => void;
 }) {
@@ -57,7 +59,16 @@ export function EEGWorkspace({
   );
   const [probe, setProbe] = useState<Probe | null>(null);
   const [retry, setRetry] = useState(0);
-  const window = useRecordingWindow(source, range, viewIds, retry);
+  const fetchedWindow = useRecordingWindow(
+    source,
+    range,
+    viewIds,
+    retry,
+    !unavailable,
+  );
+  const window = unavailable
+    ? { pending: false, error: unavailable, data: undefined }
+    : fetchedWindow;
   const span = range.end - range.start;
   function reset() {
     setRange({ start: 0, end: Math.min(10, recording.durationSeconds) });
@@ -378,9 +389,11 @@ export function EEGWorkspace({
             <div className="eeg-load-state" role="alert">
               <h2>Unable to read this window</h2>
               <p>{window.error}</p>
-              <button onClick={() => setRetry((n) => n + 1)}>
-                Retry recording
-              </button>
+              {!unavailable && (
+                <button onClick={() => setRetry((n) => n + 1)}>
+                  Retry recording
+                </button>
+              )}
             </div>
           ) : window.data ? (
             <WaveformViewer
@@ -505,7 +518,9 @@ export function EEGWorkspace({
               <span role="status">Updating window…</span>
             )}
           </div>
-          <Timeline source={source} range={range} onRange={setRange} />
+          {!unavailable && (
+            <Timeline source={source} range={range} onRange={setRange} />
+          )}
           <ExportPanel
             source={source}
             data={window.data}
@@ -514,6 +529,7 @@ export function EEGWorkspace({
             amplitude={amplitude}
             annotations={annotations}
             pending={window.pending || !!window.error}
+            unavailable={!!unavailable}
           />
           <AnnotationPanel
             recording={recording}

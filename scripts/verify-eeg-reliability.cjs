@@ -1,5 +1,6 @@
 /* global document */
-// Owns only its temporary backend child. Run with port 8000 free and Vite running.
+// Owns only its temporary backend child. Configure NEUROSCOPE_TEST_API_PORT and
+// NEUROSCOPE_URL for an isolated Vite proxy; the selected API port must be free.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -12,6 +13,8 @@ const storage = fs.mkdtempSync(
 const python = path.resolve('.venv-backend/bin/python');
 const directory = path.resolve('work/phase-3b3');
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const port = process.env.NEUROSCOPE_TEST_API_PORT || '8000';
+const origin = process.env.NEUROSCOPE_URL || 'http://127.0.0.1:5173';
 let server;
 async function start(env = {}) {
   server = spawn(
@@ -21,7 +24,7 @@ async function start(env = {}) {
       'backend.benchmark_eeg',
       '--serve',
       '--port',
-      '8000',
+      port,
       '--storage',
       storage,
     ],
@@ -29,7 +32,7 @@ async function start(env = {}) {
   );
   for (let i = 0; i < 100; i++) {
     try {
-      if ((await fetch('http://127.0.0.1:8000/health')).ok) return;
+      if ((await fetch(`http://127.0.0.1:${port}/health`)).ok) return;
     } catch {
       /* Starting. */
     }
@@ -51,6 +54,7 @@ async function noFiles() {
   throw new Error('Incomplete recording was not cleaned up');
 }
 async function main() {
+  fs.mkdirSync('work/phase-3d2', { recursive: true });
   const browser = await chromium.launch({
     executablePath:
       process.env.NEUROSCOPE_CHROME ||
@@ -59,9 +63,19 @@ async function main() {
   });
   const checks = [];
   try {
+    const occupied = await fetch(`http://127.0.0.1:${port}/health`).then(
+      () => true,
+      () => false,
+    );
+    assert.equal(
+      occupied,
+      false,
+      'Selected test API port is already occupied; do not stop an unrelated server',
+    );
     await start();
     const page = await browser.newPage();
-    await page.goto('http://127.0.0.1:5173/app');
+    page.on('dialog', (d) => d.accept());
+    await page.goto(origin + '/app');
     await page
       .getByRole('group', { name: 'Interactive EEG waveform viewer' })
       .waitFor();
@@ -72,6 +86,13 @@ async function main() {
         .click();
       await (await dialog).setFiles(file);
     };
+    await page.getByRole('button', { name: 'Add point', exact: true }).click();
+    await page
+      .getByLabel('Annotation label', { exact: true })
+      .fill('Unrelated demo note');
+    await page
+      .getByRole('button', { name: 'Save in session', exact: true })
+      .click();
     const cdp = await page.context().newCDPSession(page);
     const throttle = (speed) =>
       cdp.send('Network.emulateNetworkConditions', {
@@ -111,6 +132,12 @@ async function main() {
       (await page.locator('.eeg-plot').getAttribute('data-channels')).includes(
         'Fp1',
       ),
+    );
+    assert.equal(
+      await page
+        .getByRole('button', { name: 'Edit Unrelated demo note' })
+        .count(),
+      1,
     );
     await start();
     await noFiles();
@@ -170,13 +197,49 @@ async function main() {
     });
     await upload(path.join(directory, 'mixed.edf'));
     await page.getByText('EDF ready', { exact: false }).waitFor();
+    await page.getByRole('button', { name: 'Add point', exact: true }).click();
+    await page
+      .getByLabel('Annotation label', { exact: true })
+      .fill('Retain after expiry');
+    await page
+      .getByRole('button', { name: 'Save in session', exact: true })
+      .click();
     await page
       .getByRole('alert')
       .filter({ hasText: 'expired or was deleted' })
       .waitFor({ timeout: 10000 });
     await noFiles();
+    await page.screenshot({
+      path: 'work/phase-3d2/expiry-recovery.png',
+      fullPage: true,
+    });
+    assert.equal(
+      await page
+        .getByRole('button', { name: 'Edit Retain after expiry' })
+        .count(),
+      1,
+      'Automatic expiry must preserve session annotations for JSON recovery',
+    );
+    assert.equal(await page.locator('.eeg-plot').count(), 0);
+    await page.locator('.eeg-export-panel > summary').click();
+    assert.equal(
+      await page
+        .getByRole('button', { name: 'Export EEG Data (CSV)', exact: true })
+        .isDisabled(),
+      true,
+    );
+    const rescue = page.waitForEvent('download');
+    await page
+      .getByRole('button', { name: 'Export Annotations (JSON)', exact: true })
+      .click();
+    await (await rescue).saveAs('work/phase-3d2/expiry-annotations.json');
+    assert.equal(
+      JSON.parse(fs.readFileSync('work/phase-3d2/expiry-annotations.json'))
+        .annotations.length,
+      1,
+    );
     checks.push(
-      'Real two-second expiry removes data and switches explicitly to synthetic demo',
+      'Real two-second expiry removes measurements, hides plot/timeline, preserves annotations and permits JSON rescue',
     );
     await stop();
     await start({
@@ -185,6 +248,18 @@ async function main() {
     });
     await upload(path.join(directory, 'mixed.edf'));
     await page.getByText('EDF ready', { exact: false }).waitFor();
+    await page
+      .getByLabel('Choose annotation JSON', { exact: true })
+      .setInputFiles('work/phase-3d2/expiry-annotations.json');
+    await page
+      .getByRole('button', { name: 'Confirm import', exact: true })
+      .click();
+    await page
+      .getByRole('button', { name: 'Edit Retain after expiry', exact: true })
+      .waitFor();
+    checks.push(
+      'Rescued annotations restore after uploading the same bytes with a new recording ID',
+    );
     await upload(path.join(directory, 'mixed.edf'));
     await page
       .getByRole('alert')
@@ -208,6 +283,18 @@ async function main() {
         .waitFor();
       await noFiles();
     }
+    const unsupported = Buffer.from(
+      fs.readFileSync(path.join(directory, 'mixed.edf')),
+    );
+    unsupported.write('EDF+D', 192, 'ascii');
+    await upload({
+      name: 'unsupported.edf',
+      mimeType: 'application/octet-stream',
+      buffer: unsupported,
+    });
+    await page.getByRole('alert').filter({ hasText: 'Unsupported' }).waitFor();
+    await noFiles();
+    checks.push('Discontinuous EDF+D is explicitly rejected');
     await upload(path.join(directory, 'near-cap.edf'));
     await page
       .getByRole('alert')

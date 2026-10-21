@@ -12,6 +12,7 @@ export function ExportPanel({
   amplitude,
   annotations,
   pending,
+  unavailable,
 }: {
   source: EEGDataSource;
   data?: EEGWindow;
@@ -20,6 +21,7 @@ export function ExportPanel({
   amplitude: number;
   annotations: AnnotationController;
   pending: boolean;
+  unavailable?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false),
@@ -115,7 +117,7 @@ export function ExportPanel({
             to fit peaks. JSON: all saved-in-session annotations, including
             those outside this view. Unfinished edits are excluded.
           </p>
-          <fieldset disabled={busy}>
+          <fieldset disabled={busy || unavailable}>
             <legend>Export EEG Data (CSV) · original native samples</legend>
             <label>
               Time interval

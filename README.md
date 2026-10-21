@@ -106,4 +106,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the audited Cloudflare Pages settings, pr
 
 ## Local EDF backend (Phase 3B.1)
 
-The standalone service reads classical EDF and continuous EDF+C with original channel rates, calibration and µV output. It supports private temporary uploads, technical metadata, channel listing, bounded sample windows and deletion. See [backend/README.md](backend/README.md) for exact startup commands, API contracts, resource/privacy limits and scientific validation. No frontend upload UI or integration has been added. Public deployment is deliberately postponed until real-recording support has been tested further.
+The standalone service reads classical EDF and continuous EDF+C with original channel rates, calibration and µV output. It supports private temporary uploads, technical metadata, channel listing, bounded sample windows and deletion. See [backend/README.md](backend/README.md) for exact startup commands, API contracts, resource/privacy limits and scientific validation. The local development workspace now integrates uploads, native-rate viewing, annotations and exports. Public deployment remains postponed; the backend is restricted to local use.
+
+## Product reliability validation (Phase 3D.2)
+
+See [PRODUCT-VALIDATION.md](PRODUCT-VALIDATION.md) for the real-backend browser journeys, failure recovery, five viewport sizes, measured local performance, and independent scientific regressions. Expired/deleted EDFs now retain their in-session annotations for JSON rescue while hiding unavailable measurements. Switching or removing the active recording still requires exporting/discarding its annotations. [PHASE-4-READINESS.md](PHASE-4-READINESS.md) describes the authorization, private-storage and persistence work required before hosted use; no cloud integration or deployment is included.

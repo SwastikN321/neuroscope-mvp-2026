@@ -19,6 +19,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
   }, [annotationDirty]);
   const [uploaded, setUploaded] = useState<EEGDataSource | null>(null);
   const [useDemo, setUseDemo] = useState(true);
+  const [unavailable, setUnavailable] = useState(false);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState(
@@ -45,11 +46,12 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
     if (activeId.current !== id) return;
     activeId.current = null;
     clearTimeout(expiry.current);
-    setUploaded(null);
-    setUseDemo(true);
+    // Keep the recording identity and annotation session mounted for JSON rescue.
+    // Measurements are explicitly hidden until the user chooses another source.
+    setUnavailable(true);
     setError(true);
     setMessage(
-      'The temporary EDF recording expired or was deleted. Showing the synthetic demo; upload again to continue.',
+      'The temporary EDF recording expired or was deleted. Export annotation JSON before switching recordings; upload the same EDF again to restore those annotations.',
     );
   }
   useEffect(() => {
@@ -124,6 +126,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
       abort.signal.throwIfAborted();
       setAnnotationDirty(false);
       activeId.current = metadata.id;
+      setUnavailable(false);
       setUploaded(next);
       setUseDemo(false);
       clearTimeout(expiry.current);
@@ -155,7 +158,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
   }
   async function remove() {
     if (!uploaded) return;
-    if (annotationDirty && !confirmAnnotationDiscard()) return;
+    if (!useDemo && annotationDirty && !confirmAnnotationDiscard()) return;
     setBusy(true);
     setError(false);
     setMessage('Deleting temporary EDF recording…');
@@ -163,7 +166,8 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
       await deleteRecording(uploaded.recording.id);
       clearTimeout(expiry.current);
       activeId.current = null;
-      setAnnotationDirty(false);
+      if (!useDemo) setAnnotationDirty(false);
+      setUnavailable(false);
       setUploaded(null);
       setUseDemo(true);
       setMessage(
@@ -182,6 +186,11 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
     <EEGWorkspace
       key={useDemo ? demo.recording.id : uploaded?.recording.id}
       source={useDemo || !uploaded ? demo : uploaded}
+      unavailable={
+        !useDemo && unavailable
+          ? 'This EDF is no longer available. Session annotations are retained: export JSON, then re-upload the original recording to restore them.'
+          : undefined
+      }
       onAnnotationDirtyChange={setAnnotationDirty}
       recordingControls={
         <section
@@ -229,7 +238,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
             {uploaded && (
               <>
                 <button
-                  disabled={busy}
+                  disabled={busy || (useDemo && unavailable)}
                   onClick={() => {
                     if (annotationDirty && !confirmAnnotationDiscard()) return;
                     setAnnotationDirty(false);
@@ -238,7 +247,9 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
                     setMessage(
                       useDemo
                         ? 'Local EDF recording selected.'
-                        : 'Synthetic demo selected. Your EDF remains available until expiry.',
+                        : unavailable
+                          ? 'Synthetic demo selected. The previous EDF is no longer available; re-upload it to continue.'
+                          : 'Synthetic demo selected. Your EDF remains available until expiry.',
                     );
                   }}
                 >

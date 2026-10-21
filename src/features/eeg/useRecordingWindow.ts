@@ -10,6 +10,7 @@ export function useRecordingWindow(
   range: TimeRange,
   ids: string[],
   retry: number,
+  enabled = true,
 ) {
   const [result, setResult] = useState<{
     key: string;
@@ -19,6 +20,7 @@ export function useRecordingWindow(
   const [start, end] = sampleInterval(range, source.recording);
   const key = `${start}:${end}:${ids.join(',')}:${retry}`;
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     const read = () => {
       void source
@@ -45,6 +47,6 @@ export function useRecordingWindow(
       clearTimeout(timer);
       controller.abort();
     };
-  }, [source, start, end, ids, key]);
+  }, [source, start, end, ids, key, enabled]);
   return { ...result, pending: result.key !== key };
 }

@@ -164,3 +164,65 @@ it('warns before replacement, deletion and demo switching, retaining annotations
     confirm.mockRestore();
   }
 });
+
+it('preserves annotations for JSON rescue when the recording expires, hiding stale measurements', async () => {
+  mount();
+  await upload();
+  await userEvent.click(screen.getByRole('button', { name: 'Add point' }));
+  await userEvent.type(
+    screen.getByLabelText('Annotation label'),
+    'Keep after expiry',
+  );
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Save in session' }),
+  );
+  await act(async () => callbacks[0]!());
+  expect(
+    screen.getByRole('button', { name: 'Edit Keep after expiry' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole('group', { name: 'Interactive EEG waveform viewer' }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Recording position')).not.toBeInTheDocument();
+  await userEvent.click(
+    screen.getByText('Export', { exact: false, selector: 'summary' }),
+  );
+  expect(
+    screen.getByRole('button', { name: 'Export Annotations (JSON)' }),
+  ).toBeEnabled();
+  expect(
+    screen.getByRole('button', { name: 'Export Visualization (PNG)' }),
+  ).toBeDisabled();
+});
+
+it('deleting a retained EDF leaves unrelated synthetic annotations and their discard protection intact', async () => {
+  mount();
+  await upload();
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Use synthetic demo' }),
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Add point' }));
+  await userEvent.type(
+    screen.getByLabelText('Annotation label'),
+    'Unrelated demo note',
+  );
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Save in session' }),
+  );
+  const confirm = vi.spyOn(globalThis, 'confirm').mockReturnValue(false);
+  try {
+    await userEvent.click(screen.getByRole('button', { name: 'Delete EDF' }));
+    expect(deleteRecording).toHaveBeenCalledWith('record-1');
+    expect(confirm).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole('button', { name: 'Edit Unrelated demo note' }),
+    ).toBeInTheDocument();
+    await upload();
+    expect(confirm).toHaveBeenCalled();
+    expect(
+      screen.getByRole('button', { name: 'Edit Unrelated demo note' }),
+    ).toBeInTheDocument();
+  } finally {
+    confirm.mockRestore();
+  }
+});

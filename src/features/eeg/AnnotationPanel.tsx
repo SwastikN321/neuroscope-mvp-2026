@@ -49,9 +49,9 @@ export function AnnotationPanel({
       </summary>
       <p className="eeg-annotation-notice">
         Session only · Not permanently saved. Refresh, leaving the workspace,
-        switching or removing recordings discards annotations. Temporary EDF
-        expiry also clears them. Export JSON to keep a portable copy and import
-        it later.
+        switching or removing the active recording discards annotations. If an
+        EDF expires, its notes remain available for JSON export until you switch
+        recordings. Export JSON to keep a portable copy and import it later.
       </p>
       <AnnotationImport recording={recording} annotations={a} />
       {d && (

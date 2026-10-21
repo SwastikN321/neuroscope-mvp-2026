@@ -871,3 +871,32 @@
     display: none;
   }
 }
+
+/* Landscape tablets need a narrower reading column beside the existing anatomy. */
+@media (min-width: 781px) and (max-width: 1100px) and (min-aspect-ratio: 1/1) {
+  .cinematic-content .hero-positioning {
+    max-width: 340px;
+  }
+  .hero-activity {
+    bottom: 15%;
+  }
+  .sculpture-label {
+    display: none;
+  }
+}
+/* Keep the activity button below the sculpture on portrait tablets. */
+@media (min-width: 601px) and (max-width: 780px) {
+  .hero-activity {
+    bottom: 22%;
+  }
+}
+.hero-activity .signal-button {
+  background: #0d1923f5;
+}
+/* Constrain fallback art to its stage; intrinsic image sizing must not cover copy. */
+.neural-journey--static .neural-still {
+  display: block;
+}
+.neural-journey--static .neural-still > span {
+  display: none;
+}
