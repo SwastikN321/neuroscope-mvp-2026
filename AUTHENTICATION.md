@@ -4,7 +4,7 @@ For the current confirmation-recovery fix and the distinction between owner-repo
 
 This milestone adds account access only. The homepage and `/app` synthetic demo remain public; the local EDF backend, EEG measurements, annotations and exports are unchanged. No recordings, annotations, projects or files are uploaded to Supabase. No database/profile table, storage bucket, RLS policy, paid service or deployment is created.
 
-**Phase 4A.1: live connectivity verified; account acceptance pending.** The owner's ignored local environment now connects to a real Supabase project. The live Auth settings endpoint confirms email registration and confirmation are enabled. Signup, inbox confirmation and valid-account sessions still require the owner's browser steps; see `AUTH-VALIDATION.md`. Earlier automated SDK/HTTP fixtures remain explicitly mocked and do not establish live login or email delivery. Google/GitHub configuration is outside Phase 4A.1.
+**Live account verification:** the existing email account has been observed through server-backed `getUser()`, dashboard reload, confirmed-session callback recovery, logout and signed-out protection. Repeat login after logout and another dashboard reload also passed; see `AUTH-LIVE-VALIDATION.md`. Earlier automated SDK/HTTP fixtures remain explicitly mocked and are not live evidence. Google/GitHub configuration remains outside this milestone.
 
 ## Implemented routes and behavior
 

@@ -1,5 +1,7 @@
 # Phase 4A validation
 
+Historical checkpoints below are superseded for live account testing by `AUTH-LIVE-VALIDATION.md`.
+
 ## Phase 4A.1 live connection checkpoint — 2026-10-21
 
 Baseline: `e746717`. **Live connectivity passes; real-account acceptance is pending user signup and email confirmation.** No mock responses were used for the following live checks. No password, confirmation link, project URL, API key, account identifier or session token is retained in this report.
