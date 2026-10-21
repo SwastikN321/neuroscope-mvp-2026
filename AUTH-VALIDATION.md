@@ -1,5 +1,29 @@
 # Phase 4A validation
 
+## Phase 4A.1 live connection checkpoint — 2026-10-21
+
+Baseline: `e746717`. **Live connectivity passes; real-account acceptance is pending user signup and email confirmation.** No mock responses were used for the following live checks. No password, confirmation link, project URL, API key, account identifier or session token is retained in this report.
+
+| Check                                                                   | Measured result                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local environment                                                       | Expected project URL and publishable-key variable names present; key has the public `sb_publishable_` type. Only these two fields were originally present. Added missing local Site URL and callback path without changing their values. No secret/service-role key present. |
+| Git exclusion                                                           | `.env.local` ignored and untracked.                                                                                                                                                                                                                                          |
+| Real Auth connectivity                                                  | `/auth/v1/settings` returned HTTP 200 using the configured public key.                                                                                                                                                                                                       |
+| Email settings                                                          | `external.email=true`, `disable_signup=false`, `mailer_autoconfirm=false`: registration enabled and email confirmation required.                                                                                                                                             |
+| Official SDK connection                                                 | Live `getUser` with a deliberately invalid probe token returned HTTP 403 / `bad_jwt`, no user. Negative connectivity check only; not successful authentication.                                                                                                              |
+| Browser initialization                                                  | Running development app recognizes live configuration; signup controls enabled.                                                                                                                                                                                              |
+| Unauthenticated protection                                              | Direct `/dashboard` navigation redirected to `/login?next=/dashboard`.                                                                                                                                                                                                       |
+| Site URL / redirect allowlist                                           | Exact required values supplied in `AUTHENTICATION.md`; saved dashboard values not independently verified.                                                                                                                                                                    |
+| Real signup, email delivery and confirmation                            | PENDING owner entry and inbox action in the initiating browser.                                                                                                                                                                                                              |
+| Valid login, restored verified session, logout, authenticated dashboard | PENDING confirmed test account. Earlier mocked tests are not live evidence.                                                                                                                                                                                                  |
+| Regression checks                                                       | 144 frontend tests pass; ESLint, Prettier, TypeScript, guest-only production build and deployment artifact audit pass. Existing bundle-size advisory remains.                                                                                                                |
+
+Reproduce the live read-only requests with `node scripts/check-auth-connection.mjs`. Reproduce the guest-only release checks using the empty Auth environment overrides documented in `AUTHENTICATION.md`; local development remains connected to Supabase. No EEG processing, homepage animations, cloud storage, OAuth configuration or deployment changes were made.
+
+After the owner confirms email, verify the server-verified dashboard, reload restoration, local logout and signed-out protection; then have the owner log in with the same credentials and verify the account again. Record those actual outcomes before marking Phase 4A.1 complete. Do not collect passwords or email links in chat or screenshots.
+
+## Historical Phase 4A results
+
 Baseline: `97c4fa3`. Validation date: 2026-10-21. **Implementation and local verification complete; real Supabase/provider acceptance remains blocked on owner configuration.** No real account was created, email sent, provider authorized, cloud EEG storage added, or deployment performed.
 
 ## Results and their limits

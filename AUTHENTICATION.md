@@ -2,7 +2,7 @@
 
 This milestone adds account access only. The homepage and `/app` synthetic demo remain public; the local EDF backend, EEG measurements, annotations and exports are unchanged. No recordings, annotations, projects or files are uploaded to Supabase. No database/profile table, storage bucket, RLS policy, paid service or deployment is created.
 
-**Live validation is pending owner configuration.** No real Supabase project URL/key or email/Google/GitHub provider credentials were present. Automated SDK/HTTP fixtures are explicitly mocked; they do not establish that email delivery or real provider login works.
+**Phase 4A.1: live connectivity verified; account acceptance pending.** The owner's ignored local environment now connects to a real Supabase project. The live Auth settings endpoint confirms email registration and confirmation are enabled. Signup, inbox confirmation and valid-account sessions still require the owner's browser steps; see `AUTH-VALIDATION.md`. Earlier automated SDK/HTTP fixtures remain explicitly mocked and do not establish live login or email delivery. Google/GitHub configuration is outside Phase 4A.1.
 
 ## Implemented routes and behavior
 
@@ -38,6 +38,24 @@ If you intentionally use `localhost`, replace the origin consistently in the bro
 7. **Email delivery:** Supabase's default sender is restricted and is not a reliable public signup service. For Phase 5, configure approved custom SMTP, sender/domain authentication, delivery monitoring, rate limits and abuse controls before public signup. Test confirmation and recovery delivery, including spam folders and expired links. No SMTP service was purchased/configured here. [Custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp)
 
 Start the existing app with `npm run dev`; the FastAPI startup is unchanged in `backend/README.md`. Missing or invalid configuration leaves account buttons disabled with an explicit message and working guest links.
+
+For the first live email test, use your Supabase organization member email if using its default mail service, which restricts delivery to team members. After saving URL Configuration, open `http://127.0.0.1:5173/signup`, enter a unique password directly in the browser, and submit. Open the email's confirmation link in that same browser (paste into its address bar, never into chat). The PKCE verifier belongs to the initiating browser. Leave **Confirm email** enabled. If delivery fails, inspect the safe UI error and project email settings before retrying; default mail rate limits are low. No SMTP service or OAuth provider is configured by this milestone.
+
+Read-only live connectivity diagnostics (no account creation, email, stored session, or credential output):
+
+```sh
+node scripts/check-auth-connection.mjs
+```
+
+This reads the same Vite development environment and configuration validator as the app. It checks Auth settings and confirms the official SDK rejects a deliberately invalid token. It cannot establish successful signup/login or read the project's private Site URL/redirect allowlist configuration.
+
+With localhost Auth configured in `.env.local`, run the guest-only release regression build with explicit empty overrides:
+
+```sh
+VITE_SUPABASE_URL= VITE_SUPABASE_PUBLISHABLE_KEY= VITE_SITE_URL= npm run check
+```
+
+The deployment audit intentionally rejects localhost addresses in release assets. These overrides do not edit `.env.local` or disable live Auth in the running development server. A future authorized deployment needs its own HTTPS Auth configuration; do not relax the audit to publish this local configuration.
 
 ## Session and security boundaries
 
