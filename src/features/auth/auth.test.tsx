@@ -351,6 +351,7 @@ describe('Account UI with mocked Supabase responses (not live auth)', () => {
     '/auth/callback',
     '/auth/callback#access_token=do-not-accept',
   ])('rejects callback failure %s safely', async (path) => {
+    sdk.getUser.mockResolvedValue({ data: { user: null }, error: null });
     mount(path);
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'could not be completed',
@@ -359,6 +360,7 @@ describe('Account UI with mocked Supabase responses (not live auth)', () => {
     expect(document.body.textContent).not.toContain('unsafe');
   });
   it('reports an expired or already consumed code', async () => {
+    sdk.getUser.mockResolvedValue({ data: { user: null }, error: null });
     sdk.exchange.mockResolvedValue({
       data: { session: null },
       error: { code: 'bad_code' },
@@ -366,6 +368,43 @@ describe('Account UI with mocked Supabase responses (not live auth)', () => {
     mount('/auth/callback?code=old');
     expect(await screen.findByRole('alert')).toHaveTextContent('expired');
   });
+  it.each([
+    '/auth/callback?error=access_denied',
+    '/auth/callback',
+    '/auth/callback?code=used&next=/reset-password',
+    '/auth/callback#access_token=untrusted',
+  ])('recovers %s only through a confirmed server user', async (path) => {
+    sdk.getSession.mockResolvedValue({ data: { session }, error: null });
+    sdk.exchange.mockResolvedValue({ data: { session: null }, error: {} });
+    const { router } = mount(path);
+    expect(await screen.findByText('Verified')).toBeInTheDocument();
+    expect(sdk.getUser).toHaveBeenCalled();
+    expect(router.state.location.pathname).toBe('/dashboard');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+  it.each(['unverified', 'rejected', 'offline'])(
+    'does not recover a failed callback when server verification is %s',
+    async (condition) => {
+      // Even a cached confirmed user is insufficient.
+      sdk.getSession.mockResolvedValue({ data: { session }, error: null });
+      if (condition === 'offline') sdk.getUser.mockRejectedValue(new Error());
+      else
+        sdk.getUser.mockResolvedValue({
+          data: {
+            user:
+              condition === 'unverified'
+                ? { ...user, email_confirmed_at: undefined }
+                : user,
+          },
+          error: condition === 'rejected' ? { code: 'bad_jwt' } : null,
+        });
+      const { router } = mount('/auth/callback?error=expired');
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'try logging in',
+      );
+      expect(router.state.location.pathname).toBe('/auth/callback');
+    },
+  );
   it('handles session sign-out events without exposing the old profile', async () => {
     sdk.getSession.mockResolvedValue({ data: { session }, error: null });
     mount('/dashboard');

@@ -1,5 +1,7 @@
 # Phase 4A — Supabase account foundation
 
+For the current confirmation-recovery fix and the distinction between owner-reported login and observed live acceptance, see `AUTH-LIVE-VALIDATION.md` (Phase 4A.2).
+
 This milestone adds account access only. The homepage and `/app` synthetic demo remain public; the local EDF backend, EEG measurements, annotations and exports are unchanged. No recordings, annotations, projects or files are uploaded to Supabase. No database/profile table, storage bucket, RLS policy, paid service or deployment is created.
 
 **Phase 4A.1: live connectivity verified; account acceptance pending.** The owner's ignored local environment now connects to a real Supabase project. The live Auth settings endpoint confirms email registration and confirmation are enabled. Signup, inbox confirmation and valid-account sessions still require the owner's browser steps; see `AUTH-VALIDATION.md`. Earlier automated SDK/HTTP fixtures remain explicitly mocked and do not establish live login or email delivery. Google/GitHub configuration is outside Phase 4A.1.
@@ -62,6 +64,8 @@ The deployment audit intentionally rejects localhost addresses in release assets
 The official `@supabase/supabase-js` client uses `flowType: 'pkce'`, SDK-managed persistence, automatic refresh and a cleaned-up `onAuthStateChange` listener. There is no custom password/token store. The SDK's browser session storage is **not HttpOnly** and remains exposed to same-origin JavaScript; preventing XSS, controlling dependencies and designing a deployment CSP remain necessary. This client-only milestone does not claim server-cookie protection.
 
 `detectSessionInUrl` is disabled so the callback owns one exchange, deduplicated under React StrictMode. Only `/dashboard`, `/app` and `/reset-password` are valid post-login destinations. Raw provider descriptions, tokens and passwords are not logged or rendered. Implicit token fragments are rejected. The page uses `no-referrer` and removes callback parameters immediately after mounting. A host could still log the incoming callback URL; future hosting logs must redact codes/query strings.
+
+If the callback fails, the client rechecks the existing account with `getUser()`. A successful server response with `email_confirmed_at` allows dashboard navigation through its normal guard. Without that evidence, the page explains that email confirmation may already have succeeded and offers login/recovery. This does not establish that the failed link itself succeeded and never treats a failed recovery link as a successful password-reset flow.
 
 Stored sessions are initialized through the SDK and the dashboard is displayed only after `getUser()` succeeds against Auth. The browser route guard is a UX boundary, **not backend authorization**. Late results cannot restore a profile after logout; refresh/expiry/focus checks and a 15-second verification deadline fail closed to an error/guest state. Failed logout reports an error instead of claiming success. Logout uses SDK `scope: 'local'`: this browser's session, not every device. No account state is used to authorize the existing local recording API. [Auth events](https://supabase.com/docs/reference/javascript/auth-onauthstatechange)
 

@@ -34,9 +34,27 @@ export default function AuthCallback() {
         if (error || !data.session) throw new Error('exchange failed');
         if (alive) navigate(safeNext(params.get('next')), { replace: true });
       } catch {
+        if (!alive) return;
+        // Email confirmation and the browser's PKCE session exchange are separate.
+        // A failed/reused link must not override a server-verified existing account.
+        // Never trust cached user metadata or tokens supplied in the failed URL.
+        try {
+          const verified = await authClient?.auth.getUser();
+          if (
+            verified &&
+            !verified.error &&
+            verified.data.user?.email_confirmed_at
+          ) {
+            // A failed recovery callback does not establish a recovery flow.
+            if (alive) navigate('/dashboard', { replace: true });
+            return;
+          }
+        } catch {
+          // Network failures cannot establish a confirmed account.
+        }
         if (alive)
           setError(
-            'This sign-in link could not be completed. It may be expired, already used, or opened in a different browser. Try logging in again or request a new recovery link.',
+            'Sign-in from this link could not be completed. Your email may already be confirmed: try logging in with your existing email and password. The link may be expired, already used, or opened in a different browser. If you forgot your password, request a recovery link.',
           );
       }
     }
