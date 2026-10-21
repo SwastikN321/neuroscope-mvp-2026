@@ -17,6 +17,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let alive = true,
       revision = 0,
       hadSession = false;
+    let verifiedUntil = 0;
+    function markVerifying(session?: Session) {
+      // Keep same-account drafts mounted during background verification of an
+      // already verified, unexpired session. Expiry/account changes fail closed.
+      setState((previous) =>
+        previous.status === 'authenticated' &&
+        Date.now() < verifiedUntil &&
+        (!session || previous.user?.id === session.user.id)
+          ? previous
+          : { status: 'loading', user: null, notice: '' },
+      );
+    }
     let expiry: ReturnType<typeof setTimeout> | undefined;
     let deadline: ReturnType<typeof setTimeout> | undefined;
     function startDeadline(run: number) {
@@ -51,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       hadSession = true;
-      setState({ status: 'loading', user: null, notice: '' });
+      markVerifying(session);
       startDeadline(run);
       // Never await another Auth operation inside the SDK's locked event callback.
       const task = setTimeout(() => {
@@ -80,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               return;
             }
             hadSession = true;
+            verifiedUntil = (session.expires_at ?? 0) * 1000;
             setState({ status: 'authenticated', user: data.user, notice: '' });
             // Fail closed if background refresh fails; check again when a suspended tab resumes.
             expiry = setTimeout(
@@ -103,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     async function restore() {
       const run = revision;
-      setState({ status: 'loading', user: null, notice: '' });
+      markVerifying();
       startDeadline(run);
       try {
         const { data, error } = await client.auth.getSession();

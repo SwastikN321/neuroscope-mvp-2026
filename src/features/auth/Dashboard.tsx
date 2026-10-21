@@ -1,43 +1,20 @@
-import { Link, Navigate } from 'react-router';
+import { Link } from 'react-router';
+import type { User } from '@supabase/supabase-js';
+import { RequireAccount } from './RequireAccount';
+import { ProjectList } from '../projects/ProjectList';
 import { useAuth } from './context';
 import { AuthLayout } from './AuthLayout';
 import { LogoutButton } from './LogoutButton';
-import { Button, ButtonLink } from '../../components/ui/Button';
+import { ButtonLink } from '../../components/ui/Button';
 export default function Dashboard() {
-  const { status, user, notice, retry, signedOut } = useAuth();
-  if (status === 'guest' || status === 'unconfigured')
-    return (
-      <Navigate
-        to={
-          signedOut
-            ? '/login?status=signed-out'
-            : notice
-              ? '/login?reason=expired'
-              : '/login?next=/dashboard'
-        }
-        replace
-      />
-    );
-  if (status !== 'authenticated' || !user)
-    return (
-      <AuthLayout wide>
-        <section className="account-wait" role="status">
-          <h1>
-            {status === 'error'
-              ? 'Reconnect to your account'
-              : 'Opening your account…'}
-          </h1>
-          <p>{notice}</p>
-          {status === 'error' && (
-            <>
-              <Button onClick={retry}>Retry session</Button>
-              <LogoutButton />
-            </>
-          )}
-          <Link to="/app">Continue with the guest demo</Link>
-        </section>
-      </AuthLayout>
-    );
+  const { user } = useAuth();
+  return (
+    <RequireAccount>
+      {user && <AccountDashboard key={user.id} user={user} />}
+    </RequireAccount>
+  );
+}
+function AccountDashboard({ user }: { user: User }) {
   const displayName =
     typeof user.user_metadata?.full_name === 'string'
       ? user.user_metadata.full_name
@@ -73,20 +50,7 @@ export default function Dashboard() {
         <p>A place to begin your next investigation.</p>
       </div>
       <div className="dashboard-grid">
-        <section className="dashboard-work">
-          <span className="account-eyebrow">01 / THE WORKSPACE</span>
-          <h2>Follow the signal.</h2>
-          <p>
-            Explore the synthetic demo, inspect native samples, and keep
-            observations connected to the waveform.
-          </p>
-          <ButtonLink to="/app">
-            Open EEG workspace <span aria-hidden="true">↗</span>
-          </ButtonLink>
-          <span className="account-hint">
-            Session-only work · Export to keep a copy
-          </span>
-        </section>
+        <ProjectList />
         <section id="account-profile" className="dashboard-profile">
           <div className="profile-monogram" aria-hidden="true">
             {displayName.slice(0, 1).toUpperCase()}
@@ -111,15 +75,16 @@ export default function Dashboard() {
         </section>
       </div>
       <section className="dashboard-empty">
-        <span className="account-eyebrow">02 / WHAT COMES NEXT</span>
         <div>
-          <h2>Your research, with continuity.</h2>
+          <h2>The EEG workspace is always open.</h2>
           <p>
-            Persistent research projects arrive in Phase 4B. No projects,
-            recordings, or annotations are stored in your account yet.
+            Explore synthetic EEG or your local EDF recordings. Project details
+            persist; recordings and annotations are not saved to projects yet.
           </p>
         </div>
-        <span className="account-badge">Not available yet</span>
+        <ButtonLink to="/app" variant="secondary">
+          Open EEG workspace ↗
+        </ButtonLink>
       </section>
     </AuthLayout>
   );

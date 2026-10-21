@@ -27,7 +27,7 @@ const questions = [
   ],
   [
     'How is recording privacy handled?',
-    'The synthetic demo contains no patient data. In the current local setup, EDF bytes go to a backend on the same computer and are stored outside public directories in temporary storage. The default expiry is one hour; you can also delete a recording. Deletion is not secure erasure; after a crash, files may remain until the backend restarts. There is no cloud recording storage. When configured, account sign-in sends account information to Supabase Auth; it does not save EEG data or isolate the local API by user. A future hosted service would need its own reviewed privacy and security arrangements; these local guarantees must not be assumed for it.',
+    'The synthetic demo contains no patient data. In the current local setup, EDF bytes go to a backend on the same computer and are stored outside public directories in temporary storage. The default expiry is one hour; you can also delete a recording. Deletion is not secure erasure; after a crash, files may remain until the backend restarts. There is no cloud recording storage. When configured, account sign-in sends account information to Supabase Auth. Private project names and descriptions are saved in the Supabase database once project management is enabled; EEG data is not saved there, and the local API is not isolated by user. A future hosted service would need its own reviewed privacy and security arrangements; these local guarantees must not be assumed for it.',
   ],
 ] as const;
 

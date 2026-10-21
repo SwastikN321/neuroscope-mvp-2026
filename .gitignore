@@ -67,3 +67,6 @@ work/phase-3d2/
 
 # Auth QA screenshots and mocked browser fixtures
 work/phase-4a/
+
+# Project dashboard verification artifacts (may show account details)
+work/phase-4b1/

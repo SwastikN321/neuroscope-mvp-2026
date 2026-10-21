@@ -12,6 +12,10 @@ import { AuthProvider } from './AuthProvider';
 import AuthPage from './AuthPages';
 import Dashboard from './Dashboard';
 import AuthCallback from './AuthCallback';
+vi.mock('../projects/api', async (original) => ({
+  ...(await original<typeof import('../projects/api')>()),
+  listProjects: vi.fn(async () => ({ projects: [], hasMore: false })),
+}));
 const sdk = vi.hoisted(() => ({
   getSession: vi.fn(),
   getUser: vi.fn(),
@@ -405,6 +409,28 @@ describe('Account UI with mocked Supabase responses (not live auth)', () => {
       expect(router.state.location.pathname).toBe('/auth/callback');
     },
   );
+  it('preserves project drafts during same-account focus verification', async () => {
+    sdk.getSession.mockResolvedValue({ data: { session }, error: null });
+    mount('/dashboard');
+    await screen.findByText('researcher@example.test');
+    await userEvent.click(screen.getByRole('button', { name: /New project/ }));
+    await userEvent.type(
+      screen.getByLabelText('Project name'),
+      'Keep my draft',
+    );
+    let resolve!: (v: unknown) => void;
+    sdk.getUser.mockImplementation(
+      () =>
+        new Promise((r) => {
+          resolve = r;
+        }),
+    );
+    act(() => window.dispatchEvent(new Event('focus')));
+    await waitFor(() => expect(resolve).toBeDefined());
+    expect(screen.getByLabelText('Project name')).toHaveValue('Keep my draft');
+    await act(async () => resolve({ data: { user }, error: null }));
+    expect(screen.getByLabelText('Project name')).toHaveValue('Keep my draft');
+  });
   it('handles session sign-out events without exposing the old profile', async () => {
     sdk.getSession.mockResolvedValue({ data: { session }, error: null });
     mount('/dashboard');

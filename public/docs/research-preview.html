@@ -269,8 +269,11 @@ npm run dev</code></pre>
           uploaded EDF bytes are sent to a service on the same computer and
           stored in private temporary files outside public directories. The
           application has no cloud recording storage. When configured, account
-          sign-in sends account information to Supabase Auth. Signing in does
-          not upload EEG data or grant private ownership of local recordings.
+          sign-in sends account information to Supabase Auth. Private project
+          names and descriptions are stored in the Supabase database when
+          project management is enabled. EEG measurements and annotations are
+          not stored in these projects. Signing in does not upload EEG data or
+          grant private ownership of local recordings.
         </p>
         <p>
           The default lifetime is one hour. Expired recordings are rejected on

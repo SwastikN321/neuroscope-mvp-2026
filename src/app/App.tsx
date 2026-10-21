@@ -11,6 +11,9 @@ import { NotFoundPage } from '../pages/NotFoundPage';
 const AuthPage = lazy(() => import('../features/auth/AuthPages'));
 const AuthCallback = lazy(() => import('../features/auth/AuthCallback'));
 const Dashboard = lazy(() => import('../features/auth/Dashboard'));
+const ProjectDetails = lazy(
+  () => import('../features/projects/ProjectDetails'),
+);
 const WorkspacePage = lazy(() => import('../pages/WorkspacePage'));
 
 export function App() {
@@ -23,14 +26,15 @@ export function App() {
 function AppRoutes() {
   const pathname = useLocation().pathname.replace(/\/$/, '');
   const workspace = pathname === '/app';
-  const account = [
-    '/login',
-    '/signup',
-    '/forgot-password',
-    '/reset-password',
-    '/auth/callback',
-    '/dashboard',
-  ].includes(pathname);
+  const account =
+    [
+      '/login',
+      '/signup',
+      '/forgot-password',
+      '/reset-password',
+      '/auth/callback',
+      '/dashboard',
+    ].includes(pathname) || pathname.startsWith('/dashboard/projects/');
   return (
     <ErrorBoundary>
       <a className="skip-link" href="#main-content">
@@ -67,6 +71,10 @@ function AppRoutes() {
             />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard/projects/:projectId"
+              element={<ProjectDetails />}
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

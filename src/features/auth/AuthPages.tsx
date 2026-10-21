@@ -172,7 +172,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
         {mode === 'login'
           ? 'Log in to your account. Your next question awaits.'
           : mode === 'signup'
-            ? 'Create your research account. Persistent projects arrive in Phase 4B.'
+            ? 'Create your research account. Keep your project plans together.'
             : mode === 'forgot'
               ? 'Enter your account email to request a password reset.'
               : 'Choose a strong, unique password for your account.'}
@@ -371,8 +371,9 @@ export default function AuthPage({ mode }: { mode: Mode }) {
         )}
       </p>
       <p className="account-privacy">
-        Accounts do not save EEG recordings or annotations yet. Export your work
-        before leaving the workspace.
+        Projects save their name and description only. EEG recordings and
+        annotations are not saved to your account. Export your work before
+        leaving the workspace.
       </p>
     </AuthLayout>
   );

@@ -60,7 +60,7 @@ export function AuthLayout({
             <p className="account-story-note">
               The EEG demo is open to everyone.
               <br />
-              Accounts are the foundation for future private projects.
+              Private project plans, with the EEG workspace open to everyone.
             </p>
           </aside>
           <section className="account-form-panel">{children}</section>
