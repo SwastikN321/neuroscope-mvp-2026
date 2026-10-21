@@ -10,6 +10,7 @@ export type ApiChannel = {
 };
 export type ApiMetadata = {
   id: string;
+  content_sha256?: string;
   duration_seconds: number;
   channels: ApiChannel[];
   expires_in_seconds: number;
@@ -97,6 +98,7 @@ export function request<T>(
   path: string,
   signal?: AbortSignal,
   method = 'GET',
+  format: 'json' | 'blob' = 'json',
 ): Promise<T> {
   return serial(async () => {
     const timeout = AbortSignal.timeout(20000);
@@ -123,6 +125,17 @@ export function request<T>(
         );
         signal?.throwIfAborted();
         continue;
+      }
+      if (response.ok && format === 'blob') {
+        const length = Number(response.headers.get('Content-Length'));
+        if (!length || length > 16 * 1024 * 1024)
+          throw new ApiError(
+            'CSV response exceeds its size limit or lacks a bounded length.',
+          );
+        const blob = await response.blob();
+        if (blob.size !== length || blob.size > 16 * 1024 * 1024)
+          throw new ApiError('Incomplete or oversized CSV response.');
+        return blob as T;
       }
       if (response.status === 204) return undefined as T;
       let body;
@@ -222,6 +235,9 @@ export async function createEDFSource(
   );
   const recording = {
     id: meta.id,
+    identity: meta.content_sha256
+      ? { kind: 'sha256' as const, value: meta.content_sha256 }
+      : undefined,
     name: 'Local EDF recording',
     source: 'edf' as const,
     sampleRateHz: rate,
@@ -275,6 +291,19 @@ export async function createEDFSource(
     );
   return {
     recording,
+    async exportCSV(ids, range, signal) {
+      const params = new URLSearchParams({
+        start_seconds: String(range.start),
+        end_seconds: String(range.end),
+      });
+      ids.forEach((id) => params.append('channel_ids', id));
+      return request<Blob>(
+        `${path}/export.csv?${params}`,
+        signal,
+        'GET',
+        'blob',
+      );
+    },
     async readWindow(start, end, ids, signal) {
       // Revalidate even on cache hits, so deleted/expired resources cannot linger.
       await read<ApiMetadata>(path, signal);

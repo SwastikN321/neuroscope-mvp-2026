@@ -198,3 +198,11 @@ The clock channel supplies an original rational EDF sampling rate; integer ticks
 A process-wide LRU display cache retains at most 8,192 bins / 64 entries, with exact extrema and positions. Expiry and deletion invalidate it. Raw measurement windows are not cached server-side. This is not an analysis cache or persisted derived dataset.
 
 See [../PHASE-3B3.md](../PHASE-3B3.md) for measured results and security boundaries.
+
+## Phase 3C.2 native CSV and portable source identity
+
+Successful upload and recording metadata now include `content_sha256`, the streaming SHA-256 of the complete EDF bytes. This allows annotation JSON to match an exact original after re-upload without exposing patient headers or relying on a filename. The digest is not a signature and can link copies of a recording.
+
+`GET /api/recordings/{id}/export.csv` accepts repeated `channel_ids`, decimal `start_seconds`, and `end_seconds`. It returns bounded UTF-8 long-form CSV containing `channel_id,channel_name,sample_index,time_seconds,amplitude_uv`, from original native-rate MNE measurements over `[start, end)`. It does not use display envelopes. Limits: 60 seconds, 32 channels, 250,000 rows, 16 MiB, 20-second processing deadline checked between chunks. Reads share the existing operation gate and support disconnect cancellation; no partial CSV response is sent on failure. The existing loopback/origin protections and temporary-file cleanup apply.
+
+[PHASE-3C2.md](../PHASE-3C2.md) documents exact boundary arithmetic, reversible spreadsheet text escaping, error codes, JSON schema/compatibility, privacy, and browser/scientific validation. No new Python dependencies are required.

@@ -16,6 +16,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.requests import ClientDisconnect
 
 from .config import Settings
+from .csv_export import export_csv
 from .errors import RecordingError, invalid
 from .store import Store
 
@@ -54,7 +55,7 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
 
     app = FastAPI(
         title="NeuroScope local EDF API",
-        version="0.3.0",
+        version="0.4.0",
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,
@@ -240,6 +241,34 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
             # Never release the store gate while a thread still accesses a file.
             with suppress(Exception):
                 await asyncio.shield(task)
+
+    @app.get("/api/recordings/{recording_id}/export.csv")
+    async def csv_download(
+        request: Request,
+        recording_id: str,
+        channel_ids: Annotated[list[str], Query(min_length=1, max_length=32)],
+        start_seconds: Annotated[
+            Decimal, Query(ge=0, max_digits=24, decimal_places=18, allow_inf_nan=False)
+        ],
+        end_seconds: Annotated[
+            Decimal, Query(gt=0, max_digits=24, decimal_places=18, allow_inf_nan=False)
+        ],
+    ):
+        async with operation():
+            data = await cancellable(
+                request,
+                export_csv,
+                app.state.store,
+                recording_id,
+                channel_ids,
+                start_seconds,
+                end_seconds,
+            )
+            return Response(
+                data,
+                media_type="text/csv",
+                headers={"Content-Disposition": 'attachment; filename="neuroscope-native-eeg.csv"'},
+            )
 
     @app.get("/api/recordings/{recording_id}/windows")
     async def windows(

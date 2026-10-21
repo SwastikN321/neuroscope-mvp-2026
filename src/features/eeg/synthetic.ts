@@ -81,6 +81,10 @@ export function createSyntheticSource(): EEGDataSource {
   });
   const recording = {
     id: 'NS-DEMO-001',
+    identity: {
+      kind: 'synthetic-generator' as const,
+      value: 'neuroscope-synthetic-v1',
+    },
     name: 'Resting-state study',
     source: 'synthetic' as const,
     sampleRateHz,

@@ -1,3 +1,4 @@
+import { mergeAnnotations } from './annotationPortability';
 import { useEffect, useState } from 'react';
 import { useBlocker } from 'react-router';
 import {
@@ -112,6 +113,15 @@ export function useAnnotations(
     select,
     save,
     remove,
+    importItems: (incoming: EEGAnnotation[], replace: boolean) => {
+      if (!canReplaceDraft()) return false;
+      const merged = mergeAnnotations(items, incoming, replace);
+      setItems(merged);
+      setDraft(null);
+      setSelected(null);
+      setError('');
+      return true;
+    },
     cancel: () => {
       if (canReplaceDraft()) {
         setDraft(null);

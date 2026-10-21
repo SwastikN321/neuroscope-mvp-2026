@@ -1,0 +1,57 @@
+{
+  "browser": "155.0.8059.85",
+  "runs": [
+    {
+      "width": 1440,
+      "kind": "synthetic",
+      "range": {
+        "start": 2.5,
+        "end": 7.5
+      },
+      "annotations": 3,
+      "png": "1440-synthetic.png",
+      "csv": "1440-synthetic.csv",
+      "json": "1440-synthetic.json",
+      "roundtrip": "exact"
+    },
+    {
+      "width": 1440,
+      "kind": "edf",
+      "range": {
+        "start": 2.5,
+        "end": 7.5
+      },
+      "annotations": 3,
+      "png": "1440-edf.png",
+      "csv": "1440-edf.csv",
+      "json": "1440-edf.json",
+      "roundtrip": "exact"
+    },
+    {
+      "width": 390,
+      "kind": "synthetic",
+      "range": {
+        "start": 2.5,
+        "end": 7.5
+      },
+      "annotations": 3,
+      "png": "390-synthetic.png",
+      "csv": "390-synthetic.csv",
+      "json": "390-synthetic.json",
+      "roundtrip": "exact"
+    },
+    {
+      "width": 390,
+      "kind": "edf",
+      "range": {
+        "start": 2.5,
+        "end": 7.5
+      },
+      "annotations": 3,
+      "png": "390-edf.png",
+      "csv": "390-edf.csv",
+      "json": "390-edf.json",
+      "roundtrip": "exact"
+    }
+  ]
+}

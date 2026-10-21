@@ -179,3 +179,48 @@ it('batches native integer-clock windows and retains exact per-channel offsets',
     mock.mock.calls.filter(([url]) => url.includes('/windows?')),
   ).toHaveLength(1);
 });
+it('uses the native CSV endpoint with bounded blob validation and exposes source identity', async () => {
+  const csv =
+    'channel_id,channel_name,sample_index,time_seconds,amplitude_uv\r\nch001,C4,1,0.015625,12.123456789\r\n';
+  const mock = vi.fn(async (input: string) => {
+    if (input.includes('/export.csv?'))
+      return new Response(csv, {
+        headers: {
+          'Content-Length': String(csv.length),
+          'Content-Type': 'text/csv',
+        },
+      });
+    return response({ channels });
+  });
+  vi.stubGlobal('fetch', mock);
+  const source = await createEDFSource(
+    { ...meta, content_sha256: 'a'.repeat(64) },
+    limits,
+    vi.fn(),
+  );
+  expect(source.recording.identity).toEqual({
+    kind: 'sha256',
+    value: 'a'.repeat(64),
+  });
+  const blob = await source.exportCSV!(['ch001', 'ch000'], {
+    start: 0.113,
+    end: 1.237,
+  });
+  expect(await blob.text()).toBe(csv);
+  const url = new URL(
+    mock.mock.calls.find(([url]) => url.includes('/export.csv?'))![0],
+    'http://localhost',
+  );
+  expect(url.searchParams.getAll('channel_ids')).toEqual(['ch001', 'ch000']);
+  expect(url.searchParams.get('start_seconds')).toBe('0.113');
+  expect(mock.mock.calls.some(([url]) => url.includes('/display'))).toBe(false);
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      async () => new Response(csv, { headers: { 'Content-Length': '1' } }),
+    ),
+  );
+  await expect(
+    source.exportCSV!(['ch001'], { start: 0, end: 1 }),
+  ).rejects.toThrow();
+});

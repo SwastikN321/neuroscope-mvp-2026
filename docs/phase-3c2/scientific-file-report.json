@@ -1,0 +1,30 @@
+[
+  {
+    "file": "1440-synthetic",
+    "rows": 1152,
+    "png_pixels": [2400, 1112],
+    "mne_max_error_uv": null,
+    "roundtrip": "all annotation fields identical"
+  },
+  {
+    "file": "1440-edf",
+    "rows": 716,
+    "png_pixels": [2400, 1112],
+    "mne_max_error_uv": 0,
+    "roundtrip": "all annotation fields identical"
+  },
+  {
+    "file": "390-synthetic",
+    "rows": 1152,
+    "png_pixels": [2400, 1112],
+    "mne_max_error_uv": null,
+    "roundtrip": "all annotation fields identical"
+  },
+  {
+    "file": "390-edf",
+    "rows": 716,
+    "png_pixels": [2400, 1112],
+    "mne_max_error_uv": 0,
+    "roundtrip": "all annotation fields identical"
+  }
+]

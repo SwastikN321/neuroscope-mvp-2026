@@ -9,6 +9,7 @@ export type EEGChannel = {
 };
 export type EEGRecording = {
   id: string;
+  identity?: { kind: 'sha256' | 'synthetic-generator'; value: string };
   name: string;
   source: 'synthetic' | 'edf';
   /** Navigation grid only for mixed-rate recordings; channel rates govern measurements. */
@@ -35,6 +36,11 @@ export type OverviewBin = {
 };
 export interface EEGDataSource {
   recording: EEGRecording;
+  exportCSV?(
+    ids: string[],
+    range: TimeRange,
+    signal?: AbortSignal,
+  ): Promise<Blob>;
   readWindow(
     startSample: number,
     endSample: number,

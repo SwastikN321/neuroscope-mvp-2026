@@ -1,3 +1,4 @@
+import { AnnotationImport } from './AnnotationImport';
 import { useEffect, useRef } from 'react';
 import type { AnnotationController } from './useAnnotations';
 import type { EEGAnnotation } from './annotations';
@@ -49,8 +50,10 @@ export function AnnotationPanel({
       <p className="eeg-annotation-notice">
         Session only · Not permanently saved. Refresh, leaving the workspace,
         switching or removing recordings discards annotations. Temporary EDF
-        expiry also clears them.
+        expiry also clears them. Export JSON to keep a portable copy and import
+        it later.
       </p>
+      <AnnotationImport recording={recording} annotations={a} />
       {d && (
         <form
           className="eeg-annotation-editor"

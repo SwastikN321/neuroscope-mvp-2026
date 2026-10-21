@@ -1,4 +1,4 @@
-# NeuroScope · Phase 3C.1
+# NeuroScope · Phase 3C.2
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
@@ -25,7 +25,9 @@ The viewer uses Canvas 2D with peak-preserving display reduction and an asynchro
 
 [PHASE-3B3.md](PHASE-3B3.md) adds measured large-recording validation, native-clock batched reads, bounded channel pages, cancellation/recovery checks, and an opt-in 128 MiB local profile. The default upload cap remains 64 MiB.
 
-[PHASE-3C1.md](PHASE-3C1.md) documents session-only point and interval annotations: explicit annotation mode, native-channel sample snapping, editable times/labels/notes, waveform markers, a time-sorted list, and discard warnings. No annotation export or persistence is implemented.
+[PHASE-3C1.md](PHASE-3C1.md) documents session-only point and interval annotations: explicit annotation mode, native-channel sample snapping, editable times/labels/notes, waveform markers, a time-sorted list, and discard warnings. Annotations remain session-only until exported.
+
+[PHASE-3C2.md](PHASE-3C2.md) adds high-resolution waveform PNG, bounded native-rate CSV, and versioned annotation JSON export/import. Restore annotations after re-uploading the original EDF, with source-fingerprint checks and explicit import review. No cloud persistence is implemented.
 
 ## Anatomical hero
 

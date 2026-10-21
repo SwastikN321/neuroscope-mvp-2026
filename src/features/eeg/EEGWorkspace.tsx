@@ -1,3 +1,4 @@
+import { ExportPanel } from './ExportPanel';
 import { useAnnotations } from './useAnnotations';
 import { AnnotationPanel } from './AnnotationPanel';
 import type { EEGAnnotation } from './annotations';
@@ -505,6 +506,15 @@ export function EEGWorkspace({
             )}
           </div>
           <Timeline source={source} range={range} onRange={setRange} />
+          <ExportPanel
+            source={source}
+            data={window.data}
+            ids={viewIds}
+            range={range}
+            amplitude={amplitude}
+            annotations={annotations}
+            pending={window.pending || !!window.error}
+          />
           <AnnotationPanel
             recording={recording}
             annotations={annotations}

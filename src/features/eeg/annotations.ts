@@ -119,6 +119,6 @@ export function makeAnnotation(
 
 export function confirmAnnotationDiscard() {
   return globalThis.confirm(
-    'Discard session-only annotations and any unfinished annotation edits? They are not permanently saved and cannot be recovered.',
+    'Discard session-only annotations and any unfinished annotation edits? They are not permanently saved here. Without an exported JSON copy, they cannot be recovered.',
   );
 }

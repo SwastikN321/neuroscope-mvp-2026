@@ -1,6 +1,7 @@
 """Ephemeral, private, single-process recording store (macOS/Linux)."""
 
 import fcntl
+import hashlib
 import math
 import os
 import re
@@ -64,13 +65,19 @@ class Store:
     def finish_upload(self, key, path, size):
         final = path.with_suffix(".edf")
         path.rename(final)
+        reader = None
         try:
             reader = EDFReader(final)
+            with final.open("rb") as source:
+                fingerprint = hashlib.file_digest(source, "sha256").hexdigest()
         except Exception:
+            if reader is not None:
+                reader.close()
             final.unlink(missing_ok=True)
             raise
         self.entries[key] = {
             "reader": reader,
+            "content_sha256": fingerprint,
             "path": final,
             "bytes": size,
             "expires": time.monotonic() + self.settings.ttl_seconds,
@@ -89,6 +96,7 @@ class Store:
         return {
             "id": key,
             "source": "edf",
+            "content_sha256": entry["content_sha256"],
             "format": reader.header.format,
             "duration_seconds": float(reader.header.duration),
             "channel_count": len(reader.header.channels),
