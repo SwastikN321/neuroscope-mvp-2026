@@ -268,7 +268,9 @@ npm run dev</code></pre>
           The synthetic demo contains no patient data. In local development,
           uploaded EDF bytes are sent to a service on the same computer and
           stored in private temporary files outside public directories. The
-          application has no cloud recording storage or authentication.
+          application has no cloud recording storage. When configured, account
+          sign-in sends account information to Supabase Auth. Signing in does
+          not upload EEG data or grant private ownership of local recordings.
         </p>
         <p>
           The default lifetime is one hour. Expired recordings are rejected on

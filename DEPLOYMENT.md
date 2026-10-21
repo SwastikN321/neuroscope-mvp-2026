@@ -89,3 +89,7 @@ The following are **instructions for a later approved launch**, not actions alre
 - [ ] Confirm only `dist/` was published and inspect the generated license notice. Keep the previous successful deployment available for rollback. No domain purchase or paid service is needed for the first preview.
 
 No FastAPI, Supabase, authentication, uploads, annotation persistence, cloud storage or Phase 3B functionality is included.
+
+## Phase 4A account configuration note
+
+The original deployment-preparation results above are historical. Optional Supabase Auth has since been implemented; see [AUTHENTICATION.md](AUTHENTICATION.md) for its public environment variables, exact callback allowlist, provider/SMTP setup and pending live acceptance tests. The current backend still cannot be hosted publicly. No deployment is authorized by this milestone.

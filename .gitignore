@@ -64,3 +64,6 @@ work/phase-2b-polish/
 
 # Product reliability QA: public/fixture EDF exports, screenshots and local measurements
 work/phase-3d2/
+
+# Auth QA screenshots and mocked browser fixtures
+work/phase-4a/

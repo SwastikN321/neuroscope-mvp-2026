@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router';
+import { AuthProvider } from '../features/auth/AuthProvider';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -7,33 +8,70 @@ import { RouteEffects } from './RouteEffects';
 import { HomePage } from '../pages/HomePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
+const AuthPage = lazy(() => import('../features/auth/AuthPages'));
+const AuthCallback = lazy(() => import('../features/auth/AuthCallback'));
+const Dashboard = lazy(() => import('../features/auth/Dashboard'));
 const WorkspacePage = lazy(() => import('../pages/WorkspacePage'));
 
 export function App() {
-  const workspace = useLocation().pathname.replace(/\/$/, '') === '/app';
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
+function AppRoutes() {
+  const pathname = useLocation().pathname.replace(/\/$/, '');
+  const workspace = pathname === '/app';
+  const account = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+    '/auth/callback',
+    '/dashboard',
+  ].includes(pathname);
   return (
     <ErrorBoundary>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
-      {!workspace && <Header />}
+      {!workspace && !account && <Header />}
       <RouteEffects />
       <main id="main-content" tabIndex={-1}>
         <Suspense
           fallback={
             <div className="route-loading page-container" role="status">
-              Opening workspace…
+              Opening NeuroScope…
             </div>
           }
         >
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/app" element={<WorkspacePage />} />
+            <Route
+              path="/login"
+              element={<AuthPage key="login" mode="login" />}
+            />
+            <Route
+              path="/signup"
+              element={<AuthPage key="signup" mode="signup" />}
+            />
+            <Route
+              path="/forgot-password"
+              element={<AuthPage key="forgot" mode="forgot" />}
+            />
+            <Route
+              path="/reset-password"
+              element={<AuthPage key="reset" mode="reset" />}
+            />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </main>
-      {!workspace && <Footer />}
+      {!workspace && !account && <Footer />}
     </ErrorBoundary>
   );
 }

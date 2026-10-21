@@ -7,12 +7,19 @@ export function RouteEffects() {
   useEffect(() => {
     const pathChanged = pathname !== previousPath.current;
     previousPath.current = pathname;
+    const titles: Record<string, string> = {
+      '/app': 'Workspace',
+      '/login': 'Log in',
+      '/signup': 'Sign up',
+      '/forgot-password': 'Account recovery',
+      '/reset-password': 'New password',
+      '/auth/callback': 'Verifying account',
+      '/dashboard': 'Your account',
+    };
     document.title =
       pathname === '/'
         ? 'NeuroScope — See beyond the signal'
-        : pathname === '/app'
-          ? 'Workspace — NeuroScope'
-          : 'Page not found — NeuroScope';
+        : `${titles[pathname] || 'Page not found'} — NeuroScope`;
     if (hash) {
       // Wait one frame for the destination page to mount before finding its anchor.
       const frame = requestAnimationFrame(() => {

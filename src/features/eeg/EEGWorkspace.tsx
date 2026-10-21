@@ -194,6 +194,7 @@ export function EEGWorkspace({
         <nav aria-label="Main navigation">
           <NavLink to="/">Overview</NavLink>
           <NavLink to="/app">Workspace</NavLink>
+          <NavLink to="/dashboard">Account</NavLink>
         </nav>
         <span className="eeg-session">
           <i />

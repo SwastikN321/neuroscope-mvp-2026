@@ -114,4 +114,17 @@ describe('Application shell', () => {
       screen.getByRole('link', { name: /scroll into the signal/i }),
     ).toHaveAttribute('href', '#signal');
   });
+  it('keeps account pages honest when no project is configured', async () => {
+    renderAt('/login');
+    expect(
+      await screen.findByText(/Account sign-in is not configured/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Log in' })).toBeDisabled();
+    await userEvent.click(
+      screen.getByRole('link', { name: 'explore the guest demo' }),
+    );
+    expect(
+      await screen.findByRole('heading', { name: /Signal explorer/ }),
+    ).toBeInTheDocument();
+  });
 });

@@ -1,9 +1,16 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { isPublicKey } from './src/features/auth/config.ts';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'NEUROSCOPE_');
+  const browserEnv = loadEnv(mode, process.cwd(), 'VITE_');
+  const authKey = browserEnv.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+  if (authKey && !isPublicKey(authKey))
+    throw new Error(
+      'Only a Supabase publishable or legacy anon key may be used in browser configuration.',
+    );
   const target = env.NEUROSCOPE_API_TARGET || 'http://127.0.0.1:8000';
   const url = new URL(target);
   if (

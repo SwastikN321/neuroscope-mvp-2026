@@ -1,0 +1,34 @@
+{
+  "mode": "MOCKED Supabase Auth HTTP via official SDK; no real email, Google, or GitHub credentials",
+  "browser": "155.0.8059.85",
+  "checks": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "status": "PASS",
+      "pkceExchanges": 4,
+      "providers": ["google", "github"],
+      "checks": "registration and email-confirmation callback, validation, login failure/success, refresh, dashboard, logout, recovery/update, OAuth PKCE redirects/exchange, callback errors, invalid stored session, guest EEG"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "status": "PASS",
+      "pkceExchanges": 4,
+      "providers": ["google", "github"],
+      "checks": "registration and email-confirmation callback, validation, login failure/success, refresh, dashboard, logout, recovery/update, OAuth PKCE redirects/exchange, callback errors, invalid stored session, guest EEG"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "status": "PASS",
+      "checks": "Unconfigured account buttons disabled with explanation; dashboard redirects; homepage CTA opens guest EEG; no external requests"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "status": "PASS",
+      "checks": "Unconfigured account buttons disabled with explanation; dashboard redirects; homepage CTA opens guest EEG; no external requests"
+    }
+  ]
+}

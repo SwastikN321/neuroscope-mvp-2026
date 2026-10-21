@@ -21,6 +21,8 @@ export function Footer() {
           <Link to="/#how-it-works">How it works</Link>
           <Link to="/#use-cases">Who it’s for</Link>
           <Link to="/app">Open the workspace</Link>
+          <Link to="/login">Log in</Link>
+          <Link to="/signup">Create an account</Link>
         </nav>
         <nav aria-label="Footer documentation">
           <h2>Resources</h2>

@@ -65,6 +65,7 @@ export function Header() {
             ['Use Cases', '/#use-cases'],
             ['Documentation', '/#documentation'],
             ['Open App', '/app'],
+            ['Account', '/dashboard'],
           ].map(([label, to]) => (
             <Link key={to} to={to!} onClick={closeMenu}>
               {label} <Icon name="arrow" />

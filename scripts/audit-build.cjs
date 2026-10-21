@@ -32,9 +32,16 @@ for (const file of files) {
   );
   if (/\.(?:js|html|css|json|txt|md)$/.test(file)) {
     const text = fs.readFileSync(file, 'utf8');
+    // auth-js ships an unused GoTrue standalone-server default beside its storage key.
+    // NeuroScope always supplies the validated project URL. Exempt only that exact
+    // vendor constant pair; configured/application loopback URLs still fail below.
+    const auditedText = text.replace(
+      /=`http:\/\/localhost:9999`,[\w$]+=`supabase\.auth\.token`/g,
+      '="vendor-default",storageKey="vendor-storage-key"',
+    );
     assert(
       !/\/Users\/|\/var\/folders\/|@vite\/client|@react-refresh|localhost:\d|127\.0\.0\.1:\d/.test(
-        text,
+        auditedText,
       ),
       `Development path in ${file}`,
     );

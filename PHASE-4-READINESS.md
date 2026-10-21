@@ -1,5 +1,7 @@
 # Phase 4 integration readiness
 
+Historical Phase 3D.2 handoff. Phase 4A now provides the frontend Auth foundation described in [AUTHENTICATION.md](AUTHENTICATION.md); the backend authorization and persistent-storage requirements below remain unimplemented.
+
 Architecture review, 2026-10-21. This is a design handoff, not an implementation or approval to host recordings. Supabase, authentication and persistent storage remain absent.
 
 ## Current ownership and lifecycle

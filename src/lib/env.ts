@@ -1,4 +1,4 @@
-// Configuration boundary only: Phase 1 never connects to external services.
+// Legacy optional API configuration; Auth configuration lives in features/auth/config.ts.
 // Browser configuration is public. Backend secrets must live outside VITE_*.
 function optional(value: string | undefined): string | undefined {
   return value?.trim() || undefined;
