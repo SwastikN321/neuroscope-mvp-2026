@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { App } from '../app/App';
 
 function renderAt(path = '/') {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter([{ path: '*', element: <App /> }], {
+        initialEntries: [path],
+      })}
+    />,
   );
 }
 

@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { EEGWorkspace } from './EEGWorkspace';
 import { createSyntheticSource } from './synthetic';
 import type { EEGDataSource } from './recording';
@@ -11,9 +11,11 @@ beforeAll(() => {
 });
 function renderViewer(dataSource = source) {
   return render(
-    <MemoryRouter>
-      <EEGWorkspace source={dataSource} />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter([
+        { path: '*', element: <EEGWorkspace source={dataSource} /> },
+      ])}
+    />,
   );
 }
 describe('Functional EEG workspace', () => {

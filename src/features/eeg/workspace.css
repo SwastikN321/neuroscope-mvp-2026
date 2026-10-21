@@ -807,3 +807,201 @@
   color: var(--eeg-muted);
   font-size: 11px;
 }
+
+.eeg-annotation-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--eeg-line);
+}
+.eeg-annotation-tools span {
+  flex: 1 1 200px;
+  color: var(--eeg-muted);
+  font-size: 11px;
+}
+.eeg-annotation-tools [aria-pressed='true'] {
+  color: #b9f1e7;
+  background: #204139;
+  border-color: #76bdad;
+}
+.eeg-plot.is-annotating,
+.eeg-plot.is-annotating:active {
+  cursor: crosshair;
+}
+.eeg-annotation-overlay {
+  position: absolute;
+  pointer-events: none;
+  border-left: 1px solid #f3ce85;
+  z-index: 2;
+}
+.eeg-annotation-overlay.interval {
+  background: #e8bd5c14;
+  border-right: 1px solid #f3ce8580;
+}
+.eeg-annotation-overlay.is-selected {
+  border-color: #ffe2a8;
+  background-color: #e8bd5c25;
+}
+.eeg-annotation-overlay.is-draft {
+  border-color: #91ead9;
+  border-style: dashed;
+  background-color: #8cddc71c;
+}
+.eeg-workspace .eeg-annotation-pin {
+  pointer-events: auto;
+  position: absolute;
+  left: -8px;
+  top: 0;
+  padding: 0 3px;
+  min-height: 22px;
+  min-width: 20px;
+  background: #182a32;
+  color: #f3ce85;
+  border: 1px solid #b5945f;
+  border-radius: 3px;
+  font-size: 11px;
+  line-height: 20px;
+}
+.eeg-annotation-overlay.is-draft .eeg-annotation-pin {
+  pointer-events: none;
+  color: #a8f4e3;
+}
+.eeg-annotations {
+  padding: 16px;
+  border-top: 1px solid var(--eeg-line);
+  background: #0e1923;
+}
+.eeg-annotations summary {
+  cursor: pointer;
+  font-size: 13px;
+}
+.eeg-annotations summary span {
+  color: #94b4b8;
+  margin-left: 8px;
+  font-size: 11px;
+}
+.eeg-annotations p {
+  color: var(--eeg-muted);
+  line-height: 1.65;
+  font-size: 11px;
+}
+.eeg-annotation-notice {
+  max-width: 85ch;
+}
+.eeg-annotation-editor {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  margin: 14px 0;
+  border: 1px solid #456269;
+  border-radius: 6px;
+  background: #12212b;
+}
+.eeg-annotation-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.eeg-annotation-editor label {
+  display: grid;
+  gap: 6px;
+  color: #b6cbd4;
+  min-width: 0;
+  font-size: 11px;
+}
+.eeg-annotation-fields label {
+  flex: 1 1 120px;
+}
+.eeg-annotation-editor input,
+.eeg-annotation-editor textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #3d515e;
+  border-radius: 4px;
+  padding: 8px;
+  background: #09141d;
+  color: #dce6ed;
+  font: inherit;
+}
+.eeg-annotation-editor select {
+  width: 100%;
+}
+.eeg-annotation-editor textarea {
+  resize: vertical;
+}
+.eeg-annotation-editor [role='alert'] {
+  color: #ffc4a6;
+}
+.eeg-annotation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.eeg-annotation-list {
+  padding: 0;
+  margin: 12px 0 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  max-height: 400px;
+  overflow: auto;
+}
+.eeg-annotation-list li {
+  padding: 12px;
+  border: 1px solid var(--eeg-line);
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.eeg-annotation-list li.is-selected {
+  border-color: #b5945f;
+}
+.eeg-workspace .eeg-annotation-select {
+  display: grid;
+  gap: 6px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 0 0 8px;
+}
+.eeg-annotation-select strong {
+  color: #e9d4a9;
+  font-weight: 500;
+}
+.eeg-annotation-select span,
+.eeg-annotation-list small {
+  color: #9db4bf;
+  font:
+    10px ui-monospace,
+    monospace;
+}
+.eeg-annotation-list small {
+  display: block;
+  margin-top: 12px;
+}
+@media (max-width: 600px) {
+  .eeg-annotation-tools,
+  .eeg-annotations {
+    padding: 12px;
+  }
+  .eeg-annotation-editor {
+    padding: 10px;
+  }
+  .eeg-annotation-tools span {
+    flex-basis: 100%;
+    order: 1;
+  }
+}
+
+.eeg-annotation-selection-ready {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  color: #a8e3d3;
+  background: #142b2c;
+  font-size: 11px;
+}

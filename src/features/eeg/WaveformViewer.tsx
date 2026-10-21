@@ -1,4 +1,9 @@
 import {
+  snapSelection,
+  type AnnotationSelection,
+  type EEGAnnotation,
+} from './annotations';
+import {
   useEffect,
   useMemo,
   useRef,
@@ -34,6 +39,12 @@ export function WaveformViewer({
   onProbe,
   onRange,
   onReset,
+  annotationMode = false,
+  annotations = [],
+  selectedAnnotation,
+  annotationDraft,
+  onAnnotationSelect,
+  onAnnotationCreate,
 }: {
   recording: EEGRecording;
   data: EEGWindow;
@@ -44,12 +55,48 @@ export function WaveformViewer({
   onProbe: (probe: Probe) => void;
   onRange: (range: TimeRange) => void;
   onReset: () => void;
+  annotationMode?: boolean;
+  annotations?: EEGAnnotation[];
+  selectedAnnotation?: string | null;
+  annotationDraft?: AnnotationSelection | null;
+  onAnnotationSelect?: (annotation: EEGAnnotation) => void;
+  onAnnotationCreate?: (selection: AnnotationSelection) => void;
 }) {
   const host = useRef<HTMLDivElement>(null),
     canvas = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{ x: number; range: TimeRange; moved: boolean } | null>(
     null,
   );
+  const annotationDrag = useRef<{
+    time: number;
+    channelId: string;
+    x: number;
+  } | null>(null);
+  const [selection, setSelection] = useState<AnnotationSelection | null>(null);
+  function pointerTime(event: PointerEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return (
+      range.start +
+      Math.max(0, Math.min(1, (event.clientX - rect.left - LEFT) / width)) *
+        span
+    );
+  }
+  function dragSelection(
+    event: PointerEvent<HTMLDivElement>,
+  ): AnnotationSelection {
+    const initial = annotationDrag.current!;
+    const time = pointerTime(event);
+    const interval = Math.abs(event.clientX - initial.x) > 3;
+    const selected = snapSelection(recording, {
+      type: interval ? 'interval' : 'point',
+      channelId: initial.channelId,
+      startTime: interval ? Math.min(initial.time, time) : initial.time,
+      endTime: interval ? Math.max(initial.time, time) : undefined,
+    });
+    return selected.endTime === selected.startTime
+      ? { ...selected, type: 'point', endTime: undefined }
+      : selected;
+  }
   const [size, setSize] = useState({ width: 800, height: 550 });
   useEffect(() => {
     const element = host.current!;
@@ -244,7 +291,8 @@ export function WaveformViewer({
   return (
     <div
       ref={host}
-      className="eeg-plot"
+      className={`eeg-plot${annotationMode ? ' is-annotating' : ''}`}
+      data-mode={annotationMode ? 'annotate' : 'navigate'}
       style={ids.length > 16 ? { height: ids.length * 30 + 48 } : undefined}
       tabIndex={0}
       role="group"
@@ -258,11 +306,33 @@ export function WaveformViewer({
       onPointerDown={(event) => {
         if (event.button !== 0) return;
         event.currentTarget.focus({ preventScroll: true });
+        if (annotationMode) {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const lane = Math.floor((event.clientY - rect.top - TOP) / row);
+          if (
+            !ids[lane] ||
+            event.clientX < rect.left + LEFT ||
+            event.clientX > rect.left + LEFT + width
+          )
+            return;
+          annotationDrag.current = {
+            time: pointerTime(event),
+            channelId: ids[lane],
+            x: event.clientX,
+          };
+          setSelection(dragSelection(event));
+          event.currentTarget.setPointerCapture(event.pointerId);
+          return;
+        }
         drag.current = { x: event.clientX, range, moved: false };
         event.currentTarget.setPointerCapture(event.pointerId);
         inspect(event);
       }}
       onPointerMove={(event) => {
+        if (annotationMode) {
+          if (annotationDrag.current) setSelection(dragSelection(event));
+          return;
+        }
         if (drag.current) {
           const dx = event.clientX - drag.current.x;
           if (Math.abs(dx) > 3) drag.current.moved = true;
@@ -279,15 +349,24 @@ export function WaveformViewer({
         } else if (event.pointerType !== 'touch') inspect(event);
       }}
       onPointerUp={(event) => {
+        if (annotationDrag.current) {
+          onAnnotationCreate?.(dragSelection(event));
+          annotationDrag.current = null;
+          setSelection(null);
+        }
         if (drag.current && !drag.current.moved) inspect(event);
         drag.current = null;
         if (event.currentTarget.hasPointerCapture(event.pointerId))
           event.currentTarget.releasePointerCapture(event.pointerId);
       }}
       onPointerCancel={() => {
+        annotationDrag.current = null;
+        setSelection(null);
         drag.current = null;
       }}
       onLostPointerCapture={() => {
+        annotationDrag.current = null;
+        setSelection(null);
         drag.current = null;
       }}
       onWheel={(event) => {
@@ -307,6 +386,70 @@ export function WaveformViewer({
         aria-label={`${ids.length} EEG channels, ${range.start.toFixed(2)} to ${range.end.toFixed(2)} seconds, microvolts`}
         role="img"
       />
+      {[
+        ...annotations,
+        ...(selection || annotationDraft
+          ? [
+              {
+                ...(selection || annotationDraft!),
+                id: 'draft',
+                label: 'Unsaved selection',
+              },
+            ]
+          : []),
+      ].map((item) => {
+        const laneIndex = item.channelId ? ids.indexOf(item.channelId) : 0;
+        if (
+          laneIndex < 0 ||
+          !ids.length ||
+          !Number.isFinite(item.startTime) ||
+          (item.type === 'interval' && !Number.isFinite(item.endTime)) ||
+          item.startTime > range.end ||
+          (item.endTime ?? item.startTime) < range.start
+        )
+          return null;
+        const start = Math.max(range.start, item.startTime);
+        const end = Math.min(range.end, item.endTime ?? item.startTime);
+        if (end < start) return null;
+        const draft = item.id === 'draft';
+        return (
+          <div
+            key={item.id}
+            data-annotation-overlay={item.id}
+            data-time={item.startTime}
+            className={`eeg-annotation-overlay ${item.type}${draft ? ' is-draft' : ''}${selectedAnnotation === item.id ? ' is-selected' : ''}`}
+            style={{
+              left: LEFT + ((start - range.start) / span) * width,
+              top: TOP + (item.channelId ? laneIndex * row : 0),
+              width:
+                item.type === 'interval'
+                  ? Math.max(1, ((end - start) / span) * width)
+                  : 1,
+              height: item.channelId ? row : height,
+            }}
+          >
+            {draft ? (
+              <span className="eeg-annotation-pin">
+                {item.type === 'point' ? '◆' : '▰'}
+              </span>
+            ) : (
+              <button
+                className="eeg-annotation-pin"
+                aria-label={`Inspect annotation: ${item.label}`}
+                onPointerDown={(event) => event.stopPropagation()}
+                onPointerUp={(event) => event.stopPropagation()}
+                onKeyDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onAnnotationSelect?.(item as EEGAnnotation);
+                }}
+              >
+                {item.type === 'point' ? '◆' : '▰'}
+              </button>
+            )}
+          </div>
+        );
+      })}
       {showProbe && (
         <div
           className="eeg-crosshair"

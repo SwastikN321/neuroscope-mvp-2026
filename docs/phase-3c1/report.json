@@ -1,0 +1,25 @@
+{
+  "browser": "155.0.8059.85",
+  "checks": [
+    {
+      "width": 1440,
+      "passed": true,
+      "publicEDF": "PhysioNet eegmmidb S001R01.edf",
+      "mixedNativePoint": "65/64 s on ch001",
+      "lastNativePoint": "255/64 s",
+      "dialogCount": 10,
+      "originalAmplitudeUnchanged": true,
+      "pointerInput": "mouse"
+    },
+    {
+      "width": 390,
+      "passed": true,
+      "publicEDF": "PhysioNet eegmmidb S001R01.edf",
+      "mixedNativePoint": "65/64 s on ch001",
+      "lastNativePoint": "255/64 s",
+      "dialogCount": 10,
+      "originalAmplitudeUnchanged": true,
+      "pointerInput": "Chrome emulated touch"
+    }
+  ]
+}

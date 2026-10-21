@@ -1,3 +1,4 @@
+import { confirmAnnotationDiscard } from './annotations';
 import { useEffect, useRef, useState } from 'react';
 import { EEGWorkspace } from './EEGWorkspace';
 import {
@@ -11,6 +12,11 @@ import {
 import type { EEGDataSource } from './recording';
 
 export function RecordingSession({ demo }: { demo: EEGDataSource }) {
+  const [annotationDirty, setAnnotationDirty] = useState(false);
+  const dirtyRef = useRef(false);
+  useEffect(() => {
+    dirtyRef.current = annotationDirty;
+  }, [annotationDirty]);
   const [uploaded, setUploaded] = useState<EEGDataSource | null>(null);
   const [useDemo, setUseDemo] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -106,8 +112,17 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
       );
       abort.signal.throwIfAborted();
       setUploading(false);
+      if (dirtyRef.current && !confirmAnnotationDiscard()) {
+        await deleteRecording(newId);
+        newId = undefined;
+        setMessage(
+          'Replacement canceled. Current recording and annotations retained.',
+        );
+        return;
+      }
       if (uploaded) await deleteRecording(uploaded.recording.id);
       abort.signal.throwIfAborted();
+      setAnnotationDirty(false);
       activeId.current = metadata.id;
       setUploaded(next);
       setUseDemo(false);
@@ -140,6 +155,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
   }
   async function remove() {
     if (!uploaded) return;
+    if (annotationDirty && !confirmAnnotationDiscard()) return;
     setBusy(true);
     setError(false);
     setMessage('Deleting temporary EDF recording…');
@@ -147,6 +163,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
       await deleteRecording(uploaded.recording.id);
       clearTimeout(expiry.current);
       activeId.current = null;
+      setAnnotationDirty(false);
       setUploaded(null);
       setUseDemo(true);
       setMessage(
@@ -165,6 +182,7 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
     <EEGWorkspace
       key={useDemo ? demo.recording.id : uploaded?.recording.id}
       source={useDemo || !uploaded ? demo : uploaded}
+      onAnnotationDirtyChange={setAnnotationDirty}
       recordingControls={
         <section
           className="eeg-source-bar"
@@ -213,6 +231,8 @@ export function RecordingSession({ demo }: { demo: EEGDataSource }) {
                 <button
                   disabled={busy}
                   onClick={() => {
+                    if (annotationDirty && !confirmAnnotationDiscard()) return;
+                    setAnnotationDirty(false);
                     setUseDemo(!useDemo);
                     setError(false);
                     setMessage(

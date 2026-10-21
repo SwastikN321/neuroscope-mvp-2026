@@ -6,7 +6,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { RecordingSession } from './RecordingSession';
 import { createSyntheticSource } from './synthetic';
@@ -59,9 +59,11 @@ beforeEach(() => {
 });
 function mount() {
   render(
-    <MemoryRouter>
-      <RecordingSession demo={demo} />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter([
+        { path: '*', element: <RecordingSession demo={demo} /> },
+      ])}
+    />,
   );
 }
 async function upload() {
@@ -124,4 +126,41 @@ it('does not pretend deletion succeeded when the backend is unavailable', async 
   await userEvent.click(screen.getByRole('button', { name: 'Delete EDF' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('retry deletion');
   expect(screen.getByText('RECORDING / record-1')).toBeInTheDocument();
+});
+
+it('warns before replacement, deletion and demo switching, retaining annotations on cancel', async () => {
+  mount();
+  await upload();
+  const confirm = vi.spyOn(globalThis, 'confirm').mockReturnValue(false);
+  try {
+    await userEvent.click(screen.getByRole('button', { name: 'Add point' }));
+    await userEvent.type(
+      screen.getByLabelText('Annotation label'),
+      'Retain observation',
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save in session' }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Use synthetic demo' }),
+    );
+    expect(screen.getByText('RECORDING / record-1')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete EDF' }));
+    expect(deleteRecording).not.toHaveBeenCalled();
+    await upload();
+    expect(deleteRecording).toHaveBeenCalledWith('record-2');
+    expect(deleteRecording).not.toHaveBeenCalledWith('record-1');
+    expect(
+      screen.getByRole('button', { name: 'Edit Retain observation' }),
+    ).toBeInTheDocument();
+    confirm.mockReturnValue(true);
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Use synthetic demo' }),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Edit Retain observation' }),
+    ).not.toBeInTheDocument();
+  } finally {
+    confirm.mockRestore();
+  }
 });

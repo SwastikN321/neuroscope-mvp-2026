@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useAnnotations } from './useAnnotations';
+import { AnnotationPanel } from './AnnotationPanel';
+import type { EEGAnnotation } from './annotations';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router';
 import { Logo } from '../../components/brand/Logo';
 import { ChannelPanel } from './ChannelPanel';
@@ -21,11 +24,15 @@ import './workspace.css';
 export function EEGWorkspace({
   source,
   recordingControls,
+  onAnnotationDirtyChange,
 }: {
   source: EEGDataSource;
   recordingControls?: ReactNode;
+  onAnnotationDirtyChange?: (dirty: boolean) => void;
 }) {
+  const viewer = useRef<HTMLElement>(null);
   const recording = source.recording;
+  const annotations = useAnnotations(recording, onAnnotationDirtyChange);
   const [visible, setVisible] = useState(() =>
     recording.channels
       .slice(0, recording.source === 'edf' ? 12 : undefined)
@@ -140,6 +147,29 @@ export function EEGWorkspace({
       ? probe.channelId
       : viewIds[0] || '';
   const clock = channelClock(recording, displayedChannel);
+  function jumpToAnnotation(item: EEGAnnotation) {
+    if (item.channelId) {
+      const next = visible.includes(item.channelId)
+        ? visible
+        : [...visible, item.channelId];
+      setVisible(next);
+      setChannelPage(Math.floor(next.indexOf(item.channelId) / 32));
+    }
+    const plot = viewer.current?.querySelector<HTMLElement>('.eeg-plot');
+    plot?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    plot?.focus({ preventScroll: true });
+    const targetSpan = Math.max(
+      span,
+      (item.endTime ?? item.startTime) - item.startTime + 1,
+    );
+    setRange(
+      constrainRange(
+        item.startTime - targetSpan * 0.15,
+        targetSpan,
+        recording.durationSeconds,
+      ),
+    );
+  }
   const synthetic = recording.source === 'synthetic';
   return (
     <div className="eeg-workspace">
@@ -180,6 +210,7 @@ export function EEGWorkspace({
           onChange={setVisible}
         />
         <section
+          ref={viewer}
           className="eeg-viewer"
           aria-label="Signal explorer controls and waveforms"
         >
@@ -287,6 +318,61 @@ export function EEGWorkspace({
               Reset view
             </button>
           </div>
+          <div
+            className="eeg-annotation-tools"
+            role="group"
+            aria-label="Waveform interaction mode"
+          >
+            <button
+              aria-pressed={annotations.mode === 'navigate'}
+              onClick={() => annotations.setMode('navigate')}
+            >
+              Navigate
+            </button>
+            <button
+              aria-pressed={annotations.mode === 'annotate'}
+              onClick={() => annotations.setMode('annotate')}
+            >
+              Annotate
+            </button>
+            <span>
+              {annotations.mode === 'annotate'
+                ? 'Click for a point · Drag for an interval · Native channel timing'
+                : 'Drag to pan · Tap to inspect'}
+            </span>
+            <button
+              onClick={() =>
+                annotations.begin({
+                  type: 'point',
+                  startTime: probe
+                    ? probe.sample /
+                      channelClock(recording, probe.channelId).sampleRateHz
+                    : range.start,
+                  channelId: displayedChannel || null,
+                })
+              }
+            >
+              Add point
+            </button>
+            <button
+              onClick={() =>
+                annotations.begin({
+                  type: 'interval',
+                  startTime: range.start,
+                  endTime: range.end,
+                  channelId: displayedChannel || null,
+                })
+              }
+            >
+              Add interval
+            </button>
+          </div>
+          {annotations.draft && !annotations.editFocus && (
+            <div className="eeg-annotation-selection-ready" role="status">
+              Selection ready · review times and add a label{' '}
+              <button onClick={annotations.focusEditor}>Edit selection</button>
+            </div>
+          )}
           {window.error ? (
             <div className="eeg-load-state" role="alert">
               <h2>Unable to read this window</h2>
@@ -306,6 +392,14 @@ export function EEGWorkspace({
               onProbe={inspect}
               onRange={setRange}
               onReset={reset}
+              annotationMode={annotations.mode === 'annotate'}
+              annotations={annotations.items}
+              selectedAnnotation={annotations.selected}
+              annotationDraft={annotations.draft}
+              onAnnotationCreate={(selection) =>
+                annotations.begin(selection, false)
+              }
+              onAnnotationSelect={annotations.select}
             />
           ) : (
             <div className="eeg-load-state" role="status">
@@ -388,8 +482,11 @@ export function EEGWorkspace({
           )}
           <div className="eeg-plot-note">
             <p id="eeg-plot-help">
-              Drag to pan · Tap or hover to inspect · ← → pan · + − zoom · Shift
-              + ← → inspect samples · ↑ ↓ channels · Home reset
+              {annotations.mode === 'annotate'
+                ? 'Annotate: click or drag to select · Use Add point / Add interval for keyboard entry · '
+                : 'Drag to pan · Tap or hover to inspect · '}
+              ← → pan · + − zoom · Shift + ← → inspect samples · ↑ ↓ channels ·
+              Home reset
             </p>
             {window.data?.reduced && (
               <span>
@@ -408,6 +505,11 @@ export function EEGWorkspace({
             )}
           </div>
           <Timeline source={source} range={range} onRange={setRange} />
+          <AnnotationPanel
+            recording={recording}
+            annotations={annotations}
+            onJump={jumpToAnnotation}
+          />
           <div className="eeg-viewer-footer">
             <span>
               Visible {formatTime(range.start)} — {formatTime(range.end)}
