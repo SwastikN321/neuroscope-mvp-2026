@@ -20,7 +20,7 @@ export function ChannelPanel({
         <p>{recording.id}</p>
         <span className="eeg-tag">
           {recording.source === 'synthetic' ? 'Synthetic' : 'EDF'} ·{' '}
-          {formatTime(recording.durationSeconds).slice(0, 5)}
+          {formatTime(recording.durationSeconds, 0)}
         </span>
       </div>
       <details open className="eeg-channel-details">

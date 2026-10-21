@@ -1,0 +1,674 @@
+[
+  {
+    "case": "motor-baseline",
+    "uploadAndViewMs": 590,
+    "endNavigationMs": 367,
+    "inspections": [
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 0,
+        "time": 0,
+        "value": -16,
+        "displayTime": 0,
+        "displayAmplitude": "-16.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 17,
+        "time": 0.10625,
+        "value": -36,
+        "displayTime": 0.10625,
+        "displayAmplitude": "-36.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 4887,
+        "time": 30.54375,
+        "value": -61,
+        "displayTime": 30.54375,
+        "displayAmplitude": "-61.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 9759,
+        "time": 60.99375,
+        "value": 0,
+        "displayTime": 60.99375,
+        "displayAmplitude": "+0.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 0,
+        "time": 0,
+        "value": -29,
+        "displayTime": 0,
+        "displayAmplitude": "-29.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 17,
+        "time": 0.10625,
+        "value": -30,
+        "displayTime": 0.10625,
+        "displayAmplitude": "-30.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 4887,
+        "time": 30.54375,
+        "value": -44,
+        "displayTime": 30.54375,
+        "displayAmplitude": "-44.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 9759,
+        "time": 60.99375,
+        "value": 0,
+        "displayTime": 60.99375,
+        "displayAmplitude": "+0.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 0,
+        "time": 0,
+        "value": 15,
+        "displayTime": 0,
+        "displayAmplitude": "+15.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 17,
+        "time": 0.10625,
+        "value": 14,
+        "displayTime": 0.10625,
+        "displayAmplitude": "+14.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 4887,
+        "time": 30.54375,
+        "value": -57,
+        "displayTime": 30.54375,
+        "displayAmplitude": "-57.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 9759,
+        "time": 60.99375,
+        "value": 0,
+        "displayTime": 60.99375,
+        "displayAmplitude": "+0.00 µV"
+      }
+    ],
+    "canvasStages": ["initial", "zoom", "pan", "wide", "end"],
+    "annotationRoundtrip": "exact",
+    "status": "PASS"
+  },
+  {
+    "case": "motor-task",
+    "uploadAndViewMs": 385,
+    "endNavigationMs": 368,
+    "inspections": [
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 0,
+        "time": 0,
+        "value": -57,
+        "displayTime": 0,
+        "displayAmplitude": "-57.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 17,
+        "time": 0.10625,
+        "value": -107,
+        "displayTime": 0.10625,
+        "displayAmplitude": "-107.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 10007,
+        "time": 62.54375,
+        "value": -12,
+        "displayTime": 62.54375,
+        "displayAmplitude": "-12.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "Fc5.",
+        "index": 19999,
+        "time": 124.99375,
+        "value": 0,
+        "displayTime": 124.99375,
+        "displayAmplitude": "+0.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 0,
+        "time": 0,
+        "value": -13,
+        "displayTime": 0,
+        "displayAmplitude": "-13.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 17,
+        "time": 0.10625,
+        "value": -55,
+        "displayTime": 0.10625,
+        "displayAmplitude": "-55.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 10007,
+        "time": 62.54375,
+        "value": 18,
+        "displayTime": 62.54375,
+        "displayAmplitude": "+18.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "Fc3.",
+        "index": 19999,
+        "time": 124.99375,
+        "value": 0,
+        "displayTime": 124.99375,
+        "displayAmplitude": "+0.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 0,
+        "time": 0,
+        "value": -28,
+        "displayTime": 0,
+        "displayAmplitude": "-28.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 17,
+        "time": 0.10625,
+        "value": -47,
+        "displayTime": 0.10625,
+        "displayAmplitude": "-47.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 10007,
+        "time": 62.54375,
+        "value": -14,
+        "displayTime": 62.54375,
+        "displayAmplitude": "-14.00 µV"
+      },
+      {
+        "id": "ch063",
+        "label": "Iz..",
+        "index": 19999,
+        "time": 124.99375,
+        "value": 0,
+        "displayTime": 124.99375,
+        "displayAmplitude": "+0.00 µV"
+      }
+    ],
+    "canvasStages": ["initial", "zoom", "pan", "wide", "end"],
+    "annotationRoundtrip": "exact",
+    "status": "PASS"
+  },
+  {
+    "case": "sleep-long",
+    "uploadAndViewMs": 468,
+    "endNavigationMs": 324,
+    "inspections": [
+      {
+        "id": "ch000",
+        "label": "EEG Fpz-Cz",
+        "index": 0,
+        "time": 0,
+        "value": 5.016849816849817,
+        "displayTime": 0,
+        "displayAmplitude": "+5.02 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG Fpz-Cz",
+        "index": 17,
+        "time": 0.17,
+        "value": -2.203663003663004,
+        "displayTime": 0.17,
+        "displayAmplitude": "-2.20 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG Fpz-Cz",
+        "index": 3975007,
+        "time": 39750.07,
+        "value": -33.43003663003663,
+        "displayTime": 39750.07,
+        "displayAmplitude": "-33.43 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG Fpz-Cz",
+        "index": 7949999,
+        "time": 79499.99,
+        "value": 6.610989010989011,
+        "displayTime": 79499.99,
+        "displayAmplitude": "+6.61 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG Pz-Oz",
+        "index": 0,
+        "time": 0,
+        "value": -2.4673992673992675,
+        "displayTime": 0,
+        "displayAmplitude": "-2.47 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG Pz-Oz",
+        "index": 17,
+        "time": 0.17,
+        "value": -8.033699633699634,
+        "displayTime": 0.17,
+        "displayAmplitude": "-8.03 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG Pz-Oz",
+        "index": 3975007,
+        "time": 39750.07,
+        "value": -2.9472527472527474,
+        "displayTime": 39750.07,
+        "displayAmplitude": "-2.95 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG Pz-Oz",
+        "index": 7949999,
+        "time": 79499.99,
+        "value": 1.7553113553113553,
+        "displayTime": 79499.99,
+        "displayAmplitude": "+1.76 µV"
+      }
+    ],
+    "canvasStages": ["initial", "zoom", "pan", "wide", "end"],
+    "annotationRoundtrip": "exact",
+    "status": "PASS"
+  },
+  {
+    "case": "many-256",
+    "uploadAndViewMs": 411,
+    "endNavigationMs": 342,
+    "inspections": [
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 0,
+        "time": 0,
+        "value": 9,
+        "displayTime": 0,
+        "displayAmplitude": "+9.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 17,
+        "time": 0.265625,
+        "value": 1200,
+        "displayTime": 0.265625,
+        "displayAmplitude": "+1200.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 3847,
+        "time": 60.109375,
+        "value": -1700,
+        "displayTime": 60.109375,
+        "displayAmplitude": "-1700.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 7679,
+        "time": 119.984375,
+        "value": 900,
+        "displayTime": 119.984375,
+        "displayAmplitude": "+900.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 0,
+        "time": 0,
+        "value": 9,
+        "displayTime": 0,
+        "displayAmplitude": "+9.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 17,
+        "time": 0.265625,
+        "value": 1200,
+        "displayTime": 0.265625,
+        "displayAmplitude": "+1200.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 3847,
+        "time": 60.109375,
+        "value": -1700,
+        "displayTime": 60.109375,
+        "displayAmplitude": "-1700.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 7679,
+        "time": 119.984375,
+        "value": 900,
+        "displayTime": 119.984375,
+        "displayAmplitude": "+900.00 µV"
+      },
+      {
+        "id": "ch255",
+        "label": "EEG B255",
+        "index": 0,
+        "time": 0,
+        "value": 9,
+        "displayTime": 0,
+        "displayAmplitude": "+9.00 µV"
+      },
+      {
+        "id": "ch255",
+        "label": "EEG B255",
+        "index": 17,
+        "time": 0.265625,
+        "value": 1200,
+        "displayTime": 0.265625,
+        "displayAmplitude": "+1200.00 µV"
+      },
+      {
+        "id": "ch255",
+        "label": "EEG B255",
+        "index": 3847,
+        "time": 60.109375,
+        "value": -1700,
+        "displayTime": 60.109375,
+        "displayAmplitude": "-1700.00 µV"
+      },
+      {
+        "id": "ch255",
+        "label": "EEG B255",
+        "index": 7679,
+        "time": 119.984375,
+        "value": 900,
+        "displayTime": 119.984375,
+        "displayAmplitude": "+900.00 µV"
+      }
+    ],
+    "canvasStages": ["initial", "zoom", "pan", "wide", "end"],
+    "annotationRoundtrip": "exact",
+    "status": "PASS"
+  },
+  {
+    "case": "mixed",
+    "uploadAndViewMs": 422,
+    "endNavigationMs": 331,
+    "inspections": [
+      {
+        "id": "ch000",
+        "label": "EEG Fp1",
+        "index": 0,
+        "time": 0,
+        "value": -200,
+        "displayTime": 0,
+        "displayAmplitude": "-200.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG Fp1",
+        "index": 17,
+        "time": 0.3984375,
+        "value": -49.997711146715496,
+        "displayTime": 0.398438,
+        "displayAmplitude": "-50.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG Fp1",
+        "index": 263,
+        "time": 6.1640625,
+        "value": -45.42000457770657,
+        "displayTime": 6.164063,
+        "displayAmplitude": "-45.42 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG Fp1",
+        "index": 511,
+        "time": 11.9765625,
+        "value": -54.57541771572442,
+        "displayTime": 11.976563,
+        "displayAmplitude": "-54.58 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "C4",
+        "index": 0,
+        "time": 0,
+        "value": -99.99694819562066,
+        "displayTime": 0,
+        "displayAmplitude": "-100.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "C4",
+        "index": 17,
+        "time": 0.796875,
+        "value": -152.97016861219197,
+        "displayTime": 0.796875,
+        "displayAmplitude": "-152.97 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "C4",
+        "index": 135,
+        "time": 6.328125,
+        "value": 3.318837262531472,
+        "displayTime": 6.328125,
+        "displayAmplitude": "+3.32 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "C4",
+        "index": 255,
+        "time": 11.953125,
+        "value": -204.74708171206225,
+        "displayTime": 11.953125,
+        "displayAmplitude": "-204.75 µV"
+      },
+      {
+        "id": "ch002",
+        "label": "EEG Cz",
+        "index": 0,
+        "time": 0,
+        "value": 0.0030518043793392844,
+        "displayTime": 0,
+        "displayAmplitude": "+0.00 µV"
+      },
+      {
+        "id": "ch002",
+        "label": "EEG Cz",
+        "index": 17,
+        "time": 0.3984375,
+        "value": 75.27275501640345,
+        "displayTime": 0.398438,
+        "displayAmplitude": "+75.27 µV"
+      },
+      {
+        "id": "ch002",
+        "label": "EEG Cz",
+        "index": 263,
+        "time": 6.1640625,
+        "value": 89.90310521095597,
+        "displayTime": 6.164063,
+        "displayAmplitude": "+89.90 µV"
+      },
+      {
+        "id": "ch002",
+        "label": "EEG Cz",
+        "index": 511,
+        "time": 11.9765625,
+        "value": 15.56725413900969,
+        "displayTime": 11.976563,
+        "displayAmplitude": "+15.57 µV"
+      }
+    ],
+    "canvasStages": ["initial", "zoom", "pan", "wide", "end"],
+    "annotationRoundtrip": "exact",
+    "status": "PASS"
+  },
+  {
+    "case": "near-cap",
+    "uploadAndViewMs": 584,
+    "endNavigationMs": 371,
+    "inspections": [
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 0,
+        "time": 0,
+        "value": 9,
+        "displayTime": 0,
+        "displayAmplitude": "+9.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 17,
+        "time": 0.06640625,
+        "value": 1200,
+        "displayTime": 0.066406,
+        "displayAmplitude": "+1200.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 524167,
+        "time": 2047.52734375,
+        "value": -1700,
+        "displayTime": 2047.527344,
+        "displayAmplitude": "-1700.00 µV"
+      },
+      {
+        "id": "ch000",
+        "label": "EEG B000",
+        "index": 1048319,
+        "time": 4094.99609375,
+        "value": 900,
+        "displayTime": 4094.996094,
+        "displayAmplitude": "+900.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 0,
+        "time": 0,
+        "value": 9,
+        "displayTime": 0,
+        "displayAmplitude": "+9.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 17,
+        "time": 0.06640625,
+        "value": 1200,
+        "displayTime": 0.066406,
+        "displayAmplitude": "+1200.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 524167,
+        "time": 2047.52734375,
+        "value": -1700,
+        "displayTime": 2047.527344,
+        "displayAmplitude": "-1700.00 µV"
+      },
+      {
+        "id": "ch001",
+        "label": "EEG B001",
+        "index": 1048319,
+        "time": 4094.99609375,
+        "value": 900,
+        "displayTime": 4094.996094,
+        "displayAmplitude": "+900.00 µV"
+      },
+      {
+        "id": "ch031",
+        "label": "EEG B031",
+        "index": 0,
+        "time": 0,
+        "value": 9,
+        "displayTime": 0,
+        "displayAmplitude": "+9.00 µV"
+      },
+      {
+        "id": "ch031",
+        "label": "EEG B031",
+        "index": 17,
+        "time": 0.06640625,
+        "value": 1200,
+        "displayTime": 0.066406,
+        "displayAmplitude": "+1200.00 µV"
+      },
+      {
+        "id": "ch031",
+        "label": "EEG B031",
+        "index": 524167,
+        "time": 2047.52734375,
+        "value": -1700,
+        "displayTime": 2047.527344,
+        "displayAmplitude": "-1700.00 µV"
+      },
+      {
+        "id": "ch031",
+        "label": "EEG B031",
+        "index": 1048319,
+        "time": 4094.99609375,
+        "value": 900,
+        "displayTime": 4094.996094,
+        "displayAmplitude": "+900.00 µV"
+      }
+    ],
+    "canvasStages": ["initial", "zoom", "pan", "wide", "end"],
+    "annotationRoundtrip": "exact",
+    "status": "PASS"
+  }
+]

@@ -93,11 +93,18 @@ export function sampleInterval(range: TimeRange, recording: EEGRecording) {
     ),
   ] as const;
 }
-export function formatTime(seconds: number) {
-  return `${Math.floor(seconds / 60)
-    .toString()
-    .padStart(2, '0')}:${(seconds % 60).toFixed(2).padStart(5, '0')}`;
+/** Recording-relative clock; round once so 59.999 s cannot display as 00:60.00. */
+export function formatTime(seconds: number, precision: 0 | 2 = 2) {
+  const units = 10 ** precision;
+  const ticks = Math.round(seconds * units);
+  const hours = Math.floor(ticks / (3600 * units));
+  const minutes = Math.floor(ticks / (60 * units)) % 60;
+  const remainder = ((ticks % (60 * units)) / units)
+    .toFixed(precision)
+    .padStart(precision ? 5 : 2, '0');
+  return `${hours ? `${String(hours).padStart(2, '0')}:` : ''}${String(minutes).padStart(2, '0')}:${remainder}`;
 }
+
 /** At most two extrema per horizontal bucket, in original sample order. No averaging away peaks. */
 export function peakSamples(
   samples: Float32Array | Float64Array,

@@ -1,0 +1,344 @@
+[
+  {
+    "case": "motor-baseline",
+    "canvas": [
+      {
+        "stage": "initial",
+        "points": 6321,
+        "max_reconstructed_index_error_samples": 4.547473508864641e-13,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "zoom",
+        "points": 3204,
+        "max_reconstructed_index_error_samples": 2.2737367544323206e-13,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "pan",
+        "points": 3204,
+        "max_reconstructed_index_error_samples": 2.2737367544323206e-13,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "wide",
+        "points": 8140,
+        "max_reconstructed_index_error_samples": 1.8189894035458565e-12,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "end",
+        "points": 6075,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      }
+    ],
+    "csv_values_uv": {
+      "count": 716,
+      "max_abs": 1.4210854715202004e-14,
+      "rms": 3.626985914955963e-15
+    },
+    "csv_timestamps_seconds": {
+      "count": 716,
+      "max_abs": 8.881784197001253e-17,
+      "rms": 3.645780308303644e-17
+    },
+    "annotation_max_time_error_seconds": 1.4210854715202005e-15,
+    "png": {
+      "width": 2400,
+      "height": 1160,
+      "sha256": "d858df45fd4b8e9287ef8251ad8ec9200f21e018809852ab8815b064dd983338"
+    },
+    "status": "PASS"
+  },
+  {
+    "case": "motor-task",
+    "canvas": [
+      {
+        "stage": "initial",
+        "points": 6336,
+        "max_reconstructed_index_error_samples": 4.547473508864641e-13,
+        "max_reconstructed_amplitude_error_uv": 2.1316282072803006e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "zoom",
+        "points": 3204,
+        "max_reconstructed_index_error_samples": 2.2737367544323206e-13,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "pan",
+        "points": 3204,
+        "max_reconstructed_index_error_samples": 2.2737367544323206e-13,
+        "max_reconstructed_amplitude_error_uv": 1.9895196601282805e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "wide",
+        "points": 8176,
+        "max_reconstructed_index_error_samples": 3.637978807091713e-12,
+        "max_reconstructed_amplitude_error_uv": 2.1316282072803006e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "end",
+        "points": 6173,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 2.1316282072803006e-13,
+        "status": "PASS"
+      }
+    ],
+    "csv_values_uv": {
+      "count": 716,
+      "max_abs": 1.4210854715202004e-14,
+      "rms": 4.262139842954417e-15
+    },
+    "csv_timestamps_seconds": {
+      "count": 716,
+      "max_abs": 8.881784197001253e-17,
+      "rms": 3.645780308303644e-17
+    },
+    "annotation_max_time_error_seconds": 5.684341886080802e-15,
+    "png": {
+      "width": 2400,
+      "height": 1160,
+      "sha256": "3e33a610a7b4316df34f11984ec71f4a2ddf99fca6d368a39b49777df49117cd"
+    },
+    "status": "PASS"
+  },
+  {
+    "case": "sleep-long",
+    "canvas": [
+      {
+        "stage": "initial",
+        "points": 1997,
+        "max_reconstructed_index_error_samples": 2.2737367544323206e-13,
+        "max_reconstructed_amplitude_error_uv": 6.365994422694612e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "zoom",
+        "points": 1002,
+        "max_reconstructed_index_error_samples": 1.1368683772161603e-13,
+        "max_reconstructed_amplitude_error_uv": 6.250693898173834e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "pan",
+        "points": 1002,
+        "max_reconstructed_index_error_samples": 2.2737367544323206e-13,
+        "max_reconstructed_amplitude_error_uv": 6.365994422694612e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "wide",
+        "points": 4096,
+        "max_reconstructed_index_error_samples": 1.862645149230957e-9,
+        "max_reconstructed_amplitude_error_uv": 8.895058072284683e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "end",
+        "points": 1995,
+        "max_reconstructed_index_error_samples": 9.313225746154785e-10,
+        "max_reconstructed_amplitude_error_uv": 6.500815352043964e-14,
+        "status": "PASS"
+      }
+    ],
+    "csv_values_uv": {
+      "count": 224,
+      "max_abs": 1.417051254522295e-14,
+      "rms": 8.812386826060393e-15
+    },
+    "csv_timestamps_seconds": {
+      "count": 224,
+      "max_abs": 1.0658141036401502e-16,
+      "rms": 3.7911950818168274e-17
+    },
+    "annotation_max_time_error_seconds": 5.820766091346741e-12,
+    "png": {
+      "width": 2400,
+      "height": 872,
+      "sha256": "fffd9452e445c632cb10d420a8876037990971104ce35ed0ee75a665e3852461"
+    },
+    "status": "PASS"
+  },
+  {
+    "case": "many-256",
+    "canvas": [
+      {
+        "stage": "initial",
+        "points": 2564,
+        "max_reconstructed_index_error_samples": 1.4210854715202004e-14,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "zoom",
+        "points": 1284,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "pan",
+        "points": 1284,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "wide",
+        "points": 8192,
+        "max_reconstructed_index_error_samples": 9.094947017729282e-13,
+        "max_reconstructed_amplitude_error_uv": 4.547473508864641e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "end",
+        "points": 2560,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      }
+    ],
+    "csv_values_uv": {
+      "count": 288,
+      "max_abs": 3.552713678800501e-15,
+      "rms": 1.2560739669470201e-15
+    },
+    "csv_timestamps_seconds": {
+      "count": 288,
+      "max_abs": 0.0,
+      "rms": 0.0
+    },
+    "annotation_max_time_error_seconds": 0.0,
+    "png": {
+      "width": 2400,
+      "height": 1160,
+      "sha256": "7c751846f9026a1cd8fcb2fb1f3d66a48e5ac7b7c89ab7d8c4e4bea32d0c8195"
+    },
+    "status": "PASS"
+  },
+  {
+    "case": "mixed",
+    "canvas": [
+      {
+        "stage": "initial",
+        "points": 1070,
+        "max_reconstructed_index_error_samples": 7.105427357601002e-15,
+        "max_reconstructed_amplitude_error_uv": 1.3377524209815244e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "zoom",
+        "points": 538,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 1.219550896525026e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "pan",
+        "points": 537,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 1.3377524209815244e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "wide",
+        "points": 1280,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 1.3377524209815244e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "end",
+        "points": 1067,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 1.3377524209815244e-13,
+        "status": "PASS"
+      }
+    ],
+    "csv_values_uv": {
+      "count": 120,
+      "max_abs": 4.869876786358535e-14,
+      "rms": 1.839538514629404e-14
+    },
+    "csv_timestamps_seconds": {
+      "count": 120,
+      "max_abs": 0.0,
+      "rms": 0.0
+    },
+    "annotation_max_time_error_seconds": 0.0,
+    "png": {
+      "width": 2400,
+      "height": 1016,
+      "sha256": "4092b902751947bdca057a35234ec6f4e8f61e890c87fcbacc3dd4ca7dcebad5"
+    },
+    "status": "PASS"
+  },
+  {
+    "case": "near-cap",
+    "canvas": [
+      {
+        "stage": "initial",
+        "points": 6703,
+        "max_reconstructed_index_error_samples": 5.684341886080802e-14,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "zoom",
+        "points": 4899,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "pan",
+        "points": 4902,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      },
+      {
+        "stage": "wide",
+        "points": 8192,
+        "max_reconstructed_index_error_samples": 1.1641532182693481e-10,
+        "max_reconstructed_amplitude_error_uv": 4.547473508864641e-13,
+        "status": "PASS"
+      },
+      {
+        "stage": "end",
+        "points": 6714,
+        "max_reconstructed_index_error_samples": 0,
+        "max_reconstructed_amplitude_error_uv": 9.237055564881302e-14,
+        "status": "PASS"
+      }
+    ],
+    "csv_values_uv": {
+      "count": 1152,
+      "max_abs": 3.552713678800501e-15,
+      "rms": 1.0776727494507374e-15
+    },
+    "csv_timestamps_seconds": {
+      "count": 1152,
+      "max_abs": 0.0,
+      "rms": 0.0
+    },
+    "annotation_max_time_error_seconds": 0.0,
+    "png": {
+      "width": 2400,
+      "height": 1160,
+      "sha256": "a839bcce9389a1553d46f389eda3c55283d688b215e57230febd134e6d045434"
+    },
+    "status": "PASS"
+  }
+]

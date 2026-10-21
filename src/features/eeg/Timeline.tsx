@@ -131,9 +131,7 @@ export function Timeline({
       </div>
       <div className="eeg-timeline-ticks">
         {[0, 0.25, 0.5, 0.75, 1].map((fraction) => (
-          <span key={fraction}>
-            {formatTime(duration * fraction).slice(0, 5)}
-          </span>
+          <span key={fraction}>{formatTime(duration * fraction, 0)}</span>
         ))}
       </div>
       <label className="eeg-timeline-slider">
@@ -143,7 +141,9 @@ export function Timeline({
           type="range"
           min={0}
           max={Math.max(0, duration - span)}
-          step={1 / source.recording.sampleRateHz}
+          // Viewport offsets need not lie on the native sample grid. A fractional
+          // step can otherwise make the exact final viewport unreachable.
+          step="any"
           value={range.start}
           disabled={span >= duration}
           onChange={(e) =>

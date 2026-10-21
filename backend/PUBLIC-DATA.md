@@ -36,3 +36,18 @@ A candidate longer public recording, **CHB-MIT v1.0.0, chb04/chb04_01.edf**, was
 - Original publication: Shoeb, A. (2009). Application of Machine Learning to Epileptic Seizure Onset Detection and Treatment. MIT doctoral thesis. <http://hdl.handle.net/1721.1/54669>.
 
 No re-identification was attempted. Keep these data out of `public/`, build output and Git; attribution does not authorize exposing private user recordings.
+
+## Phase 3D.1 independent long-recording reference
+
+One unchanged file, **SC4001E0-PSG.edf**, was downloaded from Bob Kemp's **Sleep-EDF Database Expanded v1.0.0**. The publisher states that patient headers are anonymized to age and gender. Validation does not print or retain those fields, infer identities, or use private recordings. The dataset contains acquisition-time filtering; NeuroScope preserves the stored measurements without additional filtering.
+
+- Dataset and de-identification statement: <https://physionet.org/content/sleep-edfx/1.0.0/>
+- Direct file: <https://physionet.org/files/sleep-edfx/1.0.0/sleep-cassette/SC4001E0-PSG.edf>
+- Publisher-documented public S3 mirror used after a slow primary-server transfer: <https://physionet-open.s3.amazonaws.com/sleep-edfx/1.0.0/sleep-cassette/SC4001E0-PSG.edf>
+- Publisher checksum list: <https://physionet.org/files/sleep-edfx/1.0.0/SHA256SUMS.txt>
+- License: Open Data Commons Attribution v1.0, <https://opendatacommons.org/licenses/by/1-0/>.
+- Dataset DOI: <https://doi.org/10.13026/C2X676>.
+- Original publication: Kemp B, Zwinderman AH, Tuk B, Kamphuisen HAC, Oberyé JJL. Analysis of a sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG. IEEE Transactions on Biomedical Engineering 47(9):1185–1194 (2000). <https://doi.org/10.1109/10.867928>.
+- Retain the PhysioNet citation above (Pollard et al., 2026) with derived results.
+
+Measured file: **48,338,048 bytes**, SHA-256 **`2b40a18adf76af69a42d6db1f30f31d26b369f6d27ca0050ef30147ef892b131`**, matched exactly against the publisher's checksum entry. Actual duration is **79,500 seconds (22:05:00)**. Seven source channels include two EEG channels, each with **7,950,000 samples at 100 Hz**; non-EEG channels are excluded from the EEG workspace. The full original remains in ignored `work/phase-3d1/`. Reviewed plots/screenshots in `docs/phase-3d1/` are attributed derivatives; added annotations are validation observations only.

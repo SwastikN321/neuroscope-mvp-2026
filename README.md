@@ -1,4 +1,4 @@
-# NeuroScope · Phase 3C.2
+# NeuroScope · Phase 3D.1
 
 A React / TypeScript neuroscience interface with an interactive anatomical cerebral cortex. The homepage hero loads the validated Brain for Blender GLBs, with a dark pearl finish, cortical shadows, surface-projected fiber bundles, and GPU particles. Activate signal starts coordinated artistic impulses and localized cortical illumination. A reversible native-scroll sequence now moves from that sculpture through a spatial neural field into six luminous synthetic EEG channels. The original procedural egg geometry remains unused.
 
@@ -28,6 +28,8 @@ The viewer uses Canvas 2D with peak-preserving display reduction and an asynchro
 [PHASE-3C1.md](PHASE-3C1.md) documents session-only point and interval annotations: explicit annotation mode, native-channel sample snapping, editable times/labels/notes, waveform markers, a time-sorted list, and discard warnings. Annotations remain session-only until exported.
 
 [PHASE-3C2.md](PHASE-3C2.md) adds high-resolution waveform PNG, bounded native-rate CSV, and versioned annotation JSON export/import. Restore annotations after re-uploading the original EDF, with source-fingerprint checks and explicit import review. No cloud persistence is implemented.
+
+[SCIENTIFIC-VALIDATION.md](SCIENTIFIC-VALIDATION.md) records independent EDF byte/calibration comparisons, real 22-hour Sleep-EDF browser validation, waveform/export/annotation checks, measured numerical errors, and fixes for fractional-rate final navigation and long time labels. It is software integrity validation, not clinical validation.
 
 ## Anatomical hero
 

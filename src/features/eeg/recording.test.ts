@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   constrainRange,
+  formatTime,
   nearestVisibleSample,
   peakSamples,
   sampleInterval,
@@ -109,4 +110,13 @@ describe('Time navigation and scientific display', () => {
     expect(selected.length).toBeLessThanOrEqual(200);
     expect(peakSamples(new Float32Array([1, 2, 3]), 100)).toEqual([0, 1, 2]);
   });
+});
+
+it('formats long recordings and carries rounded seconds across minute/hour boundaries', () => {
+  expect(formatTime(79500)).toBe('22:05:00.00');
+  expect(formatTime(79500, 0)).toBe('22:05:00');
+  expect(formatTime(59.999)).toBe('01:00.00');
+  expect(formatTime(3599.999)).toBe('01:00:00.00');
+  expect(formatTime(61.125)).toBe('01:01.13');
+  expect(formatTime(0, 0)).toBe('00:00');
 });

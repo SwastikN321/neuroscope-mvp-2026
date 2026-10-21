@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "browser": "155.0.8059.85",
+  "viewport": [390, 844],
+  "checks": [
+    "real EDF fingerprint restoration",
+    "duplicate document IDs rejected",
+    "conflicts skipped by default",
+    "declined replacement retains original",
+    "confirmed replacement succeeds",
+    "wrong fingerprint rejected",
+    "mobile Sleep-EDF end = 79500 s",
+    "mobile fractional-rate end = 12 s"
+  ]
+}
