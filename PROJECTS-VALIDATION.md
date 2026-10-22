@@ -2,7 +2,7 @@
 
 Date: 2026-10-21. Baseline: `c318b00`.
 
-**Local implementation and tests pass. The owner-supplied live schema inventory has been reviewed. Migration approval/application and hosted persistence acceptance remain incomplete.** No live table or policy was created, and no project row was submitted to the live database. No success claim below substitutes for live acceptance.
+**Local implementation and tests pass. The owner-supplied live schema inventory has been reviewed. The owner approved the exact migration and confirmed Data API enablement with `public` exposed. Live migration application and hosted persistence acceptance remain incomplete.** No live table or policy was created, and no project row was submitted to the live database. No success claim below substitutes for live acceptance.
 
 ## Measured results
 
@@ -26,7 +26,7 @@ Date: 2026-10-21. Baseline: `c318b00`.
 | Responsive form                                              | 1440×1000 desktop and 390×844 in-app browser; mobile scroll width equals viewport width (390); create/cancel works                                             | PASS for observed form/unavailable states                                           |
 | Live schema discovery                                        | Public-key REST OpenAPI request                                                                                                                                | HTTP 401; insufficient catalog visibility, not evidence of an empty schema          |
 | Full live schema inventory                                   | Owner supplied the result of read-only `supabase/inspect-project-schema.sql`                                                                                   | REVIEWED: no public relations or conflicting project objects; prerequisites present |
-| Live migration                                               | Requires explicit owner approval after inventory review                                                                                                        | NOT APPLIED                                                                         |
+| Live migration                                               | Exact migration approved by owner; execution access pending                                                                                                    | NOT APPLIED                                                                         |
 | Hosted create/edit/delete, refresh, logout/login persistence | Requires approved live migration                                                                                                                               | NOT RUN                                                                             |
 
 The SQL test uses PostgreSQL's policy execution with a local Auth claims shim. It does not test Supabase's JWT signature verification, PostgREST gateway or hosted grants/settings. The browser's current account is real, but the project form was not submitted. A temporary unsaved form value was explicitly labeled as a local visual check and canceled.
@@ -37,9 +37,13 @@ Existing large-bundle and Starlette/httpx deprecation advisories remain. Release
 
 The owner ran the read-only inspection in the existing Supabase SQL Editor and supplied its result. It reports no public relations, project columns, project grants or project policies, and no conflicting guard function. The `anon`, `authenticated` and `service_role` roles, `auth.users`, `auth.uid()` and `auth.jwt()` are present. No collision with the proposed migration is evident in this inventory; it is a point-in-time catalog result, not a guarantee against subsequent schema changes. The migration deliberately aborts on object collisions.
 
-`configured_api_schemas` is empty. This query examines database role settings and does not establish that the Data API is disabled or that `public` is unexposed. Confirm Data API enablement and `public` exposure in the dashboard before hosted acceptance testing.
+`configured_api_schemas` is empty. This query examines database role settings and does not establish that the Data API is disabled or that `public` is unexposed. The owner subsequently confirmed in the dashboard that the Data API is enabled and `public` is exposed; this is owner-reported configuration, not an independently observed dashboard check.
 
-The owner reiterated that live migration requires separate explicit approval. Supplying this inventory is not authorization to apply SQL. No live database changes have been made.
+The owner subsequently explicitly approved only the reviewed migration. Its SHA-256 is `f1c56d7a138ec0fc22c1d0cb8599d9438e9132811a7b298dd4553cd9a7893b84`. No additional schema changes are authorized. No live database changes have been made.
+
+Post-approval regression checks were rerun: 174 frontend tests, 27 local PostgreSQL security checks, 66 backend tests (no skips), frontend lint/format, TypeScript, production build/artifact audit, and backend Ruff checks all passed. Existing bundle-size and Starlette deprecation warnings remain.
+
+Execution access is pending: the available in-app browser contains NeuroScope only; native Chrome access returned “Computer Use permissions are not granted.” The owner was asked to open their existing Supabase SQL Editor in the in-app browser or run the exact approved migration and return both read-only verification result sets. No credentials were requested. Current browser observation: the existing signed-in account displays a verified profile and the honest projects-unavailable state.
 
 ## Screenshots
 
@@ -52,8 +56,8 @@ Project list entries, populated details and deletion modal are covered by local 
 
 ## Remaining owner checkpoints
 
-1. Confirm that the Supabase Data API is enabled and exposes `public`; the reviewed SQL inventory does not establish API schema exposure.
-2. Review the concrete additive migration and approve its live application. No automatic deployment or database connection secret is requested.
+1. DONE (owner confirmation): Data API enabled and `public` exposed.
+2. DONE: owner explicitly approved the exact reviewed additive migration.
 3. Apply the approved migration; run `verify-project-schema.sql` and inspect policies/grants.
 4. Use the existing account for a non-sensitive test project: create, retrieve, rename, edit description, refresh, log out/in and confirm persistence. Confirm deletion of that specific disposable project before removing it.
 5. Repeat hosted cross-user tests with two accounts if available; otherwise retain the measured local PostgreSQL security tests and explicitly mark hosted multiuser checks incomplete.
