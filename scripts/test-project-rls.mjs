@@ -90,11 +90,37 @@ try {
       "insert into public.research_projects(name) values ('B study') returning *",
     )
   ).rows[0];
+  const visibleToB = (await db.query('select id from public.research_projects'))
+    .rows;
   check(
-    'Second owner sees only own project',
-    (await db.query('select id from public.research_projects')).rows.every(
-      (r) => r.id === projectB.id,
-    ),
+    'Second owner sees exactly own project',
+    visibleToB.length === 1 && visibleToB[0].id === projectB.id,
+  );
+  check(
+    'B cannot read A by known ID',
+    (
+      await db.query('select * from public.research_projects where id=$1', [
+        projectA.id,
+      ])
+    ).rows.length === 0,
+  );
+  check(
+    'B cannot modify A',
+    (
+      await db.query(
+        "update public.research_projects set name='Attack' where id=$1 returning id",
+        [projectA.id],
+      )
+    ).rows.length === 0,
+  );
+  check(
+    'B cannot delete A',
+    (
+      await db.query(
+        'delete from public.research_projects where id=$1 returning id',
+        [projectA.id],
+      )
+    ).rows.length === 0,
   );
   await identity(a);
   check(

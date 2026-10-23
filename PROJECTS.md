@@ -1,6 +1,6 @@
 # Phase 4B.1 — private research projects
 
-**The exact owner-approved migration was applied on 2026-10-22.** Live schema/permissions and project creation, retrieval, editing, refresh and logout protection have passed; see `PROJECTS-VALIDATION.md` for pending new-login/deletion acceptance. Do not rerun the applied migration. Further schema changes require separate review and approval. No cloud recordings, annotations, storage buckets or backend authorization are implemented by this milestone.
+**The exact owner-approved migration was applied on 2026-10-22.** Live schema/permissions, project CRUD, refresh/new-login persistence, logout protection and anonymous REST denial passed. Cross-user isolation passed in local PostgreSQL; the unavailable two-account hosted check is explicitly documented in `PROJECTS-VALIDATION.md`. Do not rerun the applied migration. Further schema changes require separate review and approval. No cloud recordings, annotations, storage buckets or backend authorization are implemented by this milestone.
 
 ## What changes
 
