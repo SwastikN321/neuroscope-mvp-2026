@@ -2,7 +2,7 @@
 
 For the current confirmation-recovery fix and the distinction between owner-reported login and observed live acceptance, see `AUTH-LIVE-VALIDATION.md` (Phase 4A.2).
 
-Historical Phase 4A scope: account access only. Phase 4B.1 project management and its pending live migration approval are documented in `PROJECTS.md`. The homepage and `/app` synthetic demo remain public; the local EDF backend, EEG measurements, annotations and exports are unchanged. No recordings, annotations, projects or files are uploaded to Supabase. No database/profile table, storage bucket, RLS policy, paid service or deployment is created.
+Historical Phase 4A scope: account access only. Phase 4B.1 project management and its owner-approved migration, applied on 2026-10-22, are documented in `PROJECTS.md`. The homepage and `/app` synthetic demo remain public; the local EDF backend, EEG measurements, annotations and exports are unchanged. Project names, descriptions and metadata are stored in the owner-protected `research_projects` table. No EEG recordings, annotations or files are uploaded to Supabase. No profile table, storage bucket, paid service or deployment is created.
 
 **Live account verification:** the existing email account has been observed through server-backed `getUser()`, dashboard reload, confirmed-session callback recovery, logout and signed-out protection. Repeat login after logout and another dashboard reload also passed; see `AUTH-LIVE-VALIDATION.md`. Earlier automated SDK/HTTP fixtures remain explicitly mocked and are not live evidence. Google/GitHub configuration remains outside this milestone.
 
@@ -15,7 +15,7 @@ Historical Phase 4A scope: account access only. Phase 4B.1 project management an
 | `/forgot-password` | Neutral recovery-email acknowledgement that does not assert an account exists                                                              |
 | `/auth/callback`   | Explicit single-use PKCE code exchange; strips query/hash from history; handles cancellation, expired/consumed codes and missing verifiers |
 | `/reset-password`  | New password and confirmation, available only after the account session is verified                                                        |
-| `/dashboard`       | Protected profile, account menu, current-browser logout, workspace entry and private project management (requires approved migration)      |
+| `/dashboard`       | Protected profile, account menu, current-browser logout, workspace entry and private project management (approved migration applied)       |
 | `/app`             | Public synthetic EEG and existing localhost-only real EDF workflow; account creation is optional                                           |
 
 The profile is read from Supabase Auth's verified user response (email, confirmation status, provider metadata and creation date). Names are rendered as text, never HTML or authorization claims. No profile editing or account deletion is introduced. Account links are available in the homepage footer/mobile menu and workspace navigation. The primary homepage CTA still opens the guest workspace.
