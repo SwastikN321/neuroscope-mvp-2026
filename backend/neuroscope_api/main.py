@@ -8,6 +8,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Annotated
 
+import httpx
 from fastapi import FastAPI, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -15,6 +16,10 @@ from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.requests import ClientDisconnect
 
+from .cloud.auth import TokenVerifier
+from .cloud.config import CloudSettings
+from .cloud.recordings import CloudRecordings
+from .cloud.routes import cloud_router
 from .config import Settings
 from .csv_export import export_csv
 from .errors import RecordingError, invalid
@@ -24,6 +29,10 @@ from .store import Store
 def create_app(settings: Settings | None = None, storage_base: Path | None = None):
     settings = settings or Settings.from_env()
     gate = asyncio.Lock()
+    cloud_settings = CloudSettings.from_env()
+    cloud_http = (
+        httpx.AsyncClient(trust_env=False, follow_redirects=False) if cloud_settings else None
+    )
 
     @asynccontextmanager
     async def operation():
@@ -52,6 +61,8 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
             with suppress(asyncio.CancelledError):
                 await task
             store.close()
+            if cloud_http is not None:
+                await cloud_http.aclose()
 
     app = FastAPI(
         title="NeuroScope local EDF API",
@@ -60,6 +71,13 @@ def create_app(settings: Settings | None = None, storage_base: Path | None = Non
         docs_url=None,
         redoc_url=None,
     )  # OpenAPI JSON is local; no remote Swagger CDN.
+    if cloud_settings is not None and cloud_http is not None:
+        app.include_router(
+            cloud_router(
+                TokenVerifier(cloud_settings, cloud_http),
+                CloudRecordings(cloud_settings, cloud_http),
+            )
+        )
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "[::1]"])
 
     @app.middleware("http")

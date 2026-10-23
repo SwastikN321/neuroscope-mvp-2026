@@ -70,3 +70,6 @@ work/phase-4a/
 
 # Project dashboard verification artifacts (may show account details)
 work/phase-4b1/
+
+# Cloud architecture inspection artifacts; no live recordings belong in Git
+work/phase-4b2a/
