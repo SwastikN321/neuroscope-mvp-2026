@@ -19,7 +19,7 @@ export function RouteEffects() {
     document.title =
       pathname === '/'
         ? 'NeuroScope — See beyond the signal'
-        : `${pathname.startsWith('/dashboard/projects/') ? 'Research project' : titles[pathname] || 'Page not found'} — NeuroScope`;
+        : `${pathname.startsWith('/dashboard/projects/') ? 'Research project' : pathname.startsWith('/app/recordings/') ? 'Private EEG workspace' : titles[pathname] || 'Page not found'} — NeuroScope`;
     if (hash) {
       // Wait one frame for the destination page to mount before finding its anchor.
       const frame = requestAnimationFrame(() => {

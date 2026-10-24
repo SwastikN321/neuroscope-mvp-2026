@@ -376,3 +376,16 @@ def test_remote_upload_has_total_deadline_and_keeps_recovery_slot(cloud, monkeyp
     assert len(upstream.rows) == 1 and not upstream.objects
     assert not app.state.workflow.store.entries
     assert next(iter(upstream.rows.values()))["status"] == "validating"
+
+
+def test_cloud_duration_cap_checked_before_remote_reservation(cloud):
+    client, upstream, app, tmp = cloud
+    data = make_edf(tmp / "long.edf", record_seconds=60, records=1441).read_bytes()
+    result = client.post(
+        "/api/cloud/projects/" + P + "/recordings",
+        content=data,
+        headers={**headers(), "content-type": "application/octet-stream"},
+    )
+    assert result.status_code == 422
+    assert result.json()["error"]["code"] == "unsupported_edf"
+    assert not upstream.rows and not upstream.objects and not app.state.workflow.store.entries

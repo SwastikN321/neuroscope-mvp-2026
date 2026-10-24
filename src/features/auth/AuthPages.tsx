@@ -6,6 +6,7 @@ import { callbackUrl, safeNext } from './config';
 import { useAuth } from './context';
 import { AuthLayout } from './AuthLayout';
 import { LogoutButton } from './LogoutButton';
+import { cloudEnabled } from '../cloud/api';
 
 type Mode = 'login' | 'signup' | 'forgot' | 'reset';
 const titles = {
@@ -371,9 +372,10 @@ export default function AuthPage({ mode }: { mode: Mode }) {
         )}
       </p>
       <p className="account-privacy">
-        Projects save their name and description only. EEG recordings and
-        annotations are not saved to your account. Export your work before
-        leaving the workspace.
+        {cloudEnabled
+          ? 'Project details are private. Cloud EDF storage is available only to approved test accounts. Local uploads and session annotations are not saved to your account.'
+          : 'Projects save their name and description only. EEG recordings and annotations are not saved to your account.'}{' '}
+        Export session annotations before leaving the workspace.
       </p>
     </AuthLayout>
   );

@@ -548,7 +548,9 @@ export function EEGWorkspace({
             <span>
               {synthetic
                 ? 'Synthetic recording · no patient data'
-                : 'Original EDF measurements · local temporary storage'}
+                : recording.storage === 'private-cloud'
+                  ? 'Original EDF measurements · private cloud storage'
+                  : 'Original EDF measurements · local temporary storage'}
             </span>
           </div>
         </section>
@@ -560,7 +562,11 @@ export function EEGWorkspace({
       </div>
       <footer className="eeg-footer">
         <span>NEUROSCOPE / RESEARCH PREVIEW</span>
-        <span>Local research visualization. Not for clinical use.</span>
+        <span>
+          {recording.storage === 'private-cloud'
+            ? 'Private research visualization. Not for clinical use.'
+            : 'Local research visualization. Not for clinical use.'}
+        </span>
       </footer>
     </div>
   );

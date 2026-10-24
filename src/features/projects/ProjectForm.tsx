@@ -73,8 +73,8 @@ export function ProjectForm({
         </label>
         <p className="project-hint">
           On creation or save, these details are stored privately in your
-          account. Use non-identifying research descriptions; EEG files and
-          annotations stay outside this project.
+          account. Use non-identifying research descriptions. This form saves
+          project details only; session annotations are not saved here.
         </p>
         <div className="project-actions">
           <Button type="submit">

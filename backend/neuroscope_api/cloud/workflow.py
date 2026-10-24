@@ -1,6 +1,7 @@
 """Validated broker workflow. No service key, object path or local cache ID crosses the API."""
 
 import asyncio
+import logging
 import re
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -16,6 +17,8 @@ from ..store import Store
 from .auth import Identity
 from .broker_config import BrokerSettings
 from .recordings import CloudRecording, CloudRecordings, unavailable, upstream_error
+
+logger = logging.getLogger(__name__)
 
 
 async def joined(function, *args):
@@ -222,7 +225,13 @@ class CloudWorkflow:
                     follow_redirects=False,
                 )
             if response.status_code not in (200, 201):
-                raise upstream_error()
+                # Status only: never log object paths, account identifiers or provider bodies.
+                logger.warning("Cloud Storage upload rejected: HTTP %d", response.status_code)
+                raise RecordingError(
+                    503,
+                    "cloud_storage_rejected",
+                    f"Private storage rejected the transfer (HTTP {response.status_code}). Refresh the project before retrying; a recovery entry may remain.",
+                )
             result = await self.rpc(
                 "cloud_complete_recording",
                 {
@@ -239,7 +248,8 @@ class CloudWorkflow:
                 raise upstream_error()
             self.cache[str(ready.id)] = (actor.user_id, key)
             return {"id": str(ready.id), "project_id": str(project_id), "status": "ready"}
-        except (TimeoutError, httpx.HTTPError):
+        except (TimeoutError, httpx.HTTPError) as error:
+            logger.warning("Cloud transfer interrupted: %s", type(error).__name__)
             raise RecordingError(
                 503,
                 "cloud_transfer",

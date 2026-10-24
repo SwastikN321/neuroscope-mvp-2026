@@ -23,7 +23,9 @@ export function RecordingMetadata({
             <dd className="eeg-accent">
               {recording.source === 'synthetic'
                 ? 'Synthetic demo'
-                : 'Local EDF'}
+                : recording.storage === 'private-cloud'
+                  ? 'Private cloud EDF'
+                  : 'Local EDF'}
             </dd>
           </div>
           <div>
