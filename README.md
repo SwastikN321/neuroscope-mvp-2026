@@ -120,6 +120,6 @@ Login, signup, email verification, recovery, Google/GitHub OAuth, session restor
 
 See [PROJECTS.md](PROJECTS.md) for the versioned migration, RLS policies, owner approval checkpoint, local PostgreSQL security tests and future EDF storage design. The approved migration is applied and the dashboard saves project names/descriptions to Supabase. CRUD and persistence across refresh and a new login have been verified; no files or annotations are stored in projects. See [PROJECTS-VALIDATION.md](PROJECTS-VALIDATION.md) for measured results and outstanding checks.
 
-## Cloud recording architecture (Phase 4B.2A — approval pending)
+## Cloud recording architecture (Phase 4B.2A — schema applied)
 
-The local backend authorization/processing preparation and proposed recording/Storage migrations are documented in [CLOUD-RECORDINGS.md](CLOUD-RECORDINGS.md), with evidence in [CLOUD-RECORDINGS-VALIDATION.md](CLOUD-RECORDINGS-VALIDATION.md). Cloud routes remain off by default; no live bucket or cloud-upload UI exists. The proposed cloud cap is 50,000,000 bytes, distinct from larger local EDF support. No Phase 4B.2 live migration is authorized by the earlier project migration approval.
+The backend authorization/processing preparation and approved recording/Storage migrations are documented in [CLOUD-RECORDINGS.md](CLOUD-RECORDINGS.md). The two exact migrations from `053a129` are applied and verified; the private bucket is empty. See [CLOUD-RECORDINGS-LIVE-VALIDATION.md](CLOUD-RECORDINGS-LIVE-VALIDATION.md) for live versus isolated tests and remaining limitations. Cloud routes remain disabled and no cloud-upload UI exists. The cloud cap is 50,000,000 bytes, distinct from larger local EDF support. Phase 4B.2B remains unapproved.

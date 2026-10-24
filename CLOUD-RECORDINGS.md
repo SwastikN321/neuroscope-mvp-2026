@@ -1,6 +1,6 @@
 # Phase 4B.2A — secure cloud recording architecture
 
-**Prepared locally on 2026-10-23. Neither proposed migration has been applied.** The live project was inspected read-only. No bucket, recording, account, upload UI or worker was created live. Phase 4B.2A prepares the authorization, schema, policies and processing boundary; it does not deliver a usable cloud-upload feature. Phase 4B.2B and deployment require separate approval.
+**Applied on 2026-10-23 after separate explicit owner approval.** Both exact migrations from commit `053a129` are now installed in the existing Supabase project, with the private bucket and schema verified. No recording, upload UI, account or worker was created. Cloud application functionality remains disabled. Phase 4B.2A prepares the authorization, schema, policies and processing boundary; it does not deliver a usable cloud-upload feature. Phase 4B.2B and deployment require separate approval. See [CLOUD-RECORDINGS-LIVE-VALIDATION.md](CLOUD-RECORDINGS-LIVE-VALIDATION.md) for measured live results.
 
 ## Existing behavior and boundaries
 
@@ -10,9 +10,9 @@ Cloud code lives in `backend/neuroscope_api/cloud/`. It is disabled unless `NEUR
 
 The internal `CloudRecordings.open_private()` context manager prepares EDF validation/reopening: it checks recording and project ownership using the verified user's token, downloads a bounded private object, checks exact byte count and SHA-256, rechecks the catalog, opens the existing `EDFReader`, and cleans up when the context exits. It never registers cloud bytes in the unauthenticated local `Store` or returns a local recording ID. `for_validation=True` accepts pending/validating rows; ordinary reopen requires ready status and matching validated summary. The returned summary is **not persisted automatically**.
 
-## Proposed database changes
+## Approved database changes
 
-Apply in this order only after explicit approval:
+Applied once in this order under explicit approval; do not rerun:
 
 1. `supabase/migrations/202610230001_research_recordings.sql`
 2. `supabase/migrations/202610230002_private_recording_storage.sql`
@@ -63,7 +63,7 @@ Eight policies are added to `storage.objects`; existing policies and global gran
 | Restrictive `eeg_recordings_update_guard`                               | No object updates, moves into/out of this bucket or upserts by browser roles                                                  |
 | Restrictive `eeg_recordings_anon_guard`                                 | Anonymous database role cannot select/insert/update/delete these objects, even if an unrelated permissive policy is broad     |
 
-The restrictive policies allow other bucket IDs through unchanged; they do not grant access there. Tests deliberately install a broad preexisting policy and prove EEG isolation and unrelated-bucket behavior. The live inventory currently reports no existing Storage object policies. No filenames or untrusted path prefixes substitute for project and recording ownership.
+The restrictive policies allow other bucket IDs through unchanged; they do not grant access there. Tests deliberately install a broad preexisting policy and prove EEG isolation and unrelated-bucket behavior. The pre-migration live inventory reported no Storage object policies; the eight reviewed policies are now installed. No filenames or untrusted path prefixes substitute for project and recording ownership.
 
 SELECT remains allowed to the owner in deleting status because the Storage deletion API also requires SELECT. Owners can also read their own unvalidated original bytes; the scientific viewer/backend must not treat those as validated recordings. A deleted tombstone denies access to an object arriving late. No permanent public URLs are used; authenticated reads are preferred. Previously issued signed URLs generally remain bearer capabilities until expiration, so this phase does not mint them or promise instant signed-URL revocation.
 
@@ -116,7 +116,9 @@ Cloud processing uses unpredictable temporary directories (0700) and files (0600
 
 Tombstones/quota **are intentionally not released by untrusted clients**. In 2A, creating four reservations consumes that user's admission capacity until future trusted reconciliation. Do not enable an upload feature before the worker, trusted result persistence, quota release and retry protocol exist. Database and object storage cannot share one atomic transaction; this design denies access during partial failure and retains recovery records instead of falsely claiming orphan cleanup has completed. Do not delete object metadata using raw SQL: that can orphan physical bytes. [Supabase Storage schema guidance](https://supabase.com/docs/guides/storage/schema/design).
 
-## Approval and reproduction
+## Application procedure and reproduction
+
+The two files below were applied and verified; these steps record the procedure, not a request to rerun them. Any future schema change requires separate review and approval.
 
 1. Read `supabase/inspect-recording-schema.sql`; run it read-only before approval, including a fresh check if the live schema changed. Its result contains catalog definitions only.
 2. Review both proposed migrations, the eight Storage policies and three bounded definer RPCs. Verify an administrator owns new functions and the empty search path/EXECUTE grants remain intact.

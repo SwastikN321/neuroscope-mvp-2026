@@ -1,4 +1,6 @@
-# Phase 4B.2A validation — live approval checkpoint
+# Phase 4B.2A validation — pre-application checkpoint
+
+**Historical preparation report.** The exact migrations were subsequently approved and applied. See [CLOUD-RECORDINGS-LIVE-VALIDATION.md](CLOUD-RECORDINGS-LIVE-VALIDATION.md) for current hosted status. The results below describe the earlier preparation checkpoint.
 
 Date: 2026-10-23. Baseline: `9c913a8`. **No new live migration, bucket, cloud recording or upload was created.**
 
