@@ -7,6 +7,7 @@ import asyncio
 import hashlib
 import os
 import re
+import shutil
 import tempfile
 import time
 from contextlib import asynccontextmanager
@@ -38,7 +39,7 @@ class CloudRecording(BaseModel):
     channel_count: int | None = None
     content_sha256: str | None = None
 
-    def check(self, identity: Identity):
+    def check(self, identity: Identity, *, allow_terminal=False):
         expected = f"{identity.user_id}/{self.project_id}/{self.id}.edf"
         if self.owner_id != identity.user_id or self.object_path != expected:
             raise unavailable()
@@ -51,7 +52,7 @@ class CloudRecording(BaseModel):
             "deleted",
         }:
             raise unavailable()
-        if self.status in {"deleting", "deleted"}:
+        if not allow_terminal and self.status in {"deleting", "deleted"}:
             raise unavailable()
         if self.content_sha256 is not None and not re.fullmatch(
             "[0-9a-f]{64}", self.content_sha256
@@ -117,7 +118,9 @@ class CloudRecordings:
         except (httpx.HTTPError, ValueError):
             raise upstream_error() from None
 
-    async def get(self, recording_id: UUID, identity: Identity) -> CloudRecording:
+    async def get(
+        self, recording_id: UUID, identity: Identity, *, allow_terminal=False
+    ) -> CloudRecording:
         result = await self._get_rows(
             "research_recordings",
             {
@@ -131,7 +134,7 @@ class CloudRecordings:
             raise unavailable()
         try:
             row = CloudRecording.model_validate(result[0])
-            row.check(identity)
+            row.check(identity, allow_terminal=allow_terminal)
             if row.id != recording_id or row.file_size_bytes > self.settings.max_file_bytes:
                 raise unavailable()
             projects = await self._get_rows(
@@ -154,7 +157,14 @@ class CloudRecordings:
             raise unavailable() from None
 
     @asynccontextmanager
-    async def open_private(self, recording_id: UUID, identity: Identity, *, for_validation=False):
+    async def open_private(
+        self,
+        recording_id: UUID,
+        identity: Identity,
+        *,
+        for_validation=False,
+        copy_to: Path | None = None,
+    ):
         """Scoped reader lifetime. Always reauthorize, stream, hash, validate, then unlink.
 
         Internal preparation API only: no HTTP processing route and no metadata writes.
@@ -245,6 +255,8 @@ class CloudRecordings:
                         raise RecordingError(
                             422, "cloud_integrity", "Recording integrity check failed."
                         )
+                    if copy_to is not None:
+                        await run_in_threadpool(shutil.copyfile, path, copy_to)
                     yield reader, summary
                 except (httpx.HTTPError, TimeoutError):
                     raise upstream_error() from None

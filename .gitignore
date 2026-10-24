@@ -73,3 +73,6 @@ work/phase-4b1/
 
 # Cloud architecture inspection artifacts; no live recordings belong in Git
 work/phase-4b2a/
+
+# Cloud workflow QA, private backend configuration and temporary artifacts
+work/phase-4b2b/
