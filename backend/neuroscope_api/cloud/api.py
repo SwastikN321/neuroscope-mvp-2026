@@ -99,6 +99,11 @@ def create_cloud_app(config: BrokerSettings, base: Path, *, transport=None):
 
     Actor = Annotated[Identity, Depends(account)]
 
+    @app.get("/healthz")
+    async def readiness():
+        # Host readiness only. No identity, configuration, storage access or remote calls.
+        return {"status": "ok"}
+
     # Endpoint operations serialize scientific work and lifecycle transitions in this single worker.
     @app.get("/api/cloud/health")
     async def health(actor: Actor):

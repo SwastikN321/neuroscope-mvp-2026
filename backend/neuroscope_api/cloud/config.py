@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 class CloudSettings:
     url: str
     publishable_key: str = field(repr=False)
-    max_file_bytes: int = 50_000_000
+    max_file_bytes: int = 1_000_000
     request_timeout: float = 10.0
     download_timeout: float = 60.0
 
@@ -37,5 +37,5 @@ class CloudSettings:
         return cls(
             url=os.environ.get("NEUROSCOPE_SUPABASE_URL", "").rstrip("/"),
             publishable_key=os.environ.get("NEUROSCOPE_SUPABASE_PUBLISHABLE_KEY", ""),
-            max_file_bytes=int(os.environ.get("NEUROSCOPE_CLOUD_MAX_FILE_BYTES", "50000000")),
+            max_file_bytes=int(os.environ.get("NEUROSCOPE_CLOUD_MAX_FILE_BYTES", "1000000")),
         )

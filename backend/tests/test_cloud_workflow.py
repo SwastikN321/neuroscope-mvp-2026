@@ -389,3 +389,176 @@ def test_cloud_duration_cap_checked_before_remote_reservation(cloud):
     assert result.status_code == 422
     assert result.json()["error"]["code"] == "unsupported_edf"
     assert not upstream.rows and not upstream.objects and not app.state.workflow.store.entries
+
+
+def test_readiness_is_minimal_and_does_not_contact_supabase(cloud):
+    client, upstream, _, _ = cloud
+    response = client.get("/healthz")
+    assert response.status_code == 200 and response.json() == {"status": "ok"}
+    assert response.headers["cache-control"] == "no-store"
+    assert not upstream.requests
+    assert client.get("/healthz", headers={"Host": "attacker.example"}).status_code == 400
+    assert client.get("/api/cloud/health").status_code == 401
+
+
+def test_mvp_size_limit_enforced_before_reservation(cloud):
+    client, upstream, _, _ = cloud
+    health = client.get("/api/cloud/health", headers=headers()).json()
+    assert health["limits"]["upload_bytes"] == 1_000_000
+    response = client.post(
+        "/api/cloud/projects/" + P + "/recordings",
+        content=b"x" * 1_000_001,
+        headers={**headers(), "Content-Type": "application/octet-stream"},
+    )
+    assert response.status_code == 413
+    assert "1,000,000" in response.json()["error"]["message"]
+    assert not upstream.rows and not upstream.objects
+
+
+def test_production_cors_preflight_and_host_security(tmp_path):
+    from dataclasses import replace
+
+    config = replace(
+        BrokerSettings(SETTINGS, SECRET, frozenset({UUID(A)})),
+        allowed_origins=("https://neuroscope.example",),
+        allowed_hosts=("neuroscope-api.onrender.com",),
+    )
+    upstream = SupabaseDouble()
+    app = create_cloud_app(config, tmp_path / "hosted", transport=httpx.MockTransport(upstream))
+    with TestClient(app, base_url="https://neuroscope-api.onrender.com") as client:
+        headers_ = {
+            "Origin": "https://neuroscope.example",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "Authorization,Content-Type,X-Recording-Name",
+        }
+        good = client.options("/api/cloud/projects/" + P + "/recordings", headers=headers_)
+        assert good.status_code == 200
+        assert good.headers["access-control-allow-origin"] == "https://neuroscope.example"
+        assert "access-control-allow-credentials" not in good.headers
+        bad = client.options(
+            "/api/cloud/projects/" + P + "/recordings",
+            headers={**headers_, "Origin": "https://attacker.example"},
+        )
+        assert bad.status_code == 403 and "access-control-allow-origin" not in bad.headers
+        assert client.get("/healthz").status_code == 200
+        assert client.get("/api/recordings").status_code == 404
+        assert client.get("/api/cloud/health").status_code == 401
+        assert client.get("/healthz", headers={"Host": "attacker.example"}).status_code == 400
+        assert not upstream.requests
+
+
+def test_release_refuses_unverified_larger_upload_limit():
+    from dataclasses import replace
+
+    with pytest.raises(ValueError, match="MVP upload limit"):
+        BrokerSettings(replace(SETTINGS, max_file_bytes=50_000_000), SECRET, release_approved=True)
+
+
+def test_render_hostname_is_exact_and_platform_supplied(monkeypatch):
+    for key, value in {
+        "NEUROSCOPE_CLOUD_ENABLED": "true",
+        "NEUROSCOPE_SUPABASE_URL": SETTINGS.url,
+        "NEUROSCOPE_SUPABASE_PUBLISHABLE_KEY": SETTINGS.publishable_key,
+        "NEUROSCOPE_SUPABASE_SECRET_KEY": SECRET,
+        "NEUROSCOPE_CLOUD_TEST_USER_IDS": A,
+        "NEUROSCOPE_CLOUD_MAX_FILE_BYTES": "1000000",
+        "RENDER_EXTERNAL_HOSTNAME": "neuroscope-api-ab12.onrender.com",
+    }.items():
+        monkeypatch.setenv(key, value)
+    assert "neuroscope-api-ab12.onrender.com" in BrokerSettings.from_env().allowed_hosts
+    monkeypatch.setenv("RENDER_EXTERNAL_HOSTNAME", "*.onrender.com")
+    with pytest.raises(ValueError, match="Render service hostname"):
+        BrokerSettings.from_env()
+
+
+def test_exact_mvp_boundary_cold_reopen_and_independent_samples(cloud):
+    import hashlib
+    import runpy
+    from pathlib import Path
+
+    generator = runpy.run_path(
+        str(Path(__file__).parents[2] / "scripts/make-cloud-validation-fixture.py")
+    )["generate"]
+    client, upstream, app, tmp = cloud
+    path = tmp / "boundary.edf"
+    expected = generator(path, 1_000_000)
+    response = client.post(
+        "/api/cloud/projects/" + P + "/recordings",
+        content=path.read_bytes(),
+        headers={**headers(), "Content-Type": "application/octet-stream"},
+    )
+    assert response.status_code == 201, response.text
+    rid = response.json()["id"]
+    assert hashlib.sha256(next(iter(upstream.objects.values()))).hexdigest() == expected["sha256"]
+    app.state.workflow.cache.clear()
+    for key in list(app.state.workflow.store.entries):
+        app.state.workflow.store.delete(key)
+    base = "/api/cloud/recordings/" + rid
+    meta = client.get(base, headers=headers()).json()
+    assert meta["content_sha256"] == expected["sha256"]
+    assert meta["duration_seconds"] == 2400
+    channels = client.get(base + "/channels", headers=headers()).json()["channels"]
+    assert [c["sampling_frequency_hz"] for c in channels] == [200 / 3, 100 / 3, 200 / 3]
+    assert [c["sample_count"] for c in channels] == expected["eeg_sample_counts"]
+    exported = client.get(
+        base + "/export.csv",
+        params={
+            "channel_ids": channels[0]["id"],
+            "start_seconds": "2399.85",
+            "end_seconds": "2400",
+        },
+        headers=headers(),
+    )
+    assert exported.status_code == 200
+    rows = list(csv.DictReader(io.StringIO(exported.text)))
+    assert len(rows) == 10 and rows[-1]["sample_index"] == "159999"
+    for row in rows:
+        index = int(row["sample_index"])
+        digital_value = [-32768, -1000, 0, 1000, 32767][(index % 4000) % 5]
+        reference = -200 + (digital_value + 32768) * 300 / 65535
+        assert abs(float(row["amplitude_uv"]) - reference) <= 1e-10
+        assert abs(float(row["time_seconds"]) - index * 3 / 200) <= 1e-12
+
+
+def test_lower_upload_cap_does_not_strand_legacy_cleanup(cloud):
+    client, upstream, _, _ = cloud
+    rid, _ = upload(cloud)
+    upstream.rows[rid]["file_size_bytes"] = 49_999_360
+    assert client.get("/api/cloud/recordings/" + rid, headers=headers()).status_code == 404
+    assert client.delete("/api/cloud/recordings/" + rid, headers=headers(B)).status_code == 404
+    response = client.delete("/api/cloud/recordings/" + rid, headers=headers())
+    assert response.status_code == 200 and response.json()["quota_released"]
+    assert rid not in upstream.rows and not upstream.objects
+
+
+@pytest.mark.parametrize("stage", ["auth", "upload"])
+def test_raw_tls_failures_are_sanitized_without_bypassing_verification(tmp_path, stage):
+    import ssl
+
+    upstream = SupabaseDouble()
+
+    async def handler(request):
+        if (stage == "auth" and request.url.path == "/auth/v1/user") or (
+            stage == "upload"
+            and request.url.path.startswith("/storage/")
+            and request.method == "POST"
+        ):
+            raise ssl.SSLError("TLS alert; private diagnostic must not reach response")
+        return await upstream(request)
+
+    config = BrokerSettings(SETTINGS, SECRET, frozenset({UUID(A)}))
+    app = create_cloud_app(config, tmp_path / "tls", transport=httpx.MockTransport(handler))
+    with TestClient(app, base_url="http://127.0.0.1:8001") as client:
+        data = make_edf(tmp_path / "tls.edf").read_bytes()
+        response = client.post(
+            "/api/cloud/projects/" + P + "/recordings",
+            content=data,
+            headers={**headers(), "Content-Type": "application/octet-stream"},
+        )
+        assert response.status_code == 503
+        assert response.json()["error"]["code"] == (
+            "auth_unavailable" if stage == "auth" else "cloud_transfer"
+        )
+        assert "private diagnostic" not in response.text and SECRET not in response.text
+        assert not upstream.objects
+        assert len(upstream.rows) == (0 if stage == "auth" else 1)

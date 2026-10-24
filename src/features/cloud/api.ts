@@ -2,6 +2,7 @@ import { authClient } from '../auth/client';
 import { ApiError } from '../eeg/localApi';
 export const cloudEnabled =
   import.meta.env.VITE_CLOUD_RECORDINGS_ENABLED === 'true';
+export const MVP_UPLOAD_BYTES = 1_000_000;
 const configured = import.meta.env.VITE_CLOUD_API_ORIGIN?.trim() || '';
 export function cloudEndpoint(path: string) {
   if (!cloudEnabled)
@@ -124,10 +125,18 @@ export async function uploadCloudEDF(
   progress: (value: number) => void,
   signal: AbortSignal,
   userId: string,
+  maxFileBytes = MVP_UPLOAD_BYTES,
 ) {
-  if (!/\.edf$/i.test(file.name) || file.size < 256 || file.size > 50_000_000)
+  const limit = Math.min(MVP_UPLOAD_BYTES, maxFileBytes);
+  if (
+    !Number.isSafeInteger(limit) ||
+    limit < 256 ||
+    !/\.edf$/i.test(file.name) ||
+    file.size < 256 ||
+    file.size > limit
+  )
     throw new ApiError(
-      'Choose an EDF file from 256 to 50,000,000 bytes (50 MB). Larger recordings remain available through local development.',
+      `Choose an EDF file from 256 to ${Number.isSafeInteger(limit) && limit >= 256 ? limit.toLocaleString('en-US') : MVP_UPLOAD_BYTES.toLocaleString('en-US')} bytes. Larger cloud uploads are unavailable in this MVP.`,
     );
   const url = cloudEndpoint(`/api/cloud/projects/${projectId}/recordings`),
     token = await bearer(userId);

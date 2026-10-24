@@ -7,6 +7,7 @@ import asyncio
 import hashlib
 import os
 import re
+import ssl
 import shutil
 import tempfile
 import time
@@ -115,7 +116,7 @@ class CloudRecordings:
             if not isinstance(result, list) or len(result) > 1:
                 raise upstream_error()
             return result
-        except (httpx.HTTPError, ValueError):
+        except (httpx.HTTPError, ssl.SSLError, ValueError):
             raise upstream_error() from None
 
     async def get(
@@ -135,7 +136,11 @@ class CloudRecordings:
         try:
             row = CloudRecording.model_validate(result[0])
             row.check(identity, allow_terminal=allow_terminal)
-            if row.id != recording_id or row.file_size_bytes > self.settings.max_file_bytes:
+            # Lowering the upload/read cap must never strand an owner's older
+            # recovery rows. Cleanup still enforces ownership, path and project.
+            if row.id != recording_id or (
+                not allow_terminal and row.file_size_bytes > self.settings.max_file_bytes
+            ):
                 raise unavailable()
             projects = await self._get_rows(
                 "research_projects",
@@ -268,7 +273,7 @@ class CloudRecordings:
                             finally:
                                 raise
                     yield reader, summary
-                except (httpx.HTTPError, TimeoutError):
+                except (httpx.HTTPError, ssl.SSLError, TimeoutError):
                     raise upstream_error() from None
                 except OSError:
                     raise RecordingError(

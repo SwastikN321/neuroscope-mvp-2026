@@ -23,6 +23,8 @@ class BrokerSettings:
             raise ValueError("A server-only Supabase secret API key is required")
         if not self.release_approved and not self.test_users:
             raise ValueError("Cloud testing requires explicit account UUID allowlisting")
+        if self.release_approved and self.cloud.max_file_bytes > 1_000_000:
+            raise ValueError("Public MVP upload limit cannot exceed 1,000,000 bytes")
 
         def valid_origin(origin):
             if origin in {"http://127.0.0.1:5173", "http://localhost:5173"}:
@@ -54,6 +56,14 @@ class BrokerSettings:
         cloud = CloudSettings.from_env()
         if cloud is None:
             raise ValueError("Cloud broker is disabled; explicit opt-in required")
+        hosts = os.environ.get("NEUROSCOPE_CLOUD_HOSTS", "127.0.0.1,localhost,[::1]").split(",")
+        # Render supplies this exact service hostname before its first deploy.
+        # No wildcard or request-derived Host/X-Forwarded-Host is ever trusted.
+        render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")
+        if render_host:
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]*\.onrender\.com", render_host):
+                raise ValueError("Invalid Render service hostname")
+            hosts.append(render_host)
         return cls(
             cloud=cloud,
             secret_key=os.environ.get("NEUROSCOPE_SUPABASE_SECRET_KEY", ""),
@@ -68,7 +78,5 @@ class BrokerSettings:
                     "NEUROSCOPE_CLOUD_ORIGINS", "http://127.0.0.1:5173,http://localhost:5173"
                 ).split(",")
             ),
-            allowed_hosts=tuple(
-                os.environ.get("NEUROSCOPE_CLOUD_HOSTS", "127.0.0.1,localhost,[::1]").split(",")
-            ),
+            allowed_hosts=tuple(hosts),
         )

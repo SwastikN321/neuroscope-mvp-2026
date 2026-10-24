@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import re
+import ssl
 from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import UUID
@@ -93,7 +94,7 @@ class CloudWorkflow:
                     raise unavailable()
                 raise upstream_error()
             return response.json()
-        except (httpx.HTTPError, ValueError):
+        except (httpx.HTTPError, ssl.SSLError, ValueError):
             raise upstream_error() from None
 
     async def listing(self, project_id, actor):
@@ -135,7 +136,7 @@ class CloudWorkflow:
                     "max_file_bytes": self.config.cloud.max_file_bytes,
                 },
             }
-        except (httpx.HTTPError, ValueError, TypeError):
+        except (httpx.HTTPError, ssl.SSLError, ValueError, TypeError):
             raise upstream_error() from None
 
     def room(self):
@@ -167,7 +168,9 @@ class CloudWorkflow:
         length = request.headers.get("content-length", "")
         if not length.isdigit() or not 256 <= int(length) <= self.config.cloud.max_file_bytes:
             raise RecordingError(
-                413, "cloud_file_limit", "Choose an EDF between 256 and 50,000,000 bytes."
+                413,
+                "cloud_file_limit",
+                f"Choose an EDF between 256 and {self.config.cloud.max_file_bytes:,} bytes.",
             )
         self.room()
         key, path, file = self.store.begin_upload()
@@ -248,7 +251,7 @@ class CloudWorkflow:
                 raise upstream_error()
             self.cache[str(ready.id)] = (actor.user_id, key)
             return {"id": str(ready.id), "project_id": str(project_id), "status": "ready"}
-        except (TimeoutError, httpx.HTTPError) as error:
+        except (TimeoutError, httpx.HTTPError, ssl.SSLError) as error:
             logger.warning("Cloud transfer interrupted: %s", type(error).__name__)
             raise RecordingError(
                 503,
@@ -309,7 +312,7 @@ class CloudWorkflow:
             )
             if response.status_code not in (200, 204):
                 raise upstream_error()
-        except httpx.HTTPError:
+        except (httpx.HTTPError, ssl.SSLError):
             raise upstream_error() from None
         await self.rpc("finish_recording_deletion", {"p_recording_id": str(recording_id)}, actor)
         released = await self.rpc(

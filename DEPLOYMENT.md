@@ -1,3 +1,5 @@
+> **October 24 MVP preparation:** the current target is Vercel + the separate authenticated Render cloud API. See [MVP-DEPLOYMENT.md](MVP-DEPLOYMENT.md) and [MVP-READINESS.md](MVP-READINESS.md). The Cloudflare/static-only instructions below are historical; they do not deploy the current research platform. No public deployment or cloud release has been authorized.
+
 # NeuroScope public preview — deployment preparation
 
 Prepared 2026-10-14 from Phase 3A (`23792fb`). **No remote was added, no push was made, and no Cloudflare project or public deployment was created.** That checkpoint covered the static frontend with synthetic EEG only, before backend development.

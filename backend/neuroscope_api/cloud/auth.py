@@ -8,6 +8,7 @@ import base64
 import json
 import math
 import re
+import ssl
 import time
 from dataclasses import dataclass, field
 from uuid import UUID
@@ -55,7 +56,7 @@ class TokenVerifier:
                 timeout=self.settings.request_timeout,
                 follow_redirects=False,
             )
-        except httpx.HTTPError:
+        except (httpx.HTTPError, ssl.SSLError):
             raise RecordingError(
                 503, "auth_unavailable", "Account verification is unavailable."
             ) from None

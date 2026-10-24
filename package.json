@@ -16,12 +16,13 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run lint && npm run format:check && npm run test && npm run test:rls && npm run test:storage-rls && npm run test:broker-rls && npm run build",
+    "check": "npm run lint && npm run format:check && npm run test && npm run test:rls && npm run test:storage-rls && npm run test:broker-rls && npm run test:deployment && npm run build",
     "prebuild": "node scripts/prepare-notices.cjs",
     "postbuild": "node scripts/audit-build.cjs",
     "test:rls": "node scripts/test-project-rls.mjs",
     "test:storage-rls": "node scripts/test-recording-rls.mjs",
-    "test:broker-rls": "node scripts/test-cloud-broker-rls.mjs"
+    "test:broker-rls": "node scripts/test-cloud-broker-rls.mjs",
+    "test:deployment": "node scripts/test-deployment-config.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",

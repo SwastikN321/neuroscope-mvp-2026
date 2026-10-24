@@ -7,6 +7,7 @@ import {
   uploadCloudEDF,
   type CloudListing,
   type CloudRecording,
+  MVP_UPLOAD_BYTES,
 } from './api';
 import './cloud.css';
 export function ProjectRecordings({ projectId }: { projectId: string }) {
@@ -70,6 +71,7 @@ export function ProjectRecordings({ projectId }: { projectId: string }) {
         setProgress,
         c.signal,
         user.id,
+        listing?.quota.max_file_bytes ?? MVP_UPLOAD_BYTES,
       );
       if (mounted.current) {
         setFile(null);
@@ -146,7 +148,9 @@ export function ProjectRecordings({ projectId }: { projectId: string }) {
       {listing && (
         <p className="cloud-quota">
           {listing.quota.used_slots} / {listing.quota.max_slots} account slots
-          used · 50 MB per recording
+          used ·{' '}
+          {Math.min(MVP_UPLOAD_BYTES, listing.quota.max_file_bytes) / 1_000_000}{' '}
+          MB per recording
         </p>
       )}
       <form
@@ -180,8 +184,13 @@ export function ProjectRecordings({ projectId }: { projectId: string }) {
           />
         </label>
         <p>
-          Maximum 50,000,000 bytes. Transfers are not resumable. After an
-          interruption, refresh before retrying.
+          Maximum{' '}
+          {Math.min(
+            MVP_UPLOAD_BYTES,
+            listing?.quota.max_file_bytes ?? MVP_UPLOAD_BYTES,
+          ).toLocaleString('en-US')}{' '}
+          bytes. Larger cloud uploads are unavailable in this MVP. Transfers are
+          not resumable. After an interruption, refresh before retrying.
         </p>
         <Button
           disabled={

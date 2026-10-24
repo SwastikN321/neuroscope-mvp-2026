@@ -1,0 +1,37 @@
+# Preparation only: importing this Blueprint creates a public service. Approval required.
+services:
+  - type: web
+    name: neuroscope-api
+    runtime: python
+    plan: free
+    autoDeployTrigger: 'off'
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python -m backend.neuroscope_api.cloud_server
+    healthCheckPath: /healthz
+    envVars:
+      - key: NEUROSCOPE_CLOUD_ENABLED
+        value: 'true'
+      - key: NEUROSCOPE_CLOUD_RELEASE_APPROVED
+        value: 'false'
+      - key: NEUROSCOPE_CLOUD_MAX_FILE_BYTES
+        value: '1000000'
+      - key: NEUROSCOPE_CLOUD_BIND
+        value: 0.0.0.0
+      - key: NEUROSCOPE_CLOUD_CACHE
+        value: /tmp/neuroscope-cloud-cache
+      - key: MPLCONFIGDIR
+        value: /tmp/neuroscope-matplotlib
+      - key: OPENBLAS_NUM_THREADS
+        value: '1'
+      - key: OMP_NUM_THREADS
+        value: '1'
+      - key: NEUROSCOPE_SUPABASE_URL
+        sync: false
+      - key: NEUROSCOPE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: NEUROSCOPE_SUPABASE_SECRET_KEY
+        sync: false
+      - key: NEUROSCOPE_CLOUD_TEST_USER_IDS
+        sync: false
+      - key: NEUROSCOPE_CLOUD_ORIGINS
+        sync: false

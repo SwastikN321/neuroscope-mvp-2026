@@ -101,3 +101,33 @@ it('rejects truncated CSV payloads', async () => {
     ),
   ).rejects.toThrow('Incomplete');
 });
+
+it('rejects an upload above the MVP cap before creating a transfer', async () => {
+  const { uploadCloudEDF } = await import('./api');
+  await expect(
+    uploadCloudEDF(
+      'p',
+      new File([new Uint8Array(1000001)], 'fixture.edf'),
+      'test',
+      vi.fn(),
+      new AbortController().signal,
+      'owner',
+    ),
+  ).rejects.toThrow('1,000,000 bytes');
+  expect(session).not.toHaveBeenCalled();
+});
+it('honors a smaller backend upload limit', async () => {
+  const { uploadCloudEDF } = await import('./api');
+  await expect(
+    uploadCloudEDF(
+      'p',
+      new File([new Uint8Array(1025)], 'fixture.edf'),
+      'test',
+      vi.fn(),
+      new AbortController().signal,
+      'owner',
+      1024,
+    ),
+  ).rejects.toThrow('1,024 bytes');
+  expect(session).not.toHaveBeenCalled();
+});

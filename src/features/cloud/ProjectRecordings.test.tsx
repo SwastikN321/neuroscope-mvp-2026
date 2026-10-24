@@ -16,6 +16,7 @@ vi.mock('../auth/context', () => ({
 vi.mock('./api', () => ({
   cloudRequest: mocks.request,
   uploadCloudEDF: mocks.upload,
+  MVP_UPLOAD_BYTES: 1_000_000,
 }));
 const row = {
   id: 'r',
@@ -29,7 +30,7 @@ const row = {
 };
 const listing = {
   recordings: [row],
-  quota: { used_slots: 1, max_slots: 4, max_file_bytes: 50000000 },
+  quota: { used_slots: 1, max_slots: 4, max_file_bytes: 1000000 },
 };
 beforeEach(() => {
   vi.clearAllMocks();
@@ -141,4 +142,25 @@ it('focuses the safe action and returns focus when deletion is canceled', async 
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   expect(trigger).toHaveFocus();
   expect(mocks.request.mock.calls.some((c) => c[2] === 'DELETE')).toBe(false);
+});
+
+it('shows the server limit and passes it to the upload validator', async () => {
+  mocks.request.mockResolvedValue({
+    ...listing,
+    quota: { ...listing.quota, max_file_bytes: 1000000 },
+  });
+  open();
+  await screen.findByText(/1 MB per recording/);
+  expect(screen.getByText(/Maximum 1,000,000 bytes/)).toBeVisible();
+  fireEvent.change(screen.getByLabelText('EDF file'), {
+    target: { files: [new File([new Uint8Array(1024)], 'fixture.edf')] },
+  });
+  await act(async () => {
+    fireEvent.submit(
+      screen
+        .getByRole('button', { name: 'Upload EDF privately' })
+        .closest('form')!,
+    );
+  });
+  expect(mocks.upload.mock.calls[0]?.[6]).toBe(1000000);
 });

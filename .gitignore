@@ -38,6 +38,7 @@ work/phase-3a/
 work/deployment/
 public/THIRD-PARTY-NOTICES.txt
 .wrangler/
+.vercel/
 .dev.vars
 .dev.vars.*
 
