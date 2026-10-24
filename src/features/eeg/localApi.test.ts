@@ -224,3 +224,64 @@ it('uses the native CSV endpoint with bounded blob validation and exposes source
     source.exportCSV!(['ch001'], { start: 0, end: 1 }),
   ).rejects.toThrow();
 });
+
+it('routes cloud samples, cached reauthorization and CSV through the authenticated transport', async () => {
+  let revoked = false;
+  const missing = vi.fn();
+  const blob = new Blob(['sample_index,amplitude_uv\n0,-200\n']);
+  const send = vi.fn(
+    async (
+      path: string,
+      _signal?: AbortSignal,
+      _method?: string,
+      format?: string,
+    ): Promise<unknown> => {
+      if (revoked) throw new ApiError('No longer available', 404);
+      if (format === 'blob') return blob;
+      if (path.endsWith('/channels')) return { channels };
+      if (path.includes('/display'))
+        return {
+          bins: [
+            {
+              start_sample: 0,
+              end_sample: 7680,
+              min: -200,
+              max: 111,
+              min_sample: 7,
+              max_sample: 5,
+            },
+          ],
+        };
+      return meta;
+    },
+  );
+  const source = await createEDFSource(meta, limits, missing, undefined, {
+    request: send as <T>(
+      path: string,
+      signal?: AbortSignal,
+      method?: string,
+      format?: 'json' | 'blob',
+    ) => Promise<T>,
+    path: '/api/cloud/recordings/test',
+    name: 'Private test EDF',
+  });
+  expect(source.recording.name).toBe('Private test EDF');
+  const overview = await source.readOverview('ch000', 100);
+  expect(overview[0]!.min).toBe(-200);
+  expect(await source.readOverview('ch000', 100)).toBe(overview);
+  expect(send.mock.calls.at(-1)![0]).toBe('/api/cloud/recordings/test');
+  expect(await source.exportCSV!(['ch000'], { start: 0, end: 1 })).toBe(blob);
+  expect(send.mock.calls.at(-1)![0]).toContain(
+    '/api/cloud/recordings/test/export.csv',
+  );
+  expect(
+    send.mock.calls.every(([path]) =>
+      path.startsWith('/api/cloud/recordings/test'),
+    ),
+  ).toBe(true);
+  revoked = true;
+  await expect(source.readOverview('ch000', 100)).rejects.toThrow(
+    'No longer available',
+  );
+  expect(missing).toHaveBeenCalledOnce();
+});

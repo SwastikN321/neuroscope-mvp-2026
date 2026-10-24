@@ -78,7 +78,9 @@ export function RecordingMetadata({
       <p className="eeg-synthetic-notice">
         {recording.source === 'synthetic'
           ? 'SYNTHETIC DATA ONLY'
-          : 'LOCAL RESEARCH DATA'}
+          : recording.storage === 'private-cloud'
+            ? 'PRIVATE CLOUD RESEARCH DATA'
+            : 'LOCAL RESEARCH DATA'}
         <br />
         <span>
           {recording.source === 'synthetic'

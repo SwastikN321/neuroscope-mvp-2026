@@ -150,7 +150,7 @@ npm run dev</code></pre>
           Open the local URL printed by Vite, go to <code>/app</code>, and
           choose <strong>Upload Recording</strong>. The backend launcher binds
           to loopback; do not expose it through a public host, tunnel or proxy.
-          The backend currently supports macOS/Linux. EDF uploads are
+          The backend currently supports macOS/Linux. Local EDF uploads are
           intentionally disabled in production builds; a static preview offers
           the synthetic demo only.
         </p>
@@ -268,12 +268,14 @@ npm run dev</code></pre>
           The synthetic demo contains no patient data. In local development,
           uploaded EDF bytes are sent to a service on the same computer and
           stored in private temporary files outside public directories. The
-          application has no cloud recording storage. When configured, account
-          sign-in sends account information to Supabase Auth. Private project
-          names and descriptions are stored in the Supabase database when
-          project management is enabled. EEG measurements and annotations are
-          not stored in these projects. Signing in does not upload EEG data or
-          grant private ownership of local recordings.
+          private cloud workflow is restricted to approved test accounts while
+          security validation is pending; it is not generally available. When
+          configured, account sign-in sends account information to Supabase
+          Auth. Private project names and descriptions are stored in the
+          Supabase database when project management is enabled. Cloud test
+          recordings use a separate private Storage bucket and owner-scoped
+          recording metadata. Annotations remain session-only. Signing in does
+          not upload EEG data or grant private ownership of local recordings.
         </p>
         <p>
           The default lifetime is one hour. Expired recordings are rejected on

@@ -1,5 +1,6 @@
 """End-to-end broker with isolated Supabase HTTP doubles; actual EDF/scientific code."""
 
+import asyncio
 import base64
 import csv
 import io
@@ -33,6 +34,7 @@ class SupabaseDouble:
         self.objects = {}
         self.requests = []
         self.fail_upload = False
+        self.stall_upload = False
 
     async def __call__(self, request):
         self.requests.append(request.url.path)
@@ -120,6 +122,8 @@ class SupabaseDouble:
                 assert (
                     request.headers["apikey"] == SECRET and request.headers["x-upsert"] == "false"
                 )
+                if self.stall_upload:
+                    await asyncio.Event().wait()
                 if self.fail_upload:
                     return httpx.Response(503)
                 key = path.split("/eeg-recordings/", 1)[1]
@@ -324,3 +328,51 @@ def test_auth_gate_and_no_local_api(cloud):
     assert client.get("/api/recordings").status_code == 404
     assert client.get("/openapi.json").status_code == 404
     assert not upstream.rows
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "https://example.test/path",
+        "https://user:pw@example.test",
+        "https://example.test?x",
+        "https://example.test#x",
+        "https://example.test/",
+        "https://example.test:bad",
+        "https://",
+        "http://remote.test",
+        "https://example.test ",
+    ],
+)
+def test_broker_rejects_non_origin_configuration(origin):
+    with pytest.raises(ValueError, match="exact HTTPS"):
+        BrokerSettings(SETTINGS, SECRET, frozenset({UUID(A)}), allowed_origins=(origin,))
+
+
+def test_broker_accepts_exact_https_origin():
+    config = BrokerSettings(
+        SETTINGS,
+        SECRET,
+        frozenset({UUID(A)}),
+        allowed_origins=("https://preview.example.test:8443",),
+    )
+    assert config.allowed_origins == ("https://preview.example.test:8443",)
+
+
+def test_remote_upload_has_total_deadline_and_keeps_recovery_slot(cloud, monkeypatch):
+    client, upstream, app, tmp = cloud
+    upstream.stall_upload = True
+    real_timeout = asyncio.timeout
+    monkeypatch.setattr(
+        asyncio, "timeout", lambda seconds: real_timeout(0.1 if seconds == 120 else seconds)
+    )
+    data = make_edf(tmp / "fixture.edf").read_bytes()
+    response = client.post(
+        "/api/cloud/projects/" + P + "/recordings",
+        content=data,
+        headers={**headers(), "content-type": "application/octet-stream"},
+    )
+    assert response.status_code == 503
+    assert len(upstream.rows) == 1 and not upstream.objects
+    assert not app.state.workflow.store.entries
+    assert next(iter(upstream.rows.values()))["status"] == "validating"

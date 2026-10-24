@@ -468,3 +468,60 @@ def test_auth_timeout_is_redacted_and_fails_closed():
             assert err.value.status == 503 and "sentinel" not in str(err.value)
 
     asyncio.run(run())
+
+
+def test_cancel_during_private_copy_joins_worker_before_cleanup(tmp_path, monkeypatch):
+    import shutil
+    import threading
+
+    data = make_edf(tmp_path / "fixture.edf").read_bytes()
+    private = tmp_path / "private"
+    private.mkdir()
+    monkeypatch.setattr("tempfile.tempdir", str(private))
+    http, _ = transport(
+        row(
+            data,
+            status="ready",
+            duration_seconds="4",
+            channel_count=4,
+            content_sha256=hashlib.sha256(data).hexdigest(),
+        ),
+        data,
+    )
+    release = threading.Event()
+    original_copy = shutil.copyfile
+    destination = tmp_path / "cache.edf"
+
+    async def run():
+        started = asyncio.Event()
+        loop = asyncio.get_running_loop()
+
+        def slow_copy(source, target):
+            loop.call_soon_threadsafe(started.set)
+            assert release.wait(5), "copy test must release worker"
+            assert source.exists(), "temporary source removed while worker still uses it"
+            return original_copy(source, target)
+
+        monkeypatch.setattr(shutil, "copyfile", slow_copy)
+        async with httpx.AsyncClient(transport=http) as client:
+
+            async def consume():
+                async with CloudRecordings(SETTINGS, client).open_private(
+                    UUID(R), identity(), copy_to=destination
+                ):
+                    pytest.fail("Canceled copy must not expose reader")
+
+            task = asyncio.create_task(consume())
+            try:
+                await asyncio.wait_for(started.wait(), 5)
+                task.cancel()
+                await asyncio.sleep(0)
+                assert not task.done()
+            finally:
+                release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+            assert not list(private.iterdir())
+            assert destination.read_bytes() == data
+
+    asyncio.run(run())

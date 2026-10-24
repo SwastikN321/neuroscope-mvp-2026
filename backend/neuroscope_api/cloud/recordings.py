@@ -256,7 +256,17 @@ class CloudRecordings:
                             422, "cloud_integrity", "Recording integrity check failed."
                         )
                     if copy_to is not None:
-                        await run_in_threadpool(shutil.copyfile, path, copy_to)
+                        copy_task = asyncio.create_task(
+                            run_in_threadpool(shutil.copyfile, path, copy_to)
+                        )
+                        try:
+                            await asyncio.shield(copy_task)
+                        except asyncio.CancelledError:
+                            # Keep both paths alive until the copy worker has stopped.
+                            try:
+                                await copy_task
+                            finally:
+                                raise
                     yield reader, summary
                 except (httpx.HTTPError, TimeoutError):
                     raise upstream_error() from None

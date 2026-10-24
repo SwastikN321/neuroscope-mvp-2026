@@ -3,6 +3,7 @@
 import os
 import re
 from dataclasses import dataclass, field
+from urllib.parse import urlsplit
 from uuid import UUID
 
 from .config import CloudSettings
@@ -22,13 +23,28 @@ class BrokerSettings:
             raise ValueError("A server-only Supabase secret API key is required")
         if not self.release_approved and not self.test_users:
             raise ValueError("Cloud testing requires explicit account UUID allowlisting")
-        if any(
-            not (
-                o.startswith("https://") or o in {"http://127.0.0.1:5173", "http://localhost:5173"}
-            )
-            or o.endswith("/")
-            for o in self.allowed_origins
-        ):
+
+        def valid_origin(origin):
+            if origin in {"http://127.0.0.1:5173", "http://localhost:5173"}:
+                return True
+            try:
+                parsed = urlsplit(origin)
+                return (
+                    parsed.scheme == "https"
+                    and bool(parsed.hostname)
+                    and not parsed.username
+                    and not parsed.password
+                    and not parsed.path
+                    and not parsed.query
+                    and not parsed.fragment
+                    and not any(c.isspace() for c in origin)
+                    and (parsed.port is None or 1 <= parsed.port <= 65535)
+                    and origin == "https://" + parsed.netloc
+                )
+            except ValueError:
+                return False
+
+        if not self.allowed_origins or not all(map(valid_origin, self.allowed_origins)):
             raise ValueError("Use exact HTTPS frontend origins (loopback allowed for development)")
         if not self.allowed_hosts or any("*" in h or "/" in h for h in self.allowed_hosts):
             raise ValueError("Use explicit API hostnames")

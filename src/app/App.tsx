@@ -14,6 +14,7 @@ const Dashboard = lazy(() => import('../features/auth/Dashboard'));
 const ProjectDetails = lazy(
   () => import('../features/projects/ProjectDetails'),
 );
+const CloudWorkspace = lazy(() => import('../features/cloud/CloudWorkspace'));
 const WorkspacePage = lazy(() => import('../pages/WorkspacePage'));
 
 export function App() {
@@ -25,7 +26,8 @@ export function App() {
 }
 function AppRoutes() {
   const pathname = useLocation().pathname.replace(/\/$/, '');
-  const workspace = pathname === '/app';
+  const workspace =
+    pathname === '/app' || pathname.startsWith('/app/recordings/');
   const account =
     [
       '/login',
@@ -53,6 +55,10 @@ function AppRoutes() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/app" element={<WorkspacePage />} />
+            <Route
+              path="/app/recordings/:recordingId"
+              element={<CloudWorkspace />}
+            />
             <Route
               path="/login"
               element={<AuthPage key="login" mode="login" />}

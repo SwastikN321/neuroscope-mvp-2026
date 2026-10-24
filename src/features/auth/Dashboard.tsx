@@ -1,3 +1,4 @@
+import { cloudEnabled } from '../cloud/api';
 import { Link } from 'react-router';
 import type { User } from '@supabase/supabase-js';
 import { RequireAccount } from './RequireAccount';
@@ -78,8 +79,9 @@ function AccountDashboard({ user }: { user: User }) {
         <div>
           <h2>The EEG workspace is always open.</h2>
           <p>
-            Explore synthetic EEG or your local EDF recordings. Project details
-            persist; recordings and annotations are not saved to projects yet.
+            {cloudEnabled
+              ? 'Open a project to upload or reopen a private EDF. Session annotations can be exported as JSON; they are not saved to cloud projects.'
+              : 'Explore synthetic EEG or your local EDF recordings. Project details persist; recordings and annotations are not saved to projects yet.'}
           </p>
         </div>
         <ButtonLink to="/app" variant="secondary">

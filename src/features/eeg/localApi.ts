@@ -16,7 +16,7 @@ export type ApiMetadata = {
   expires_in_seconds: number;
   channel_type_note: string;
 };
-type Limits = {
+export type Limits = {
   upload_bytes: number;
   window_seconds: number;
   window_values: number;
@@ -224,9 +224,11 @@ export async function createEDFSource(
   limits: Limits,
   onMissing: () => void,
   signal?: AbortSignal,
+  transport?: { request: typeof request; path: string; name: string },
 ): Promise<EEGDataSource> {
-  const path = `/api/recordings/${meta.id}`;
-  const available = await request<{ channels: ApiChannel[] }>(
+  const path = transport?.path ?? `/api/recordings/${meta.id}`;
+  const send = transport?.request ?? request;
+  const available = await send<{ channels: ApiChannel[] }>(
     `${path}/channels`,
     signal,
   );
@@ -238,7 +240,7 @@ export async function createEDFSource(
     identity: meta.content_sha256
       ? { kind: 'sha256' as const, value: meta.content_sha256 }
       : undefined,
-    name: 'Local EDF recording',
+    name: transport?.name ?? 'Local EDF recording',
     source: 'edf' as const,
     sampleRateHz: rate,
     sampleCount: Math.round(meta.duration_seconds * rate),
@@ -264,7 +266,7 @@ export async function createEDFSource(
   let overview: OverviewBin[] | undefined;
   async function read<T>(url: string, signal?: AbortSignal) {
     try {
-      return await request<T>(url, signal);
+      return await send<T>(url, signal);
     } catch (error) {
       if (
         error instanceof ApiError &&
@@ -297,12 +299,7 @@ export async function createEDFSource(
         end_seconds: String(range.end),
       });
       ids.forEach((id) => params.append('channel_ids', id));
-      return request<Blob>(
-        `${path}/export.csv?${params}`,
-        signal,
-        'GET',
-        'blob',
-      );
+      return send<Blob>(`${path}/export.csv?${params}`, signal, 'GET', 'blob');
     },
     async readWindow(start, end, ids, signal) {
       // Revalidate even on cache hits, so deleted/expired resources cannot linger.
@@ -425,7 +422,10 @@ export async function createEDFSource(
       return data.bins[0]!.min;
     },
     async readOverview(id, bins, signal) {
-      if (overview) return overview;
+      if (overview) {
+        if (transport) await read<ApiMetadata>(path, signal);
+        return overview;
+      }
       const channel = recording.channels.find((c) => c.id === id)!;
       const data = await display(id, 0, channel.sampleCount, bins, signal);
       overview = data.bins.map((b) => ({

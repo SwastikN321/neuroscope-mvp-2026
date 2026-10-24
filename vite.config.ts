@@ -28,6 +28,11 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       proxy: {
+        '/cloud-eeg': {
+          target: 'http://127.0.0.1:8001',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/cloud-eeg/, ''),
+        },
         '/local-eeg': {
           target,
           changeOrigin: true,

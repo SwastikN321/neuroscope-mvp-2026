@@ -12,6 +12,7 @@ export type EEGRecording = {
   identity?: { kind: 'sha256' | 'synthetic-generator'; value: string };
   name: string;
   source: 'synthetic' | 'edf';
+  storage?: 'private-cloud';
   /** Navigation grid only for mixed-rate recordings; channel rates govern measurements. */
   sampleRateHz: number;
   sampleCount: number;

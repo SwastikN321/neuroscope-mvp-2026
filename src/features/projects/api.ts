@@ -33,6 +33,8 @@ export function projectError(error: unknown): string {
     return 'Private projects are not available in this environment yet. Contact the site owner, or continue with the guest EEG demo.';
   if (code === '42501' || code === 'PGRST301' || code === 'PGRST302')
     return 'Project access could not be authorized. Check your session and sign in again if needed.';
+  if (code === '23001' || code === '23503')
+    return 'Delete this project’s cloud recordings first. If a transfer was interrupted, retry recording cleanup after its displayed lease expires, then delete the empty project.';
   if (code === '23514' || code === '23502')
     return 'The project details did not meet the database requirements. Check the name and description.';
   return 'The database request could not be confirmed. Check your connection and reload before retrying; your last change may have reached the server.';

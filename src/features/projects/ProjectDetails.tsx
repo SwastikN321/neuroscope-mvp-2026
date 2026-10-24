@@ -8,6 +8,8 @@ import { getProject, deleteProject, type ResearchProject } from './api';
 import { useProjectResource } from './useProjectResource';
 import { ProjectForm } from './ProjectForm';
 import './projects.css';
+import { cloudEnabled } from '../cloud/api';
+import { ProjectRecordings } from '../cloud/ProjectRecordings';
 export default function ProjectDetails() {
   const { user } = useAuth();
   const { projectId = '' } = useParams();
@@ -104,26 +106,31 @@ function ProjectContent({
             <dd>{new Date(project.updated_at).toLocaleString()}</dd>
           </dl>
         </section>
-        <aside className="project-next">
-          <span className="account-eyebrow">THE NEXT STEP</span>
-          <h2>Explore the signal.</h2>
-          <p>
-            Open the EEG workspace to explore a synthetic example or a local
-            EDF. Recordings and annotations are not linked to this project yet.
-          </p>
-          <Link to="/app">Open EEG workspace ↗</Link>
-          <p className="project-hint">
-            Export workspace changes before leaving. Cloud recording storage is
-            not available.
-          </p>
-        </aside>
+        {!cloudEnabled && (
+          <aside className="project-next">
+            <span className="account-eyebrow">THE NEXT STEP</span>
+            <h2>Explore the signal.</h2>
+            <p>
+              Open the EEG workspace to explore a synthetic example or a local
+              EDF. Recordings and annotations are not linked to this project
+              yet.
+            </p>
+            <Link to="/app">Open EEG workspace ↗</Link>
+            <p className="project-hint">
+              Export workspace changes before leaving. Cloud recording storage
+              is not available.
+            </p>
+          </aside>
+        )}
       </div>
+      {cloudEnabled && <ProjectRecordings projectId={project.id} />}
       <section className="project-delete">
         <div>
           <h2>Delete project</h2>
           <p>
             Permanently remove this project’s name and description from your
-            account.
+            account. Delete its cloud recordings and complete any pending
+            cleanup first.
           </p>
         </div>
         <Button variant="text" onClick={() => setDeleting(true)}>

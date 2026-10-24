@@ -49,3 +49,53 @@ The default is localhost:8001. The existing local-only EEG backend stays on loca
 - 17 isolated PostgreSQL checks exercise the proposed broker migration, old reservation revocation, owner/anonymous denial, direct Storage upload denial, trusted completion, project FK, quota release and uncertain-transfer retention.
 - 16 new broker integration tests use mocked Supabase HTTP plus real EDF parsing, window/extrema calculations and CSV exports. They cover two synthetic identities, every scientific endpoint's foreign-owner denial, cold reopen, deletion, invalid uploads, origin/auth/allowlist boundaries and failed transfer recovery.
 - These are not live two-user security tests. Live tests require the separately approved migration, backend secret setup and two real verified accounts. General release stays disabled until those tests pass.
+
+## Stage 2: project UI and native viewer adapter
+
+The project details page now has gated recording listing, upload progress/cancel, four-slot quota feedback, recovery entries, explicit deletion confirmation and links to `/app/recordings/:recordingId`. The protected cloud route adapts authenticated requests into the existing native-rate EDF data source and EEG workspace. Channels, inspection, zoom/pan, session annotations, annotation JSON, PNG and native CSV reuse the scientific viewer. Annotation persistence is **not** added. Cloud identity and recording identity key the route to avoid carrying UI state across accounts.
+
+Frontend opt-in for approved testing is `VITE_CLOUD_RECORDINGS_ENABLED=true`. During development, the fixed `/cloud-eeg` proxy points only to localhost:8001. Do not change the local-only `/local-eeg` API or deploy it. For a future hosted build, `VITE_CLOUD_API_ORIGIN` must be an exact HTTPS origin. Browser requests carry only the signed-in user's bearer, never the server key; the backend independently verifies Supabase Auth and the test-account allowlist. Frontend visibility does not confer authorization.
+
+The frontend and server release flags remain off in the prepared environment. Nothing has been publicly deployed. The additional migration in commit `7217a51` remains proposed, with SHA-256 `460e8107eb31e4209f69ec6f7a8932d4091ef3085c84437acfca42b0724f6a74`; subsequent UI and cleanup fixes do not change that SQL.
+
+### Measured local validation (2026-10-23)
+
+| Check                                                          | Result                                 | Environment                                                                         |
+| -------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------- |
+| Frontend suite                                                 | 188 tests pass                         | Vitest; cloud/Auth HTTP mocked                                                      |
+| Backend suite                                                  | 147 tests pass                         | Pytest, deterministic EDF and existing public PhysioNet fixtures; cloud HTTP mocked |
+| Proposed broker migration                                      | 17 checks pass                         | Isolated PGlite PostgreSQL, not live Supabase                                       |
+| Prior project / Storage policy regressions                     | 30 / 40 checks pass                    | Isolated baseline schemas; proposed migration additionally checked by broker suite  |
+| Ruff / formatting / ESLint / TypeScript                        | Pass                                   | Local source                                                                        |
+| Production build and artifact audit                            | Pass; 64 files, 12.81 MB               | Cloud disabled, development Auth environment overridden                             |
+| Existing viewer browser regression                             | Pass: channel toggle, zoom, pan, reset | Local browser, synthetic recording                                                  |
+| Existing signed-in dashboard                                   | Present; cloud UI remains hidden       | Live Auth session in local browser; no new cloud requests                           |
+| Cloud upload/reopen/delete in browser                          | **Pending**                            | Requires live prerequisites below                                                   |
+| Live two-account database and Storage isolation                | **Pending**                            | No substitute from mocked or isolated tests                                         |
+| Real 50 MB transfer, slow network, interrupted upload recovery | **Pending**                            | Must be measured before general release                                             |
+
+The first production audit intentionally failed when the development `.env.local` callback origin was included. It passed with the documented build overrides; the audit was not weakened and `.env.local` was not changed. Existing Vite large-chunk notices and one Starlette/httpx test deprecation warning remain. Neither establishes a runtime failure.
+
+Reproduction (use the repository's supported Node version):
+
+```sh
+VITE_SITE_URL= VITE_SUPABASE_URL= VITE_SUPABASE_PUBLISHABLE_KEY= VITE_CLOUD_RECORDINGS_ENABLED=false npm run check
+NEUROSCOPE_PUBLIC_EDF=work/backend/S001R01.edf NEUROSCOPE_PUBLIC_TASK_EDF=work/phase-3b3/S001R03.edf .venv-backend/bin/python -m pytest backend/tests -q
+.venv-backend/bin/ruff check backend
+.venv-backend/bin/ruff format --check backend
+```
+
+Without the optional downloaded public fixtures, the existing public-file tests skip; do not report them as executed. Test output and the synthetic viewer screenshot are in ignored `work/phase-4b2b/`.
+
+## Remaining live prerequisites and release blockers
+
+1. Explicit user approval for the **additional** exact broker migration above. Existing Phase 4B.2A approval does not cover it. Do not apply other migrations.
+2. Operator fills the ignored backend-only configuration with its secret key and the two verified account UUIDs, without disclosing credentials in chat. The agent prepared the file without replacing existing user values. Keep general release false.
+3. Second account signup/confirmation in a separate browser profile/private window; credentials and confirmation links remain user-controlled. Preserve the original account.
+4. Run allowlisted two-user live upload → refresh/cold reopen → native sample/CSV checks → deletion and quota release. Probe the other account's known recording IDs and Storage paths, direct reservation/upload/overwrite attempts, anonymous access, and project deletion with active/recovery rows. Record exact outcomes, including failures. Use only deterministic or licensed de-identified fixtures.
+5. Validate 50,000,000-byte boundary behavior and real transfer reliability, error recovery and owner cleanup. Existing local header-size rejection is not evidence that a near-limit remote transfer succeeds.
+6. After those pass, separately approve a production host for the **cloud-only** backend, exact HTTPS origins, secret injection, upload/time/resource caps and frontend URLs. Static Pages hosting alone cannot run the Python EEG service. Do not expose the existing unauthenticated local server.
+
+Current capacity is deliberately small: four slots per owner and twelve globally, including recovery records. This is a limited preview, not sufficient storage capacity for an unrestricted research service. Standard uploads are not resumable. For files beyond 50 MB, the simplest near-term option is a separately approved Supabase plan/bucket-limit upgrade with the same authorization model and new boundary tests; a second object-storage architecture is not implemented. Neither option is required to test the current 50 MB core path.
+
+Project deletion waits for all its recording objects and metadata rows to be safely removed. Uncertain uploads can hold quota and the project foreign key for up to one hour; owners must retry cleanup after the lease. There is no cleanup worker. Cache files are temporary, not guaranteed secure erasure. Crash/late-provider-completion behavior and hosted cleanup remain release blockers until explicitly tested. **Phase 4B.2B is not complete and general access must stay disabled.**

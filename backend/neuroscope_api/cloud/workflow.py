@@ -205,18 +205,22 @@ class CloudWorkflow:
                     while data := await joined(source.read, 65536):
                         yield data
 
-            response = await self.client.post(
-                self.config.cloud.url + "/storage/v1/object/eeg-recordings/" + reserved.object_path,
-                headers={
-                    "apikey": self.config.secret_key,
-                    "Content-Type": "application/octet-stream",
-                    "Content-Length": str(size),
-                    "x-upsert": "false",
-                },
-                content=chunks(),
-                timeout=120,
-                follow_redirects=False,
-            )
+            # httpx timeouts are per I/O operation; cap the entire remote transfer too.
+            async with asyncio.timeout(120):
+                response = await self.client.post(
+                    self.config.cloud.url
+                    + "/storage/v1/object/eeg-recordings/"
+                    + reserved.object_path,
+                    headers={
+                        "apikey": self.config.secret_key,
+                        "Content-Type": "application/octet-stream",
+                        "Content-Length": str(size),
+                        "x-upsert": "false",
+                    },
+                    content=chunks(),
+                    timeout=120,
+                    follow_redirects=False,
+                )
             if response.status_code not in (200, 201):
                 raise upstream_error()
             result = await self.rpc(

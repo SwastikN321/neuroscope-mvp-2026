@@ -5,6 +5,7 @@ import { listProjects } from './api';
 import { useProjectResource } from './useProjectResource';
 import { ProjectForm } from './ProjectForm';
 import './projects.css';
+import { cloudEnabled } from '../cloud/api';
 export function ProjectList() {
   const [creating, setCreating] = useState(false),
     [page, setPage] = useState(0);
@@ -23,8 +24,9 @@ export function ProjectList() {
         )}
       </div>
       <p className="project-hint">
-        A persistent place for your research plans. Project details are saved to
-        your account; cloud EEG storage is not available yet.
+        {cloudEnabled
+          ? 'Private research plans and EDF recordings, organized by project. Cloud access is available to approved test accounts during verification.'
+          : 'A persistent place for your research plans. Project details are saved to your account; cloud EEG storage is not available yet.'}
       </p>
       {creating ? (
         <ProjectForm

@@ -198,7 +198,11 @@ export function EEGWorkspace({
         </nav>
         <span className="eeg-session">
           <i />
-          {synthetic ? 'LOCAL DEMO' : 'LOCAL EDF'}
+          {synthetic
+            ? 'LOCAL DEMO'
+            : recording.storage === 'private-cloud'
+              ? 'PRIVATE CLOUD EDF'
+              : 'LOCAL EDF'}
         </span>
       </header>
       <div className="eeg-page-heading">

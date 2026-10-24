@@ -1,0 +1,92 @@
+.cloud-recordings {
+  margin-top: 1.5rem;
+}
+.cloud-recordings > p {
+  color: var(--color-text-muted, #99a7b1);
+  max-width: 72ch;
+  line-height: 1.6;
+}
+.cloud-quota {
+  font-variant-numeric: tabular-nums;
+}
+.cloud-upload {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-block: 1px solid #23313b;
+}
+.cloud-upload label {
+  display: grid;
+  gap: 0.6rem;
+  font-size: 0.875rem;
+}
+.cloud-upload input {
+  background: #0b131b;
+  border: 1px solid #344451;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  color: #e5eef4;
+  min-width: 0;
+  width: 100%;
+}
+.cloud-upload p {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+  color: #9cabb6;
+}
+.cloud-upload progress {
+  width: 100%;
+  accent-color: #8cd9dc;
+}
+.cloud-list {
+  list-style: none;
+  padding: 0;
+}
+.cloud-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.3rem 0;
+  border-bottom: 1px solid #23313b;
+}
+.cloud-list strong,
+.cloud-list span,
+.cloud-list small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.cloud-list span,
+.cloud-list small {
+  color: #a8b6c1;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+}
+.cloud-list a {
+  color: #a0e4e4;
+  white-space: nowrap;
+}
+.cloud-confirm {
+  border: 1px solid #9d6f69;
+  border-radius: 0.8rem;
+  padding: 1.4rem;
+  margin-top: 1rem;
+}
+.cloud-confirm p {
+  max-width: 70ch;
+  margin-block: 1rem;
+  line-height: 1.6;
+}
+.cloud-confirm button {
+  margin: 0.4rem 0.5rem 0.4rem 0;
+}
+@media (max-width: 680px) {
+  .cloud-upload {
+    grid-template-columns: 1fr;
+  }
+  .cloud-list li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
