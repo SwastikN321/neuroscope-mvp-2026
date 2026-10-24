@@ -178,7 +178,10 @@ describe('Project UI with mocked requests; security tested separately in Postgre
     await userEvent.click(
       screen.getByRole('button', { name: 'Permanently delete' }),
     );
-    expect(await screen.findByRole('alert')).toHaveTextContent('Delete failed');
+    expect(await screen.findByText('Delete failed')).toHaveAttribute(
+  'role',
+  'alert',
+);
     expect(router.state.location.pathname).toContain(project.id);
     await userEvent.click(
       screen.getByRole('button', { name: 'Permanently delete' }),
