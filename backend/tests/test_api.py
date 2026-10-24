@@ -236,7 +236,13 @@ def test_ttl(tmp_path, edf):
         path = app.state.store.entries[key]["path"]
         time.sleep(0.25)
         assert not path.exists()
-        assert client.get(f"/api/recordings/{key}").status_code == 404
+        deadline = time.monotonic() + 1
+        while True:
+            status = client.get(f"/api/recordings/{key}").status_code
+            if status != 429 or time.monotonic() >= deadline:
+                break
+            time.sleep(0.02)
+        assert status == 404
 
 
 def test_local_security_and_protocol(service):

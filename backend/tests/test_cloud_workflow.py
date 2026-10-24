@@ -380,7 +380,7 @@ def test_remote_upload_has_total_deadline_and_keeps_recovery_slot(cloud, monkeyp
 
 def test_cloud_duration_cap_checked_before_remote_reservation(cloud):
     client, upstream, app, tmp = cloud
-    data = make_edf(tmp / "long.edf", record_seconds=60, records=1441).read_bytes()
+    data = make_edf(tmp / "long.edf", record_seconds=86401, records=1).read_bytes()
     result = client.post(
         "/api/cloud/projects/" + P + "/recordings",
         content=data,

@@ -31,6 +31,6 @@ Three expired synthetic near-limit recovery records were removed through the exi
 
 ## Verification scope
 
-Before the final deployment commit, run only the deployment-critical configuration test, frontend production build, backend cloud/security tests, formatter/linter checks, and local `/healthz` startup probe. Hosted authentication and routing checks remain pending until the user authorizes publication and stable origins exist.
+On October 24, `npm run check` passed: 191 frontend tests, 87 local PostgreSQL security checks, lint, formatting, deployment configuration, TypeScript and the audited 64-file production build. The backend passed 157 tests and Ruff lint/format checks. The separate cloud-only server started with fake test configuration and returned `{"status":"ok"}` from `/healthz` on localhost. No real Supabase credentials were used in that startup probe. Hosted authentication and routing checks remain pending until the user authorizes publication and stable origins exist.
 
 This report establishes reproducible software behavior, not clinical validation, diagnostic accuracy, uptime, or medical-device suitability.
