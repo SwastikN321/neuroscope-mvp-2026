@@ -149,7 +149,6 @@
   .cinematic-actions {
     display: flex;
     align-items: center;
-    margin-top: 25px;
   }
   .cinematic-actions .button--primary {
     background: #dfebe9;
@@ -741,12 +740,6 @@
 }
 
 /* Product positioning around the preserved sculpture and camera choreography. */
-.cinematic-content .hero-positioning {
-  max-width: 420px;
-  font-size: 14px;
-  line-height: 1.85;
-  color: #aebfcc;
-}
 .cinematic-actions .button--text {
   color: #bed1da;
   padding-inline: 8px;
@@ -788,10 +781,6 @@
     margin-right: 0;
     font-size: 11px;
   }
-  .cinematic-content .hero-positioning {
-    max-width: 360px;
-    font-size: 13px;
-  }
 }
 @media (max-width: 780px) {
   .site-header--immersive .header-cta {
@@ -813,11 +802,6 @@
   }
   .cinematic-content {
     bottom: 118px;
-  }
-  .cinematic-content .hero-positioning {
-    max-width: 420px;
-    font-size: 12px;
-    line-height: 1.75;
   }
   .cinematic-content .signal-status {
     font-size: 6.5px;
@@ -874,9 +858,6 @@
 
 /* Landscape tablets need a narrower reading column beside the existing anatomy. */
 @media (min-width: 781px) and (max-width: 1100px) and (min-aspect-ratio: 1/1) {
-  .cinematic-content .hero-positioning {
-    max-width: 340px;
-  }
   .hero-activity {
     bottom: 15%;
   }

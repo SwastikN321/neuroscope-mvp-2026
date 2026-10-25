@@ -133,6 +133,12 @@ describe('Hero alternatives', () => {
       screen.getByRole('link', { name: 'Try NeuroScope' }),
     ).toHaveAttribute('href', '/app');
     expect(
+      screen.getByRole('link', { name: 'Explore the platform' }),
+    ).toHaveAttribute('href', '/#product');
+    expect(
+      screen.queryByText(/Explore real EEG recordings directly/),
+    ).not.toBeInTheDocument();
+    expect(
       screen.queryByRole('button', { name: 'Activate signal' }),
     ).not.toBeInTheDocument();
     expect(

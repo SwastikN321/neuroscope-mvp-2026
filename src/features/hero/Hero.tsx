@@ -264,11 +264,6 @@ export function Hero() {
         </div>
         <div data-hero-copy className="cinematic-content page-container">
           <div>
-            <p className="hero-positioning">
-              Explore real EEG recordings directly in your browser. Visualize
-              neural signals, annotate meaningful events, and export your
-              findings.
-            </p>
             <div className="cinematic-actions">
               <ButtonLink to="/app">
                 Try NeuroScope <Icon name="arrow" />
